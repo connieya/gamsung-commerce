@@ -10,27 +10,24 @@ public class MySqlTestContainersConfig {
     private static final MySQLContainer<?> mySqlContainer;
 
     static {
-<<<<<<< HEAD
         mySqlContainer = new MySQLContainer<>(DockerImageName.parse("mysql:8.0"))
-=======
-        mySqlContainer = new MySQLContainer<>(DockerImageName.parse("mysql:5.7"))
->>>>>>> e486a7c (Initial commit)
-            .withDatabaseName("loopers")
-            .withUsername("test")
-            .withPassword("test")
-            .withExposedPorts(3306)
-            .withCommand(
-                "--character-set-server=utf8mb4",
-                "--collation-server=utf8mb4_general_ci",
-                "--skip-character-set-client-handshake"
-            );
+
+                .withDatabaseName("loopers")
+                .withUsername("test")
+                .withPassword("test")
+                .withExposedPorts(3306)
+                .withCommand(
+                        "--character-set-server=utf8mb4",
+                        "--collation-server=utf8mb4_general_ci",
+                        "--skip-character-set-client-handshake"
+                );
         mySqlContainer.start();
 
         String mySqlJdbcUrl = String.format(
-            "jdbc:mysql://%s:%d/%s",
-            mySqlContainer.getHost(),
-            mySqlContainer.getFirstMappedPort(),
-            mySqlContainer.getDatabaseName()
+                "jdbc:mysql://%s:%d/%s",
+                mySqlContainer.getHost(),
+                mySqlContainer.getFirstMappedPort(),
+                mySqlContainer.getDatabaseName()
         );
 
         System.setProperty("datasource.mysql-jpa.main.jdbc-url", mySqlJdbcUrl);

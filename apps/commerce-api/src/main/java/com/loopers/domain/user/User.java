@@ -1,15 +1,17 @@
 package com.loopers.domain.user;
 
 import com.loopers.domain.common.SelfValidating;
+import com.loopers.domain.user.vo.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
@@ -23,17 +25,44 @@ public class User extends SelfValidating<User> {
     @NotBlank
     private String email;
 
-    private BirthDate birthDay;
+    @NotNull
+    private BirthDate birthDate;
 
-    public static User create(String id, String email, String birthDay) {
+    @NotNull(message = "성별은 필수입니다.")
+    private Gender gender;
+
+    @Builder
+    public User(String id, String email, BirthDate birthDate, Gender gender) {
+        this.id = id;
+        this.email = email;
+        this.birthDate = birthDate;
+        this.gender = gender;
+
+        this.validateSelf();
+    }
+
+    public static User create(String id, String email, String birthDate, Gender gender) {
         User user = new User();
 
         user.id = id;
         user.email = email;
-        user.birthDay = new BirthDate(birthDay);
+        user.birthDate = new BirthDate(birthDate);
+        user.gender = gender;
 
         user.validateSelf();
 
         return user;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -111,6 +112,14 @@ public class ApiControllerAdvice {
     public ResponseEntity<ApiResponse<?>> handle(Throwable e) {
         log.error("Exception : {}", e.getMessage(), e);
         return failureResponse(ErrorType.INTERNAL_ERROR, null);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException e) {
+        String message = e.getConstraintViolations().stream()
+            .map(violation -> String.format("'%s' %s", violation.getPropertyPath(), violation.getMessage()))
+            .collect(Collectors.joining(", "));
+        return failureResponse(ErrorType.BAD_REQUEST, message);
     }
 
     private String extractMissingParameter(String message) {

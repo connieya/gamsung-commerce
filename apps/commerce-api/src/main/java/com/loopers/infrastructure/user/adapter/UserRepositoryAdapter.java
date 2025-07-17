@@ -1,6 +1,6 @@
 package com.loopers.infrastructure.user.adapter;
 
-import com.loopers.application.user.port.out.UserRepository;
+import com.loopers.application.user.port.out.UserRepositoryOut;
 import com.loopers.domain.user.User;
 import com.loopers.infrastructure.user.entity.UserEntity;
 import com.loopers.infrastructure.user.jpa.UserJpaRepository;
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserRepositoryImpl implements UserRepository {
+public class UserRepositoryAdapter implements UserRepositoryOut {
 
     private final UserJpaRepository userJpaRepository;
 

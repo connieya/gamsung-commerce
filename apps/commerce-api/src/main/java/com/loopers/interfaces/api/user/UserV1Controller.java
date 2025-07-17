@@ -19,13 +19,13 @@ public class UserV1Controller implements UserV1ApiSpec {
     @PostMapping
     @Override
     public ApiResponse<UserV1Dto.UserResponse> register(@RequestBody UserV1Dto.UserRequest userRequest) {
-        UserRegisterResult userRegisterResult = userUseCase.register(UserRegisterCommand.of(userRequest.userId(), userRequest.email(), userRequest.birthDate() ,userRequest.gender()));
+        UserRegisterResult userRegisterResult = userUseCase.register(UserRegisterCommand.of(userRequest.userId(), userRequest.email(), userRequest.birthDate(), userRequest.gender()));
         return ApiResponse.success(UserV1Dto.UserResponse.from(userRegisterResult));
     }
 
     @GetMapping("/me")
     @Override
-    public ApiResponse<UserV1Dto.UserResponse> getUser(@RequestHeader("X-USER-ID") String userId) {
+    public ApiResponse<UserV1Dto.UserResponse> getUser(@RequestHeader(value = "X-USER-ID", required = true) String userId) {
         UserInfoResult user = userUseCase.getUser(userId);
         return ApiResponse.success(UserV1Dto.UserResponse.from(user));
     }

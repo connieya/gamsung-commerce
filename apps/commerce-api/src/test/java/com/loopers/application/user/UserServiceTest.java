@@ -5,7 +5,7 @@ import com.loopers.application.user.port.in.UserInfoResult;
 import com.loopers.application.user.port.in.UserRegisterCommand;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
-import com.loopers.infrastructure.user.adapter.UserRepositoryImpl;
+import com.loopers.infrastructure.user.adapter.UserRepositoryAdapter;
 import com.loopers.infrastructure.user.entity.UserEntity;
 import com.loopers.infrastructure.user.jpa.UserJpaRepository;
 import org.assertj.core.api.Assertions;
@@ -33,12 +33,12 @@ class UserServiceTest {
     @Mock
     private UserJpaRepository userJpaRepository;
 
-    private UserRepositoryImpl userRepositoryImpl;
+    private UserRepositoryAdapter userRepositoryAdapter;
 
     @BeforeEach
     void setUp() {
-        userRepositoryImpl = spy(new UserRepositoryImpl(userJpaRepository));
-        userService = new UserService(userRepositoryImpl);
+        userRepositoryAdapter = spy(new UserRepositoryAdapter(userJpaRepository));
+        userService = new UserService(userRepositoryAdapter);
     }
 
     @Test
@@ -52,7 +52,7 @@ class UserServiceTest {
 
         UserRegisterCommand userRegisterCommand = UserRegisterCommand.of(id, email, birthDate, gender);
 
-        doReturn(Optional.of(User.create(id, email, birthDate, gender))).when(userRepositoryImpl).findByUserId(id);
+        doReturn(Optional.of(User.create(id, email, birthDate, gender))).when(userRepositoryAdapter).findByUserId(id);
         // when & then
         Assertions.assertThatThrownBy(() -> {
             userService.register(userRegisterCommand);
@@ -71,14 +71,14 @@ class UserServiceTest {
         Gender gender = Gender.MALE;
         UserRegisterCommand userRegisterCommand = UserRegisterCommand.of(id, email, birthDate, gender);
 
-        doReturn(Optional.empty()).when(userRepositoryImpl).findByUserId(id);
+        doReturn(Optional.empty()).when(userRepositoryAdapter).findByUserId(id);
         doReturn(UserEntity.fromDomain(User.create(id, email, birthDate, gender))).when(userJpaRepository).save(any(UserEntity.class));
         // when
         userService.register(userRegisterCommand);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         // then
-        verify(userRepositoryImpl, times(1)).save(userCaptor.capture());
+        verify(userRepositoryAdapter, times(1)).save(userCaptor.capture());
     }
 
     @Test
@@ -88,7 +88,7 @@ class UserServiceTest {
         String userId = "geonhee77";
 
         // when
-        doReturn(Optional.of(User.create(userId, "geonhee77@naver.com", "1994-09-26", Gender.MALE))).when(userRepositoryImpl).findByUserId(userId);
+        doReturn(Optional.of(User.create(userId, "geonhee77@naver.com", "1994-09-26", Gender.MALE))).when(userRepositoryAdapter).findByUserId(userId);
         UserInfoResult user = userService.getUser(userId);
 
         // then
@@ -105,7 +105,7 @@ class UserServiceTest {
         String userId = "geonhee77";
 
         // when
-        doReturn(Optional.empty()).when(userRepositoryImpl).findByUserId(userId);
+        doReturn(Optional.empty()).when(userRepositoryAdapter).findByUserId(userId);
 
         // then
         Assertions.assertThatThrownBy(() -> {

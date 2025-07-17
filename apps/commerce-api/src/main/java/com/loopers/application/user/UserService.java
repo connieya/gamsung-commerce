@@ -5,7 +5,7 @@ import com.loopers.application.user.port.in.UserInfoResult;
 import com.loopers.application.user.port.in.UserRegisterCommand;
 import com.loopers.application.user.port.in.UserRegisterResult;
 import com.loopers.application.user.port.in.UserUseCase;
-import com.loopers.application.user.port.out.UserRepository;
+import com.loopers.application.user.port.out.UserRepositoryOut;
 import com.loopers.domain.user.User;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService implements UserUseCase {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryOut userRepository;
 
     @Override
     @Transactional
@@ -34,9 +34,7 @@ public class UserService implements UserUseCase {
     @Override
     @Transactional(readOnly = true)
     public UserInfoResult getUser(String userId) {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> {
-            throw new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND);
-        });
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 
         return UserInfoResult.of(user.getId(), user.getEmail(), user.getBirthDate().getBirthDate(), user.getGender());
     }

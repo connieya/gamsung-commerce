@@ -56,7 +56,8 @@ class UserTest {
         String birthDay = "940926";
 
         // when & then
-        assertThatThrownBy(() -> User.create(id, email, birthDay, Gender.MALE))
+        assertThatThrownBy(() -> User.create(id, email, birthDay, Gender.MALE
+        ))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("생년월일은");
 

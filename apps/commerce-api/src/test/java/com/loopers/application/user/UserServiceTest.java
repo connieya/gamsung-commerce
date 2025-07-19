@@ -3,6 +3,7 @@ package com.loopers.application.user;
 import com.loopers.application.user.exception.UserException;
 import com.loopers.application.user.port.in.UserInfoResult;
 import com.loopers.application.user.port.in.UserRegisterCommand;
+import com.loopers.application.user.port.in.UserRegisterResult;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import com.loopers.infrastructure.user.adapter.UserRepositoryAdapter;
@@ -41,6 +42,7 @@ class UserServiceTest {
         userService = new UserService(userRepositoryAdapter);
     }
 
+
     @Test
     @DisplayName("이미 가입된 ID 로 회원가입 시도 시, 실패한다.")
     void registerFail() {
@@ -71,14 +73,19 @@ class UserServiceTest {
         Gender gender = Gender.MALE;
         UserRegisterCommand userRegisterCommand = UserRegisterCommand.of(id, email, birthDate, gender);
 
-        doReturn(Optional.empty()).when(userRepositoryAdapter).findByUserId(id);
+//        doReturn(Optional.empty()).when(userRepositoryAdapter).findByUserId(id);
         doReturn(UserEntity.fromDomain(User.create(id, email, birthDate, gender))).when(userJpaRepository).save(any(UserEntity.class));
+//        doReturn((User.create(id, email, birthDate, gender))).when(userRepositoryAdapter).save(any(User.class));
         // when
-        userService.register(userRegisterCommand);
+        UserRegisterResult userRegisterResult = userService.register(userRegisterCommand);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         // then
         verify(userRepositoryAdapter, times(1)).save(userCaptor.capture());
+
+
+        assertThat(userRegisterResult.id()).isEqualTo(id);
+        assertThat(userRegisterResult.email()).isEqualTo(email);
     }
 
     @Test

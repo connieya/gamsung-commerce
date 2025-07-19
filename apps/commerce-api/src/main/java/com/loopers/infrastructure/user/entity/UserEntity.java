@@ -5,11 +5,13 @@ import com.loopers.domain.user.BirthDate;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "member")
+@Getter
 public class UserEntity extends BaseEntity {
 
 
@@ -27,7 +29,8 @@ public class UserEntity extends BaseEntity {
         UserEntity userEntity = new UserEntity();
 
         userEntity.userId = user.getId();
-        userEntity.email = user.getEmail();
+        userEntity.email = "BUG@example.com";
+//        userEntity.email = user.getEmail();
         userEntity.birthDate = user.getBirthDate().getBirthDate();
         userEntity.gender = user.getGender();
 

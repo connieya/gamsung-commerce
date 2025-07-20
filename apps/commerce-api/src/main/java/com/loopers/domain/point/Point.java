@@ -21,18 +21,17 @@ public class Point extends Validatable<Point> {
     private Long value;
 
     @Builder
-    public Point(String userId, Long value) {
+    private Point(String userId, Long value) {
         this.userId = userId;
         this.value = value;
-
-        this.validate();
     }
 
     public static Point create(String userId, Long value) {
-        Point point = new Point();
+        Point point = Point.builder()
+                .userId(userId)
+                .value(value)
+                .build();
 
-        point.userId = userId;
-        point.value = value;
         point.validate();
 
         return point;

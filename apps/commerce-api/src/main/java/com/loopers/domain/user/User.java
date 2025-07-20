@@ -33,25 +33,22 @@ public class User extends Validatable<User> {
     private Gender gender;
 
     @Builder
-    public User(String id, String email, BirthDate birthDate, Gender gender) {
+    private User(String id, String email, BirthDate birthDate, Gender gender) {
         this.id = id;
         this.email = email;
         this.birthDate = birthDate;
         this.gender = gender;
-
-        this.validate();
     }
 
     public static User create(String id, String email, String birthDate, Gender gender) {
-        User user = new User();
-
-        user.id = id;
-        user.email = email;
-        user.birthDate = new BirthDate(birthDate);
-        user.gender = gender;
+        User user = User.builder()
+                .id(id)
+                .email(email)
+                .birthDate(new BirthDate(birthDate))
+                .gender(gender)
+                .build();
 
         user.validate();
-
         return user;
     }
 

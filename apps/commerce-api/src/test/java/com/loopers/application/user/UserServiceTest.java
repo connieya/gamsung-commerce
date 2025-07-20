@@ -71,7 +71,6 @@ class UserServiceTest {
         Gender gender = Gender.MALE;
         UserRegisterCommand userRegisterCommand = UserRegisterCommand.of(id, email, birthDate, gender);
 
-        doReturn(Optional.empty()).when(userRepositoryAdapter).findByUserId(id);
         doReturn(UserEntity.fromDomain(User.create(id, email, birthDate, gender))).when(userJpaRepository).save(any(UserEntity.class));
         // when
         userService.register(userRegisterCommand);

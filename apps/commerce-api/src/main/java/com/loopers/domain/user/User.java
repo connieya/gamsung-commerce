@@ -1,6 +1,6 @@
 package com.loopers.domain.user;
 
-import com.loopers.domain.common.SelfValidating;
+import com.loopers.domain.common.Validatable;
 import com.loopers.domain.user.vo.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -15,7 +15,7 @@ import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class User extends SelfValidating<User> {
+public class User extends Validatable<User> {
 
     @Pattern(regexp = "^[a-zA-Z0-9]{1,10}$", message = "ID는 영문 및 숫자 10자 이내여야 합니다.")
     @NotBlank
@@ -38,7 +38,7 @@ public class User extends SelfValidating<User> {
         this.birthDate = birthDate;
         this.gender = gender;
 
-        this.validateSelf();
+        this.validate();
     }
 
     public static User create(String id, String email, String birthDate, Gender gender) {
@@ -49,7 +49,7 @@ public class User extends SelfValidating<User> {
         user.birthDate = new BirthDate(birthDate);
         user.gender = gender;
 
-        user.validateSelf();
+        user.validate();
 
         return user;
     }

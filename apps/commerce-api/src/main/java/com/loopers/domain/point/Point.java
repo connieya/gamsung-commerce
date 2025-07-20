@@ -1,6 +1,6 @@
 package com.loopers.domain.point;
 
-import com.loopers.domain.common.SelfValidating;
+import com.loopers.domain.common.Validatable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class Point extends SelfValidating<Point> {
+public class Point extends Validatable<Point> {
 
     @NotBlank
     private String userId;
@@ -22,7 +22,7 @@ public class Point extends SelfValidating<Point> {
         this.userId = userId;
         this.value = value;
 
-        this.validateSelf();
+        this.validate();
     }
 
     public static Point create(String userId, Long value) {
@@ -30,7 +30,7 @@ public class Point extends SelfValidating<Point> {
 
         point.userId = userId;
         point.value = value;
-        point.validateSelf();
+        point.validate();
 
         return point;
     }

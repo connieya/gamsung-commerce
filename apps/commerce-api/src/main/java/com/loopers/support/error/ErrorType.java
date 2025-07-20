@@ -17,6 +17,9 @@ public enum ErrorType {
     USER_ALREADY_EXISTS(HttpStatus.CONFLICT, "User Already Exists", "이미 존재하는 사용자입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User Not Found", "존재하지 않는 사용자 입니다."),
 
+
+    // 포인트 관련 에러
+    POINT_INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "Point Invalid Charge Amount", "충전할 포인트는 양수여야 합니다."),
     ;
 
 

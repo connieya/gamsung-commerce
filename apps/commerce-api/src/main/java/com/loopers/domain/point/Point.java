@@ -1,8 +1,11 @@
 package com.loopers.domain.point;
 
+import com.loopers.application.point.exception.PointException;
 import com.loopers.domain.common.Validatable;
+import com.loopers.support.error.ErrorType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +17,7 @@ public class Point extends Validatable<Point> {
     @NotBlank
     private String userId;
 
-    @Positive
+    @PositiveOrZero
     private Long value;
 
     @Builder
@@ -36,6 +39,9 @@ public class Point extends Validatable<Point> {
     }
 
     public void charge(Long value) {
+        if (value <= 0) {
+            throw new PointException.PointInvalidChargeAmountException(ErrorType.POINT_INVALID_CHARGE_AMOUNT);
+        }
         this.value += value;
     }
 }

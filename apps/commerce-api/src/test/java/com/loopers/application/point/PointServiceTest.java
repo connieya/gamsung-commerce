@@ -1,5 +1,6 @@
 package com.loopers.application.point;
 
+import com.loopers.application.point.exception.PointException;
 import com.loopers.application.point.port.in.PointInfoResult;
 import com.loopers.application.user.exception.UserException;
 import com.loopers.domain.point.Point;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -114,9 +117,31 @@ class PointServiceTest {
 
             // then
             assertAll(
-                    ()-> assertThat(pointInfoResult.userId()).isEqualTo(userId),
-                    ()-> assertThat(pointInfoResult.value()).isEqualTo(60000L)
+                    () -> assertThat(pointInfoResult.userId()).isEqualTo(userId),
+                    () -> assertThat(pointInfoResult.value()).isEqualTo(60000L)
             );
         }
+
+        @DisplayName("충전할 포인트가 0이거나 음수면 PointInvalidChargeAmountException 예외가 발생한다.")
+        @ParameterizedTest
+        @ValueSource(longs = {
+                -0L,
+                -1,
+                -1000L,
+        })
+        void chargeFail_whenChargeValueIsZeroOrLess(Long value) {
+            // given
+            String userId = "geonhee";
+
+            // when
+            doReturn(Optional.of(Point.create(userId, 0L))).when(pointRepositoryAdapter).findByUserId(userId);
+
+            // then
+            assertThatThrownBy(() -> {
+                pointService.charge(userId, value);
+            }).isInstanceOf(PointException.PointInvalidChargeAmountException.class);
+
+        }
     }
+
 }

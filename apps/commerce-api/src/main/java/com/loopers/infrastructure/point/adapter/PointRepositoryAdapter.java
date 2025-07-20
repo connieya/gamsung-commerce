@@ -17,7 +17,6 @@ public class PointRepositoryAdapter implements PointRepositoryOut {
     private final PointJpaRepository pointJpaRepository;
 
 
-
     @Override
     public Optional<Point> findByUserId(String userId) {
         return pointJpaRepository.findByUserId(userId).map(PointEntity::toDomain);

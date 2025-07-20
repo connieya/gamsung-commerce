@@ -7,13 +7,14 @@ import java.util.Set;
 
 public abstract class Validatable<T> {
 
-    private final Validator validator;
+    private static final Validator validator;
 
-    public Validatable() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            validator = factory.getValidator();
-        }
+    static {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+
     }
+
 
     protected void validate() {
         Set<ConstraintViolation<T>> violations = validator.validate((T) this);

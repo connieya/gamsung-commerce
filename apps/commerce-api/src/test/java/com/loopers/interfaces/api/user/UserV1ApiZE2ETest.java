@@ -4,6 +4,7 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import com.loopers.infrastructure.user.entity.UserEntity;
 import com.loopers.infrastructure.user.jpa.UserJpaRepository;
+import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.*;
@@ -109,7 +110,7 @@ class UserV1ApiZE2ETest {
 
             String userId = "geonhee";
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add(ApiHeaders.USER_ID, userId);
 
 
             // when
@@ -131,7 +132,7 @@ class UserV1ApiZE2ETest {
             userJpaRepository.save(UserEntity.fromDomain(User.create("geonhee", "geonhee@naver.com", "1994-09-26", Gender.MALE)));
             String userId = "nonexistent";
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add(ApiHeaders.USER_ID, userId);
 
             ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
             };

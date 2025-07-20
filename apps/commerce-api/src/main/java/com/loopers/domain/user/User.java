@@ -1,6 +1,6 @@
 package com.loopers.domain.user;
 
-import com.loopers.domain.common.SelfValidating;
+import com.loopers.domain.common.Validatable;
 import com.loopers.domain.user.vo.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -11,11 +11,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-public class User extends SelfValidating<User> {
+public class User extends Validatable<User> {
 
     @Pattern(regexp = "^[a-zA-Z0-9]{1,10}$", message = "ID는 영문 및 숫자 10자 이내여야 합니다.")
     @NotBlank
@@ -32,37 +30,23 @@ public class User extends SelfValidating<User> {
     private Gender gender;
 
     @Builder
-    public User(String id, String email, BirthDate birthDate, Gender gender) {
+    private User(String id, String email, BirthDate birthDate, Gender gender) {
         this.id = id;
         this.email = email;
         this.birthDate = birthDate;
         this.gender = gender;
-
-        this.validateSelf();
     }
 
     public static User create(String id, String email, String birthDate, Gender gender) {
-        User user = new User();
+        User user = User.builder()
+                .id(id)
+                .email(email)
+                .birthDate(new BirthDate(birthDate))
+                .gender(gender)
+                .build();
 
-        user.id = id;
-        user.email = email;
-        user.birthDate = new BirthDate(birthDate);
-        user.gender = gender;
-
-        user.validateSelf();
-
+        user.validate();
         return user;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
 }

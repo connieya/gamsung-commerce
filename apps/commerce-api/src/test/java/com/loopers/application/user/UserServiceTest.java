@@ -41,6 +41,7 @@ class UserServiceTest {
         userService = new UserService(userRepositoryAdapter);
     }
 
+
     @Test
     @DisplayName("이미 가입된 ID 로 회원가입 시도 시, 실패한다.")
     void registerFail() {

@@ -4,6 +4,8 @@ import com.loopers.application.user.exception.UserException;
 import com.loopers.application.user.port.in.UserInfoResult;
 import com.loopers.application.user.port.in.UserRegisterCommand;
 import com.loopers.domain.user.User;
+import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.domain.user.fixture.UserRegisterCommandFixture;
 import com.loopers.domain.user.vo.Gender;
 import com.loopers.infrastructure.user.adapter.UserRepositoryAdapter;
 import com.loopers.infrastructure.user.entity.UserEntity;
@@ -51,17 +53,15 @@ class UserServiceTest {
         @DisplayName("이미 가입된 ID 로 회원가입 시도 시, 실패한다.")
         void registerFail() {
             // given
-            String id = "geonhee77";
-            String email = "geonhee77@naver.com";
-            String birthDate = "1990-01-01";
-            Gender gender = Gender.MALE;
+            UserRegisterCommand command = UserRegisterCommandFixture.complete().create();
 
-            UserRegisterCommand userRegisterCommand = UserRegisterCommand.of(id, email, birthDate, gender);
 
-            doReturn(Optional.of(User.create(id, email, birthDate, gender))).when(userRepositoryAdapter).findByUserId(id);
+            doReturn(Optional.of(User.create(command.getUserId(), command.getEmail(), command.getBirthDate(), command.getGender())))
+                    .when(userRepositoryAdapter).findByUserId(command.getUserId());
+
             // when & then
             Assertions.assertThatThrownBy(() -> {
-                userService.register(userRegisterCommand);
+                userService.register(command);
             }).isInstanceOf(UserException.UserAlreadyExistsException.class);
 
         }
@@ -71,15 +71,13 @@ class UserServiceTest {
         @DisplayName("회원 가입시 User 저장이 수행된다.")
         void registerSuccess() {
             // given
-            String id = "geonhee77";
-            String email = "geonhee77@naver.com";
-            String birthDate = "1990-01-01";
-            Gender gender = Gender.MALE;
-            UserRegisterCommand userRegisterCommand = UserRegisterCommand.of(id, email, birthDate, gender);
+            UserRegisterCommand command = UserRegisterCommandFixture.complete().create();
+            User user = User.create(command.getUserId(), command.getEmail(), command.getBirthDate(), command.getGender());
 
-            doReturn(UserEntity.fromDomain(User.create(id, email, birthDate, gender))).when(userJpaRepository).save(any(UserEntity.class));
+            doReturn(UserEntity.fromDomain(user))
+                    .when(userJpaRepository).save(any(UserEntity.class));
             // when
-            userService.register(userRegisterCommand);
+            userService.register(command);
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             // then
@@ -94,16 +92,16 @@ class UserServiceTest {
         @DisplayName("해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다.")
         void getUserSuccess() {
             // given
-            String userId = "geonhee77";
+            User user = UserFixture.complete().create();
 
             // when
-            doReturn(Optional.of(User.create(userId, "geonhee77@naver.com", "1994-09-26", Gender.MALE))).when(userRepositoryAdapter).findByUserId(userId);
-            UserInfoResult user = userService.getUser(userId);
+            doReturn(Optional.of(user)).when(userRepositoryAdapter).findByUserId(user.getId());
+            UserInfoResult userInfoResult = userService.getUser(user.getId());
 
             // then
-            assertThat(user.getUserId()).isEqualTo(userId);
-            assertThat(user.getEmail()).isEqualTo("geonhee77@naver.com");
-            assertThat(user.getBirthdate()).isEqualTo(LocalDate.of(1994, 9, 26));
+            assertThat(userInfoResult.getUserId()).isEqualTo(user.getId());
+            assertThat(userInfoResult.getEmail()).isEqualTo(user.getEmail());
+            assertThat(userInfoResult.getBirthdate()).isEqualTo(user.getBirthDate().getBirthDate());
 
         }
 

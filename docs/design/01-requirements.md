@@ -24,6 +24,8 @@
 |잘못 된 정렬 값 | 지원하지 않는 정렬 파라미터가 입력 된 경우 | 400 Bad Request | InvalidSortParameterException |
 |잘못된 페이지 값 | 페이지나 번호나 사이즈가 음수인 경우 | 400 Bad Request | InvalidPageParameterException |
 
+<br/>
+
 ### 상품 상세
 
 ⭕️ Happy Path
@@ -43,8 +45,6 @@
 |잘못된 상품 ID | 상품 ID가 숫자가 아닌 경우 | 400 Bad Request | InvalidProductIdException |
 
 ****
-
-<br/><br/>
 
 ## 🅱️ 브랜드
 
@@ -66,10 +66,6 @@
 |브랜드 미존재 | 존재하지 않는 브랜드 ID를 조회하려는 경우 | 404 Not Found | BrandNotFoundException |
 
 *****
-
-
-<br/><br/>
-
 
 ## ❤️ 좋아요
 
@@ -96,6 +92,7 @@
 |좋아요 중복| 이미 좋아요를 누른 상품에 대해 좋아요를 다시 누른 경우 | 409 Conflict | LikeAlreadyExistsException |
 |상품 미존재| 존재하지 않는 상품에 대해 좋아요를 누르려는 경우 | 404 Not Found | ProductNotFoundException |
 
+<br/>
 
 ### 상품 좋아요 취소
 
@@ -119,6 +116,7 @@
 |좋아요 미존재| 이미 좋아요를 취소한 상품에 대해 좋아요 취소를 다시 시도한 경우 | 409 Conflict | LikeNotFoundException |
 |상품 미존재 | 존재하지 않는 상품에 대해 좋아요 취소를 시도하는 경우 | 404 Not Found | ProductNotFoundException |
 
+<br/>
 
 ### 내가 좋아요 한 상품 목록 조회
 
@@ -139,8 +137,6 @@
 |인증 실패| 미 로그인        | 401 Unauthorized | AuthenticationException |
 
 ***
-
-<br/><br/>
 
 ## 💰 주문 
 
@@ -172,6 +168,8 @@
 |주문 실패 | 주문 생성 중 다른 오류가 발생한 경우 | 500 Internal Server Error | Exception|                  |                     |
 
 
+<br/>
+
 ### 유저의 주문 목록 조회
 
 ⭕️ Happy Path
@@ -194,6 +192,7 @@
 | 권한 없음 | 다른 사용자의 주문 목록을 조회하려는 경우 | 403 Forbidden | AuthorizationException |
 
 
+<br/>
 
 ### 주문 상세 조회
 

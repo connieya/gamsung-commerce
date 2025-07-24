@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api.point;
 
+import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +17,7 @@ public interface PointV1ApiSpec {
     )
     ApiResponse<PointV1Dto.PointResponse> getPoint(
             @Schema(name = "유저 ID", description = "포인트를 조회할 유저의 ID", example = "user123")
-            @RequestHeader("X-USER-ID") String userId
+            @RequestHeader(ApiHeaders.USER_ID) String userId
     );
 
     @Operation(
@@ -25,6 +26,6 @@ public interface PointV1ApiSpec {
     )
     ApiResponse<PointV1Dto.PointResponse> chargePoint(
         @Schema(name = "유저 ID , 충전할 포인트 " , description = "충전할 포인트")
-        @RequestHeader("X-USER-ID") String userId, @RequestBody PointV1Dto.PointRequest request
+        @RequestHeader(ApiHeaders.USER_ID) String userId, @RequestBody PointV1Dto.PointRequest request
     );
 }

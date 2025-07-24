@@ -6,6 +6,48 @@
 classDiagram
     direction LR
 
+
+    class Product {
+        -Long id
+        -String name
+        -Long price
+        -Long stockQuantity
+        -Brand brand
+    }
+
+    class Brand {
+        -Long id
+        -String name
+        -String description // 브랜드 소개글 추가 가능성
+    }
+
+    class ProductLike {
+        -Long id
+        -User user
+        -Product product
+    }
+
+ 
+    class ProductService {
+        +getProductDetail(productId, userId) ProductDetailDto // 특정 상품 상세 조회 (사용자 좋아요 여부 포함)
+        +getProducts(query: ProductQuery, userId) List~ProductDetailDto~ // 상품 목록 조회 (정렬, 필터링, 사용자 좋아요 여부 포함)
+        +getBrandDetail(brandId) Brand // 브랜드 상세 조회 (해당 브랜드 상품 목록 포함)
+    }
+
+    Product "N" -- "1" Brand : 소속
+    Product "1" -- "N" ProductLike : 참조
+
+    ProductService ..> Product : 상품 정보 조회
+    ProductService ..> Brand : 브랜드 정보 조회
+    ProductService ..> ProductLike : 좋아요 수 조회/사용자 좋아요 여부 확인
+  
+
+```
+
+```mermaid
+classDiagram
+    direction LR
+
     class Product {
         -Long id
         -String name
@@ -87,28 +129,18 @@ classDiagram
         -Product product
     }
 
-    class ProductLikeRepository {
-        <<interface>>
-        +save(productLike: ProductLike) ProductLike
-        +findByUserAndProduct(user: User, product: Product) Optional~ProductLike~
-        +delete(productLike: ProductLike) void
-        +findAllByUser(user: User) List~ProductLike~
+    class ProductLikeService {
+        +addLike(userId, productId) ProductLike // 좋아요 요청
+        +removeLike(userId, productId) void // 좋아요 취소
+        +getLikesByUser(userId) List~ProductLike~ // 좋아요 목록 조회
     }
 
-    class LikeService {
-        -ProductLikeRepository productLikeRepository
-        +addLike(userId, productId) ProductLike
-        +removeLike(userId, productId) void
-        +getLikesByUser(userId) List~ProductLike~
-    }
+    User "1" -- "N" ProductLike : 참조
+    Product "1" -- "N" ProductLike : 참조
 
-    User "1"<--"N" ProductLike : 참조
-    Product "1"<--"N" ProductLike : 참조
-    LikeService --> ProductLikeRepository : 사용
-    ProductLikeRepository ..> ProductLike : CRUD
+ 
+    ProductLikeService ..> ProductLike : 좋아요 정보 생성/삭제/조회
 ```
-
-
 
 ## 주문
 

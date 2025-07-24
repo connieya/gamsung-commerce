@@ -91,7 +91,7 @@ subprojects {
         reports {
             xml.required = true
             csv.required = false
-            html.required = false
+            html.required = true
         }
         afterEvaluate {
             classDirectories.setFrom(

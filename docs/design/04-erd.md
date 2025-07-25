@@ -28,10 +28,15 @@ erDiagram
     bigint id pk "상품 ID"
     varchar name "상품명"
     bigint price "상품가격"
-    int stock_quantity "재고수량"
     bigint ref_brand_id fk "브랜드 ID"
     datetime created_at "생성일시"
     datetime updated_at "수정일시"
+    }
+    
+    stock {
+    bigint id pk "재고 ID"
+    bigint ref_product_id fk "상품 ID"
+    int quantity "재고수량"
     }
     
     brand {
@@ -71,13 +76,14 @@ erDiagram
 
 }
 
-user ||--o{ order: "주문"
-user ||--o{ product_like: "좋아요"
-user ||--|{ point: "소유"
+users ||--o{ order: "주문"
+users ||--o{ product_like: "좋아요"
+users ||--|| point: "소유"
 
-product ||--o{ order_item: "포함"
+product ||--o{ order_item: "참조"
 product ||--o{ product_like : "포함"
-product }o--|| brand: "소유"
+product ||--|| stock : "관리"
+product }|--|| brand: "소속"
 
-order ||--o{ order_item: "포함"
+order ||--|{ order_item: "포함"
 ```

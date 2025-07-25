@@ -123,6 +123,7 @@ classDiagram
         -User user
         -OrderStatus status 
         -int totalPaymentAmount 
+        -List~OrderItem~ orderItems
         
     }
 

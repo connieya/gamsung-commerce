@@ -11,8 +11,13 @@ classDiagram
         -Long id
         -String name
         -Long price
-        -Long stockQuantity
         -Brand brand
+    }
+    
+    class Stock {
+        -Long id
+        -Product product
+        -Long quantity
     }
 
     class Brand {
@@ -36,6 +41,7 @@ classDiagram
 
     Product "N" -- "1" Brand : 소속
     Product "1" -- "N" ProductLike : 참조
+    Product "1" -- "1" Stock : 참조
 
     ProductService ..> Product : 상품 정보 조회
     ProductService ..> Brand : 브랜드 정보 조회
@@ -62,8 +68,13 @@ classDiagram
         -Long id
         -String name
         -Long price
-        -Long stockQuantity
         -Brand brand
+    }
+
+    class Stock {
+        -Long id
+        -Product product
+        -Long quantity
     }
 
     class ProductLike {
@@ -80,6 +91,7 @@ classDiagram
 
     User "1" -- "N" ProductLike : 참조
     Product "1" -- "N" ProductLike : 참조
+    Product "1" -- "1" Stock : 참조
 
  
     ProductLikeService ..> ProductLike : 좋아요 정보 생성/삭제/조회
@@ -89,7 +101,7 @@ classDiagram
 
 ```mermaid
 classDiagram
-    direction TB
+    direction LR
 
     class User {
         -Long id
@@ -112,10 +124,17 @@ classDiagram
         -Long id
         -String name
         -Long price
-        -Long stockQuantity
         -Brand brand
-        +decreaseStock(Long quantity) void
     }
+
+    class Stock {
+        -Long id
+        -Product product
+        -Long quantity
+        +decrease(Long quantity) void
+    }
+
+    
 
     class Order {
         -Long id
@@ -152,9 +171,10 @@ classDiagram
     User "1" -- "N" Order : 주문하다
     Order "1" -- "N" OrderItem : 참조
     OrderItem "N" -- "1" Product : 참조
+    Product "1" -- "1" Stock : 참조
     OrderService ..> Order : 생성/조회
     OrderService ..> OrderItem : 생성/조회
     OrderService ..> Point : 포인트 차감/조회
-    OrderService ..> Product : 재고 차감/조회
+    OrderService ..> Stock : 재고 차감/조회
     Order -- OrderStatus : 소속
 ```

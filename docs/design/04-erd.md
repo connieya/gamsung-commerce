@@ -16,7 +16,7 @@ erDiagram
     point {
     bigint id pk "포인트 ID"
     varchar ref_user_id fk "사용자 ID"
-    bigint amount "포인트금액"
+    bigint balance "포인트잔액"
     datetime created_at "생성일시"
     datetime updated_at "수정일시"
     }

@@ -16,7 +16,7 @@ public abstract class Validatable<T> {
     }
 
 
-    protected void validate() {
+    public void validate() {
         Set<ConstraintViolation<T>> violations = validator.validate((T) this);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);

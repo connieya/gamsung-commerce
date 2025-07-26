@@ -4,6 +4,7 @@ import com.loopers.application.user.port.in.UserInfoResult;
 import com.loopers.application.user.port.in.UserRegisterCommand;
 import com.loopers.application.user.port.in.UserRegisterResult;
 import com.loopers.application.user.port.in.UserUseCase;
+import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class UserV1Controller implements UserV1ApiSpec {
 
     @GetMapping("/me")
     @Override
-    public ApiResponse<UserV1Dto.UserResponse> getUser(@RequestHeader(value = "X-USER-ID", required = true) String userId) {
+    public ApiResponse<UserV1Dto.UserResponse> getUser(@RequestHeader(value = ApiHeaders.USER_ID, required = true) String userId) {
         UserInfoResult user = userUseCase.getUser(userId);
         return ApiResponse.success(UserV1Dto.UserResponse.from(user));
     }

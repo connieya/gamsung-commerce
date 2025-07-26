@@ -19,7 +19,7 @@ public class User extends Validatable<User> {
     @NotBlank
     private String id;
 
-    @Email
+    @Pattern(regexp =  "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$" , message = "이메일은 xx@yy.zz 형식이어야 합니다.")
     @NotBlank
     private String email;
 

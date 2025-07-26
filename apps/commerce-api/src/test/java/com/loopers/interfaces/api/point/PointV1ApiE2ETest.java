@@ -4,6 +4,7 @@ import com.loopers.domain.point.Point;
 import com.loopers.infrastructure.point.entity.PointEntity;
 import com.loopers.infrastructure.point.jpa.PointJpaRepository;
 import com.loopers.infrastructure.user.jpa.UserJpaRepository;
+import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
@@ -55,7 +56,7 @@ class PointV1ApiE2ETest {
 
             String userId = "geonhee";
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add(ApiHeaders.USER_ID, userId);
 
             ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
             };
@@ -105,7 +106,7 @@ class PointV1ApiE2ETest {
 
             String userId = "geonhee";
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add(ApiHeaders.USER_ID, userId);
 
 
             ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
@@ -131,7 +132,7 @@ class PointV1ApiE2ETest {
             // given
             String userId = "nonexistent";
             HttpHeaders headers = new HttpHeaders();
-            headers.add("X-USER-ID", userId);
+            headers.add(ApiHeaders.USER_ID, userId);
 
             ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
             };

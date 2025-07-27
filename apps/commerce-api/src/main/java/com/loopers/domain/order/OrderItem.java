@@ -1,5 +1,7 @@
 package com.loopers.domain.order;
 
+import com.loopers.domain.product.Product;
+
 public class OrderItem {
 
     private Product product;

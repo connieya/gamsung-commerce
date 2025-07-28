@@ -2,7 +2,7 @@ package com.loopers.application.user;
 
 import com.loopers.application.user.exception.UserException;
 import com.loopers.application.user.port.in.UserRegisterCommand;
-import com.loopers.application.user.port.out.UserRepositoryOut;
+import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import com.loopers.utils.DatabaseCleanUp;
@@ -26,7 +26,7 @@ class UserServiceIntegrationTest {
     UserService userService;
 
     @MockitoSpyBean
-    UserRepositoryOut userRepositoryOut;
+    UserRepository userRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -46,7 +46,7 @@ class UserServiceIntegrationTest {
             // given
             String userId = "testUser";
 
-            doReturn(Optional.of(User.create(userId, "dd@naver.com", "1999-09-09", Gender.FEMALE))).when(userRepositoryOut).findByUserId(userId);
+            doReturn(Optional.of(User.create(userId, "dd@naver.com", "1999-09-09", Gender.FEMALE))).when(userRepository).findByUserId(userId);
 
             // when , then
             assertThatThrownBy(() -> {
@@ -65,7 +65,7 @@ class UserServiceIntegrationTest {
             userService.register(UserRegisterCommand.of(userId, "geonhee@naver.com", "1994-09-26", Gender.MALE));
 
             // then
-            verify(userRepositoryOut, times(1)).save(any(User.class));
+            verify(userRepository, times(1)).save(any(User.class));
 
         }
     }

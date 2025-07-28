@@ -5,7 +5,7 @@ import com.loopers.application.user.port.in.UserInfoResult;
 import com.loopers.application.user.port.in.UserRegisterCommand;
 import com.loopers.application.user.port.in.UserRegisterResult;
 import com.loopers.application.user.port.in.UserUseCase;
-import com.loopers.application.user.port.out.UserRepositoryOut;
+import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.User;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService implements UserUseCase {
 
-    private final UserRepositoryOut userRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional

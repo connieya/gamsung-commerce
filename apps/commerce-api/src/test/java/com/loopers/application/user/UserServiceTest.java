@@ -6,10 +6,9 @@ import com.loopers.application.user.port.in.UserRegisterCommand;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.user.fixture.UserRegisterCommandFixture;
-import com.loopers.domain.user.vo.Gender;
-import com.loopers.infrastructure.user.adapter.UserRepositoryAdapter;
-import com.loopers.infrastructure.user.entity.UserEntity;
-import com.loopers.infrastructure.user.jpa.UserJpaRepository;
+import com.loopers.infrastructure.user.UserRepositoryImpl;
+import com.loopers.infrastructure.user.UserEntity;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,9 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.N;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -37,12 +34,12 @@ class UserServiceTest {
     @Mock
     private UserJpaRepository userJpaRepository;
 
-    private UserRepositoryAdapter userRepositoryAdapter;
+    private UserRepositoryImpl userRepositoryImpl;
 
     @BeforeEach
     void setUp() {
-        userRepositoryAdapter = spy(new UserRepositoryAdapter(userJpaRepository));
-        userService = new UserService(userRepositoryAdapter);
+        userRepositoryImpl = spy(new UserRepositoryImpl(userJpaRepository));
+        userService = new UserService(userRepositoryImpl);
     }
 
 
@@ -57,7 +54,7 @@ class UserServiceTest {
 
 
             doReturn(Optional.of(User.create(command.getUserId(), command.getEmail(), command.getBirthDate(), command.getGender())))
-                    .when(userRepositoryAdapter).findByUserId(command.getUserId());
+                    .when(userRepositoryImpl).findByUserId(command.getUserId());
 
             // when & then
             Assertions.assertThatThrownBy(() -> {
@@ -81,7 +78,7 @@ class UserServiceTest {
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             // then
-            verify(userRepositoryAdapter, times(1)).save(userCaptor.capture());
+            verify(userRepositoryImpl, times(1)).save(userCaptor.capture());
         }
     }
 
@@ -95,7 +92,7 @@ class UserServiceTest {
             User user = UserFixture.complete().create();
 
             // when
-            doReturn(Optional.of(user)).when(userRepositoryAdapter).findByUserId(user.getId());
+            doReturn(Optional.of(user)).when(userRepositoryImpl).findByUserId(user.getId());
             UserInfoResult userInfoResult = userService.getUser(user.getId());
 
             // then
@@ -112,7 +109,7 @@ class UserServiceTest {
             String userId = "geonhee77";
 
             // when
-            doReturn(Optional.empty()).when(userRepositoryAdapter).findByUserId(userId);
+            doReturn(Optional.empty()).when(userRepositoryImpl).findByUserId(userId);
 
             // then
             Assertions.assertThatThrownBy(() -> {

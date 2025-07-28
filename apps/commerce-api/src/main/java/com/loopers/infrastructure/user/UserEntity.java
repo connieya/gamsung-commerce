@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.user.entity;
+package com.loopers.infrastructure.user;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.user.BirthDate;

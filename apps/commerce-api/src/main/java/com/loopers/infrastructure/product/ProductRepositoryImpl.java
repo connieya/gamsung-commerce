@@ -17,4 +17,9 @@ public class ProductRepositoryImpl implements ProductRepository {
     public Optional<Product> findById(Long productId) {
         return productJpaRepository.findById(productId).map(ProductEntity::toDomain);
     }
+
+    @Override
+    public Product save(Product product) {
+        return productJpaRepository.save(ProductEntity.fromDomain(product)).toDomain();
+    }
 }

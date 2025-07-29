@@ -2,6 +2,7 @@ package com.loopers.infrastructure.product;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.product.Product;
+import com.loopers.infrastructure.product.brand.BrandEntity;
 import jakarta.persistence.*;
 
 @Entity

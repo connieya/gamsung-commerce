@@ -1,10 +1,9 @@
-package com.loopers.infrastructure.product;
+package com.loopers.infrastructure.product.brand;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.domain.product.Brand;
+import com.loopers.domain.product.brand.Brand;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Builder;
 
 @Entity
 @Table(name = "brand")

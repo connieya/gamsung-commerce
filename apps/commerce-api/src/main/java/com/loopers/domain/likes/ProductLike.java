@@ -2,13 +2,11 @@ package com.loopers.domain.likes;
 
 import com.loopers.domain.product.Product;
 import com.loopers.domain.user.User;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@EqualsAndHashCode
 public class ProductLike {
     private User user;
     private Product product;

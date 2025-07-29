@@ -1,5 +1,7 @@
 package com.loopers.domain.order;
 
+import com.loopers.domain.user.User;
+
 import java.util.List;
 
 public class Order {

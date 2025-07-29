@@ -3,6 +3,7 @@ package com.loopers.domain.likes;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.user.User;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,11 @@ public class ProductLike {
     private User user;
     private Product product;
 
+    @Builder
+    private ProductLike(User user, Product product) {
+        this.user = user;
+        this.product = product;
+    }
 
     public static ProductLike create(User user, Product product) {
         ProductLike productLike = new ProductLike();

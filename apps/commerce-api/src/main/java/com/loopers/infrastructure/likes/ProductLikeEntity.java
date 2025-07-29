@@ -28,5 +28,12 @@ public class ProductLikeEntity extends BaseEntity {
         return productLikeEntity;
     }
 
+    public ProductLike toDomain() {
+        return ProductLike.builder()
+                .user(userEntity.toDomain())
+                .product(productEntity.toDomain())
+                .build();
+    }
+
 
 }

@@ -4,6 +4,7 @@ import com.loopers.domain.BaseEntity;
 import com.loopers.domain.product.Brand;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Builder;
 
 @Entity
 @Table(name = "brand")
@@ -19,5 +20,12 @@ public class BrandEntity extends BaseEntity {
         brandEntity.description = brand.getDescription();
 
         return brandEntity;
+    }
+
+    public Brand toDomain() {
+        return Brand.builder()
+                .name(name)
+                .description(description)
+                .build();
     }
 }

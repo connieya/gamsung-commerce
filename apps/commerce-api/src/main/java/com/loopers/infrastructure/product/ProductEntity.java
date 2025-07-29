@@ -24,6 +24,14 @@ public class ProductEntity extends BaseEntity {
         return productEntity;
     }
 
+    public Product toDomain() {
+        return Product.builder()
+                .name(name)
+                .price(price)
+                .brand(brandEntity.toDomain())
+                .build();
+    }
+
 
 
 }

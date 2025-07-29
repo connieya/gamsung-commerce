@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 public class ProductEntity extends BaseEntity {
 
     private String name;
-    private String description;
     private Long price;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ref_brand_id")
@@ -19,7 +18,6 @@ public class ProductEntity extends BaseEntity {
         ProductEntity productEntity = new ProductEntity();
 
         productEntity.name = product.getName();
-        productEntity.description = product.getDescription();
         productEntity.price = product.getPrice();
         productEntity.brandEntity = BrandEntity.fromDomain(product.getBrand());
 

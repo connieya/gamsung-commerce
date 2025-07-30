@@ -1,4 +1,4 @@
-package com.loopers.domain.product;
+package com.loopers.application.product;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -7,23 +7,22 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Product {
+public class ProductCommand {
 
-    private Long id;
     private String name;
     private Long price;
     private Long brandId;
 
     @Builder
-    private Product(Long id, String name, Long price, Long brandId) {
-        this.id = id;
+    private ProductCommand(String name, Long price, Long brandId) {
         this.name = name;
         this.price = price;
         this.brandId = brandId;
     }
 
-    public static Product create(String name, Long price, Long brandId) {
-        return Product.builder()
+    public static ProductCommand of(String name, Long price, Long brandId) {
+        return ProductCommand
+                .builder()
                 .name(name)
                 .price(price)
                 .brandId(brandId)

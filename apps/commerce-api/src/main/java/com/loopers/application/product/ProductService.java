@@ -19,6 +19,11 @@ public class ProductService {
     private final BrandRepository brandRepository;
     private final ProductLikeRepository productLikeRepository;
 
+    public void register(ProductCommand productCommand){
+        Product product = Product.create(productCommand.getName(), productCommand.getPrice(), productCommand.getBrandId());
+        productRepository.save(product , productCommand.getBrandId());
+    }
+
     public ProductResult getProduct(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
         Brand brand = brandRepository.findBrand(productId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));

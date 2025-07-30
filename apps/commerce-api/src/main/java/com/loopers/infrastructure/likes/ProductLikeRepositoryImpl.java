@@ -4,8 +4,6 @@ import com.loopers.application.product.exception.ProductException;
 import com.loopers.application.user.exception.UserException;
 import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.product.Product;
-import com.loopers.domain.user.User;
 import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserEntity;

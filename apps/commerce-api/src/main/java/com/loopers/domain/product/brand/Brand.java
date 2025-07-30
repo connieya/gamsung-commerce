@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Brand {
 
+    private Long id;
     private String name;
     private String description;
 
     @Builder
-    private Brand(String name, String description) {
+    private Brand(Long id ,String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }

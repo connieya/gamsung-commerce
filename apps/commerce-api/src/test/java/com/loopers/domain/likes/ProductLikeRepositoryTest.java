@@ -1,6 +1,5 @@
-package com.loopers.infrastructure.likes;
+package com.loopers.domain.likes;
 
-import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.brand.Brand;
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @SpringBootTest
-class ProductLikeRepositoryImplTest {
+class ProductLikeRepositoryTest {
 
     @Autowired
     ProductLikeRepository productLikeRepository;

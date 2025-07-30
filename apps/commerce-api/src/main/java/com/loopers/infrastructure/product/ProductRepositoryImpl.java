@@ -1,9 +1,8 @@
 package com.loopers.infrastructure.product;
 
-import com.loopers.application.product.exception.BrandException;
+import com.loopers.domain.product.exception.BrandException;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.brand.Brand;
 import com.loopers.infrastructure.product.brand.BrandEntity;
 import com.loopers.infrastructure.product.brand.BrandJpaRepository;
 import com.loopers.support.error.ErrorType;

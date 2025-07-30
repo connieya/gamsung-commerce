@@ -1,10 +1,8 @@
-package com.loopers.infrastructure.point.adapter;
+package com.loopers.infrastructure.point;
 
 
-import com.loopers.application.point.port.out.PointRepositoryOut;
+import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.point.Point;
-import com.loopers.infrastructure.point.entity.PointEntity;
-import com.loopers.infrastructure.point.jpa.PointJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +10,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class PointRepositoryAdapter implements PointRepositoryOut {
+public class PointRepositoryImpl implements PointRepository {
 
     private final PointJpaRepository pointJpaRepository;
 

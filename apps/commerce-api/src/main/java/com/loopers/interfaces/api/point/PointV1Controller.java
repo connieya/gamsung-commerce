@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.point;
 
-import com.loopers.application.point.port.in.PointInfoResult;
-import com.loopers.application.point.port.in.PointUseCase;
+import com.loopers.domain.point.PointInfoResult;
+import com.loopers.domain.point.PointUseCase;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;

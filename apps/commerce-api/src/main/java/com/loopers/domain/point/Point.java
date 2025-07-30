@@ -1,10 +1,9 @@
 package com.loopers.domain.point;
 
-import com.loopers.application.point.exception.PointException;
+import com.loopers.domain.point.exception.PointException;
 import com.loopers.domain.common.Validatable;
 import com.loopers.support.error.ErrorType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Builder;
 import lombok.Getter;

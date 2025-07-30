@@ -1,4 +1,4 @@
-package com.loopers.application.product;
+package com.loopers.domain.product;
 
 import lombok.AccessLevel;
 import lombok.Builder;

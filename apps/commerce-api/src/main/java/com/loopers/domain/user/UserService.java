@@ -1,12 +1,6 @@
-package com.loopers.application.user;
+package com.loopers.domain.user;
 
-import com.loopers.application.user.exception.UserException;
-import com.loopers.application.user.port.in.UserInfoResult;
-import com.loopers.application.user.port.in.UserRegisterCommand;
-import com.loopers.application.user.port.in.UserRegisterResult;
-import com.loopers.application.user.port.in.UserUseCase;
-import com.loopers.domain.user.UserRepository;
-import com.loopers.domain.user.User;
+import com.loopers.domain.user.exception.UserException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

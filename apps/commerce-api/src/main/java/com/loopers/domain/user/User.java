@@ -1,6 +1,7 @@
 package com.loopers.domain.user;
 
 import com.loopers.domain.common.Validatable;
+import com.loopers.domain.user.vo.BirthDate;
 import com.loopers.domain.user.vo.Gender;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

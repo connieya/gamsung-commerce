@@ -1,12 +1,13 @@
 package com.loopers.application.point;
 
-import com.loopers.application.point.exception.PointException;
-import com.loopers.application.point.port.in.PointInfoResult;
-import com.loopers.application.user.exception.UserException;
+import com.loopers.domain.point.PointService;
+import com.loopers.domain.point.exception.PointException;
+import com.loopers.domain.point.PointInfoResult;
+import com.loopers.domain.user.exception.UserException;
 import com.loopers.domain.point.Point;
-import com.loopers.infrastructure.point.adapter.PointRepositoryAdapter;
-import com.loopers.infrastructure.point.entity.PointEntity;
-import com.loopers.infrastructure.point.jpa.PointJpaRepository;
+import com.loopers.infrastructure.point.PointRepositoryImpl;
+import com.loopers.infrastructure.point.PointEntity;
+import com.loopers.infrastructure.point.PointJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,12 +36,12 @@ class PointServiceTest {
     @Mock
     PointJpaRepository pointJpaRepository;
 
-    PointRepositoryAdapter pointRepositoryAdapter;
+    PointRepositoryImpl pointRepositoryImpl;
 
     @BeforeEach
     void setUp() {
-        pointRepositoryAdapter = spy(new PointRepositoryAdapter(pointJpaRepository));
-        pointService = new PointService(pointRepositoryAdapter);
+        pointRepositoryImpl = spy(new PointRepositoryImpl(pointJpaRepository));
+        pointService = new PointService(pointRepositoryImpl);
     }
 
     @Nested
@@ -134,7 +135,7 @@ class PointServiceTest {
             String userId = "geonhee";
 
             // when
-            doReturn(Optional.of(Point.create(userId, 0L))).when(pointRepositoryAdapter).findByUserId(userId);
+            doReturn(Optional.of(Point.create(userId, 0L))).when(pointRepositoryImpl).findByUserId(userId);
 
             // then
             assertThatThrownBy(() -> {

@@ -1,4 +1,4 @@
-package com.loopers.application.point.port.in;
+package com.loopers.domain.point;
 
 
 public record PointInfoResult(String userId, Long value) {

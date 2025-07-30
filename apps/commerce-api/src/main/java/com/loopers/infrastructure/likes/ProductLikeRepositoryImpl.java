@@ -1,7 +1,7 @@
 package com.loopers.infrastructure.likes;
 
-import com.loopers.application.product.exception.ProductException;
-import com.loopers.application.user.exception.UserException;
+import com.loopers.domain.product.exception.ProductException;
+import com.loopers.domain.user.exception.UserException;
 import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.infrastructure.product.ProductEntity;

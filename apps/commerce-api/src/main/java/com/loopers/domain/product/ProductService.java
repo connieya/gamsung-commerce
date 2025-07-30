@@ -1,10 +1,8 @@
-package com.loopers.application.product;
+package com.loopers.domain.product;
 
-import com.loopers.application.product.exception.BrandException;
-import com.loopers.application.product.exception.ProductException;
+import com.loopers.domain.product.exception.BrandException;
+import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.product.Product;
-import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.brand.Brand;
 import com.loopers.domain.product.brand.BrandRepository;
 import com.loopers.support.error.ErrorType;

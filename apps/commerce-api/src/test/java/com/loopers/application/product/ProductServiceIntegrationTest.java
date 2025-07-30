@@ -1,12 +1,13 @@
 package com.loopers.application.product;
 
 import com.loopers.domain.product.Product;
+import com.loopers.domain.product.ProductCommand;
 import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.brand.Brand;
 import com.loopers.domain.product.brand.BrandRepository;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.utils.DatabaseCleanUp;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.loopers.domain.point;
 
-import com.loopers.application.point.exception.PointException;
+import com.loopers.domain.point.exception.PointException;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;

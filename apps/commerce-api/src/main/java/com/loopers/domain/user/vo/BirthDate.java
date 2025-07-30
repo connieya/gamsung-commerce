@@ -1,4 +1,4 @@
-package com.loopers.domain.user;
+package com.loopers.domain.user.vo;
 
 import com.loopers.domain.common.Validatable;
 import jakarta.validation.constraints.NotNull;

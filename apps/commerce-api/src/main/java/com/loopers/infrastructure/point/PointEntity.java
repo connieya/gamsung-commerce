@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.point.entity;
+package com.loopers.infrastructure.point;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.point.Point;
@@ -11,7 +11,6 @@ public class PointEntity extends BaseEntity {
 
     private String userId;
     private Long value;
-
     public static PointEntity from(Point point) {
         PointEntity pointEntity = new PointEntity();
 

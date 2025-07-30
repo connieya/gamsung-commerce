@@ -1,9 +1,10 @@
 package com.loopers.application.user;
 
-import com.loopers.application.user.exception.UserException;
-import com.loopers.application.user.port.in.UserRegisterCommand;
+import com.loopers.domain.user.exception.UserException;
+import com.loopers.domain.user.UserRegisterCommand;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.User;
+import com.loopers.domain.user.UserService;
 import com.loopers.domain.user.vo.Gender;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;

@@ -92,11 +92,11 @@ class UserServiceTest {
             User user = UserFixture.complete().create();
 
             // when
-            doReturn(Optional.of(user)).when(userRepositoryImpl).findByUserId(user.getId());
-            UserInfoResult userInfoResult = userService.getUser(user.getId());
+            doReturn(Optional.of(user)).when(userRepositoryImpl).findByUserId(user.getUserId());
+            UserInfoResult userInfoResult = userService.getUser(user.getUserId());
 
             // then
-            assertThat(userInfoResult.getUserId()).isEqualTo(user.getId());
+            assertThat(userInfoResult.getUserId()).isEqualTo(user.getUserId());
             assertThat(userInfoResult.getEmail()).isEqualTo(user.getEmail());
             assertThat(userInfoResult.getBirthdate()).isEqualTo(user.getBirthDate().getBirthDate());
 

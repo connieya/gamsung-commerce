@@ -1,11 +1,9 @@
 package com.loopers.domain.user;
 
 import com.loopers.domain.user.fixture.UserFixture;
-import com.loopers.domain.user.vo.Gender;
 import jakarta.validation.ConstraintViolationException;
 import org.instancio.Select;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -18,7 +16,7 @@ class UserTest {
   @ValueSource(strings = {"박건희", "박건희11", "gbb__",})
   void registerFail_whenIdFormatIsInvalid(String id) {
     // given
-    User user = UserFixture.complete().set(Select.field(User::getId), id).create();
+    User user = UserFixture.complete().set(Select.field(User::getUserId), id).create();
 
     // when , then
     assertThatThrownBy(user::validate)

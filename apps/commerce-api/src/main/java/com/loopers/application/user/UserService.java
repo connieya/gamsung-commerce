@@ -28,7 +28,7 @@ public class UserService implements UserUseCase {
 
         User user = userRepository.save(User.create(command.getUserId(), command.getEmail(), command.getBirthDate(), command.getGender()));
 
-        return UserRegisterResult.of(user.getId(), user.getBirthDate().getBirthDate(), user.getEmail());
+        return UserRegisterResult.of(user.getUserId(), user.getBirthDate().getBirthDate(), user.getEmail());
     }
 
     @Override
@@ -36,6 +36,6 @@ public class UserService implements UserUseCase {
     public UserInfoResult getUser(String userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 
-        return UserInfoResult.of(user.getId(), user.getEmail(), user.getBirthDate().getBirthDate(), user.getGender());
+        return UserInfoResult.of(user.getUserId(), user.getEmail(), user.getBirthDate().getBirthDate(), user.getGender());
     }
 }

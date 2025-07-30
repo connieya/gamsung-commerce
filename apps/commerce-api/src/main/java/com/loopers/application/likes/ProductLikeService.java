@@ -16,6 +16,9 @@ public class ProductLikeService {
         if (!existed) {
             productLikeRepository.save(userId,productId);
         }
+    }
+
+    public void remove(Long userId, Long productId) {
 
     }
 }

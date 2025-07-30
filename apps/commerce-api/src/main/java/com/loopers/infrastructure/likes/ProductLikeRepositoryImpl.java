@@ -39,5 +39,10 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
         ProductEntity productEntity = productJpaRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
         return productLikeJpaRepository.countByProductEntity(productEntity);
     }
+
+    @Override
+    public void delete(Long userId, Long productId) {
+        productLikeJpaRepository.deleteByUserEntity_IdAndProductEntity_Id(userId ,productId);
+    }
 }
 

@@ -83,4 +83,22 @@ class ProductLikeRepositoryTest {
         assertTrue(productLikeRepository.existsByUserIdAndProductId(user.getId(), product.getId()));
     }
 
+
+    @Test
+    @DisplayName("좋아요 취소 ")
+    @Transactional
+    void delete() {
+        // given
+        User user = userRepository.save(UserFixture.complete().create());
+        Brand brand = brandRepository.save(BrandFixture.complete().create());
+        Product product = productRepository.save(ProductFixture.complete().create(), brand.getId());
+
+        productLikeRepository.save(user.getId(), product.getId());
+
+        // when
+        productLikeRepository.delete(user.getId(), brand.getId());
+
+        // then
+        assertFalse(productLikeRepository.existsByUserIdAndProductId(user.getId(), product.getId()));
+    }
 }

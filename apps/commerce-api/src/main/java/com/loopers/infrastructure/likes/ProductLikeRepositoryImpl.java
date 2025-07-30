@@ -4,8 +4,6 @@ import com.loopers.application.product.exception.ProductException;
 import com.loopers.application.user.exception.UserException;
 import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.product.Product;
-import com.loopers.domain.user.User;
 import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserEntity;
@@ -34,6 +32,12 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
     @Override
     public boolean existsByUserIdAndProductId(Long userId , Long productId) {
         return productLikeJpaRepository.existsByUserEntity_IdAndProductEntity_Id(userId, productId);
+    }
+
+    @Override
+    public Long getLikeCount(Long productId) {
+        ProductEntity productEntity = productJpaRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+        return productLikeJpaRepository.countByProductEntity(productEntity);
     }
 }
 

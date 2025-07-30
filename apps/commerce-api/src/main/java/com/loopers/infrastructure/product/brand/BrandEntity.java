@@ -23,6 +23,7 @@ public class BrandEntity extends BaseEntity {
 
     public Brand toDomain() {
         return Brand.builder()
+                .id(id)
                 .name(name)
                 .description(description)
                 .build();

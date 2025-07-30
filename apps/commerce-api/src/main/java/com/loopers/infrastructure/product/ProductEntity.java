@@ -17,12 +17,12 @@ public class ProductEntity extends BaseEntity {
     @JoinColumn(name = "ref_brand_id")
     private BrandEntity brandEntity;
 
-    public static ProductEntity fromDomain(Product product) {
+    public static ProductEntity fromDomain(Product product , BrandEntity brandEntity) {
         ProductEntity productEntity = new ProductEntity();
 
         productEntity.name = product.getName();
         productEntity.price = product.getPrice();
-        productEntity.brandEntity = BrandEntity.fromDomain(product.getBrand());
+        productEntity.brandEntity = brandEntity;
 
         return productEntity;
     }
@@ -32,7 +32,7 @@ public class ProductEntity extends BaseEntity {
                 .id(id)
                 .name(name)
                 .price(price)
-                .brand(brandEntity.toDomain())
+                .brandId(brandEntity.getId())
                 .build();
     }
 

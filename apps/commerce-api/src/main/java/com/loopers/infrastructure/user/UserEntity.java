@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.user.entity;
+package com.loopers.infrastructure.user;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.user.BirthDate;
@@ -26,7 +26,7 @@ public class UserEntity extends BaseEntity {
     public static UserEntity fromDomain(User user) {
         UserEntity userEntity = new UserEntity();
 
-        userEntity.userId = user.getId();
+        userEntity.userId = user.getUserId();
         userEntity.email = user.getEmail();
         userEntity.birthDate = user.getBirthDate().getBirthDate();
         userEntity.gender = user.getGender();
@@ -37,7 +37,8 @@ public class UserEntity extends BaseEntity {
     public User toDomain() {
         return User
                 .builder()
-                .id(userId)
+                .id(id)
+                .userId(userId)
                 .email(email)
                 .birthDate(new BirthDate(birthDate.toString()))
                 .gender(gender)

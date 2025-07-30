@@ -1,7 +1,5 @@
-package com.loopers.infrastructure.user.jpa;
+package com.loopers.infrastructure.user;
 
-import com.loopers.domain.user.User;
-import com.loopers.infrastructure.user.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

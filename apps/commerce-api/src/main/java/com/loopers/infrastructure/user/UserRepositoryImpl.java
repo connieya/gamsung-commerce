@@ -1,9 +1,7 @@
-package com.loopers.infrastructure.user.adapter;
+package com.loopers.infrastructure.user;
 
-import com.loopers.application.user.port.out.UserRepositoryOut;
+import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.User;
-import com.loopers.infrastructure.user.entity.UserEntity;
-import com.loopers.infrastructure.user.jpa.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +9,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserRepositoryAdapter implements UserRepositoryOut {
+public class UserRepositoryImpl implements UserRepository {
 
     private final UserJpaRepository userJpaRepository;
 
@@ -24,5 +22,11 @@ public class UserRepositoryAdapter implements UserRepositoryOut {
     @Override
     public User save(User user) {
         return userJpaRepository.save(UserEntity.fromDomain(user)).toDomain();
+    }
+
+    @Override
+    public Optional<User> findById(Long userId) {
+        return userJpaRepository.findById(userId)
+                .map(UserEntity::toDomain);
     }
 }

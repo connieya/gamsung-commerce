@@ -14,7 +14,7 @@ public class UserFixture {
 
   public static InstancioApi<User> complete() {
     return Instancio.of(User.class)
-        .generate(Select.field(User::getId), generators -> generators.string().length(5, 10).alphaNumeric())
+        .generate(Select.field(User::getUserId), generators -> generators.string().length(5, 10).alphaNumeric())
 
         .generate(Select.field(User::getEmail), generators -> generators.net().email())
         .supply(Select.field(User::getBirthDate), () -> {

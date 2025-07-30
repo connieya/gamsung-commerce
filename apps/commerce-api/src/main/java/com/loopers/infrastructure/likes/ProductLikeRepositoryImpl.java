@@ -36,7 +36,8 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
 
     @Override
     public Long getLikeCount(Long productId) {
-        return productLikeJpaRepository.countByProductEntityId(productId);
+        ProductEntity productEntity = productJpaRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+        return productLikeJpaRepository.countByProductEntity(productEntity);
     }
 }
 

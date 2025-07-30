@@ -30,4 +30,11 @@ public class ProductFixture {
                 .generate(Select.field(Product::getPrice), gen -> gen.longs().range(1000L, 5_000_000L))
                 .supply(Select.field(Product::getId), () -> brand);
     }
+
+    public static InstancioApi<Product> complete(Brand brand) {
+        return Instancio.of(Product.class)
+                .generate(Select.field(Product::getName), gen -> gen.string().length(2, 20))
+                .generate(Select.field(Product::getPrice), gen -> gen.longs().range(1000L, 5_000_000L))
+                .supply(Select.field(Product::getBrand), () -> brand);
+    }
 }

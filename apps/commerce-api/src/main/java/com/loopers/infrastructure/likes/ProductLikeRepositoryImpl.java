@@ -35,5 +35,10 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
     public boolean existsByUserIdAndProductId(Long userId , Long productId) {
         return productLikeJpaRepository.existsByUserEntity_IdAndProductEntity_Id(userId, productId);
     }
+
+    @Override
+    public Long getLikeCount(Long productId) {
+        return productLikeJpaRepository.countByProductEntityId(productId);
+    }
 }
 

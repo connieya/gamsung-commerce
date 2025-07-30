@@ -10,7 +10,9 @@ import jakarta.persistence.*;
 public class ProductEntity extends BaseEntity {
 
     private String name;
+
     private Long price;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ref_brand_id")
     private BrandEntity brandEntity;
@@ -32,7 +34,5 @@ public class ProductEntity extends BaseEntity {
                 .brand(brandEntity.toDomain())
                 .build();
     }
-
-
 
 }

@@ -19,11 +19,11 @@ public class ProductLikeEntity extends BaseEntity {
     @JoinColumn(name = "ref_product_id")
     private ProductEntity productEntity;
 
-    public static ProductLikeEntity fromDomain(ProductLike productLike) {
+    public static ProductLikeEntity from(UserEntity userEntity , ProductEntity productEntity) {
         ProductLikeEntity productLikeEntity = new ProductLikeEntity();
 
-        productLikeEntity.userEntity = UserEntity.fromDomain(productLike.getUser());
-        productLikeEntity.productEntity = ProductEntity.fromDomain(productLike.getProduct());
+        productLikeEntity.userEntity = userEntity;
+        productLikeEntity.productEntity = productEntity;
 
         return productLikeEntity;
     }
@@ -34,6 +34,5 @@ public class ProductLikeEntity extends BaseEntity {
                 .product(productEntity.toDomain())
                 .build();
     }
-
 
 }

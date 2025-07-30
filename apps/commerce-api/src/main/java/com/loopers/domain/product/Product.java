@@ -10,13 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Product {
 
+    private Long id;
     private String name;
     private Long price;
     private Brand brand;
 
-
     @Builder
-    private Product(String name, Long price, Brand brand) {
+    private Product(Long id, String name, Long price, Brand brand) {
+        this.id = id;
         this.name = name;
         this.price = price;
         this.brand = brand;

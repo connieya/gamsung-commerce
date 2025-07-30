@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.likes;
 
+import com.loopers.domain.product.Product;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.user.exception.UserException;
 import com.loopers.domain.likes.ProductLike;
@@ -11,6 +12,8 @@ import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Repository
@@ -43,6 +46,12 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
     @Override
     public void delete(Long userId, Long productId) {
         productLikeJpaRepository.deleteByUserEntity_IdAndProductEntity_Id(userId ,productId);
+    }
+
+    @Override
+    public List<Product> findAllByProductId(List<Long> productIds) {
+        productLikeJpaRepository.findByProductEntityIn(productIds);
+        return List.of();
     }
 }
 

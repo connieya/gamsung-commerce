@@ -10,14 +10,16 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.utils.DatabaseCleanUp;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringBootTest
@@ -63,7 +65,40 @@ class ProductLikeRepositoryTest {
 
         // then
         Long likeCount = productLikeRepository.getLikeCount(savedProduct.getId());
-        Assertions.assertThat(likeCount).isEqualTo(1L);
+        assertThat(likeCount).isEqualTo(1L);
     }
 
+    @Test
+    @DisplayName("좋아요가 존재 할 때, 존재 여부를 참/거짓으로 반환한다. ")
+    @Transactional
+    void existsByUserIdAndProductId() {
+        // given
+        User user = userRepository.save(UserFixture.complete().create());
+        Brand brand = brandRepository.save(BrandFixture.complete().create());
+        Product product = productRepository.save(ProductFixture.complete().create(), brand.getId());
+
+        productLikeRepository.save(user.getId(), product.getId());
+
+        // when & then
+        assertTrue(productLikeRepository.existsByUserIdAndProductId(user.getId(), product.getId()));
+    }
+
+
+    @Test
+    @DisplayName("좋아요 취소 ")
+    @Transactional
+    void delete() {
+        // given
+        User user = userRepository.save(UserFixture.complete().create());
+        Brand brand = brandRepository.save(BrandFixture.complete().create());
+        Product product = productRepository.save(ProductFixture.complete().create(), brand.getId());
+
+        productLikeRepository.save(user.getId(), product.getId());
+
+        // when
+        productLikeRepository.delete(user.getId(), brand.getId());
+
+        // then
+        assertFalse(productLikeRepository.existsByUserIdAndProductId(user.getId(), product.getId()));
+    }
 }

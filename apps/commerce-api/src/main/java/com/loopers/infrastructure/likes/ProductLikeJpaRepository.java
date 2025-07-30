@@ -8,5 +8,7 @@ public interface ProductLikeJpaRepository extends CrudRepository<ProductLikeEnti
     boolean existsByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
 
     Long countByProductEntity(ProductEntity productEntity);
+
+    void deleteByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
 }
 

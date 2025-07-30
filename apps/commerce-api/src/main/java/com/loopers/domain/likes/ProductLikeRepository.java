@@ -8,4 +8,6 @@ public interface ProductLikeRepository {
     boolean existsByUserIdAndProductId(Long userId, Long productId);
 
     Long getLikeCount(Long productId);
+
+    void delete(Long userId , Long productId);
 }

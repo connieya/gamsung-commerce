@@ -1,7 +1,10 @@
 package com.loopers.domain.product;
 
+import lombok.Getter;
+
 import java.time.ZonedDateTime;
 
+@Getter
 public class ProductInfo {
     private Long productId;
     private Long price;

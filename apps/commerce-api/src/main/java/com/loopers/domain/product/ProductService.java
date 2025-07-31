@@ -47,7 +47,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductsInfo getProducts(int size, int page, Sort sort) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(size, page);
         Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
         return ProductsInfo.create(productDetails, sort);
     }

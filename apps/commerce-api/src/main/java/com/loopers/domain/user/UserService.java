@@ -12,6 +12,7 @@ public class UserService implements UserUseCase {
 
     private final UserRepository userRepository;
 
+
     @Override
     @Transactional
     public UserRegisterResult register(UserRegisterCommand command) {
@@ -31,5 +32,10 @@ public class UserService implements UserUseCase {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 
         return UserInfoResult.of(user.getUserId(), user.getEmail(), user.getBirthDate().getBirthDate(), user.getGender());
+    }
+
+    @Override
+    public User findByUserId(String userId) {
+        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
     }
 }

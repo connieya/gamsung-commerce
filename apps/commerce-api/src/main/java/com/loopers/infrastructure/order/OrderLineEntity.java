@@ -11,8 +11,6 @@ public class OrderLineEntity extends BaseEntity {
     private Long productId;
     private Long quantity;
     private Long orderPrice;
-    private Long orderId;
-
 
     public static OrderLineEntity fromDomain(OrderLine orderLine) {
         OrderLineEntity orderLineEntity = new OrderLineEntity();
@@ -20,7 +18,6 @@ public class OrderLineEntity extends BaseEntity {
         orderLineEntity.productId = orderLine.getProductId();
         orderLineEntity.quantity = orderLine.getQuantity();
         orderLineEntity.orderPrice = orderLine.getPrice();
-        orderLineEntity.orderId = orderLine.getOrderId();
 
         return orderLineEntity;
     }
@@ -32,7 +29,6 @@ public class OrderLineEntity extends BaseEntity {
                 .price(orderPrice)
                 .productId(productId)
                 .quantity(quantity)
-                .orderId(orderId)
                 .build();
     }
 

@@ -31,4 +31,11 @@ public class StockRepositoryImpl implements StockRepository {
                 .stream()
                 .map(StockEntity::toDomain).collect(Collectors.toList());
     }
+
+    @Override
+    public List<Stock> saveAll(List<Stock> stocks) {
+        return stockJpaRepository.saveAll(stocks.stream().map(StockEntity::from).collect(Collectors.toList()))
+                .stream()
+                .map(StockEntity::toDomain).collect(Collectors.toList());
+    }
 }

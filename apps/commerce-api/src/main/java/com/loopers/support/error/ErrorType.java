@@ -23,7 +23,9 @@ public enum ErrorType {
 
     BRAND_NOT_FOUND(HttpStatus.NOT_FOUND , "Brand Not Found" , "존재하지 않는 브랜드입니다."),
 
-    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND , "Product Not Found" , "존재하지 않는 상품입니다.")
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND , "Product Not Found" , "존재하지 않는 상품입니다."),
+
+    STOCK_INSUFFICIENT(HttpStatus.BAD_REQUEST, "Stock Insufficient", "재고가 부족합니다.")
 
     ;
 

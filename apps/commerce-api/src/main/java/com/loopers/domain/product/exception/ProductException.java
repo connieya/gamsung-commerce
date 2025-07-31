@@ -10,4 +10,10 @@ public class ProductException {
             super(errorType);
         }
     }
+
+    public static class InsufficientStockException extends CoreException {
+        public InsufficientStockException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
 }

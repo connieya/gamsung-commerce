@@ -1,13 +1,36 @@
 package com.loopers.domain.product.stock;
 
+import com.loopers.domain.order.OrderCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class StockService {
 
-    public void deduct() {
+    private final StockRepository stockRepository;
+
+    @Transactional
+    public void deduct(List<Long> productIds, OrderCommand orderCommand) {
+        List<OrderCommand.OrderItem> orderItems = orderCommand.getOrderItems();
+        Map<Long, Long> orderQuantities = orderItems.stream()
+                .collect(Collectors.toMap(
+                        OrderCommand.OrderItem::getProductId,
+                        OrderCommand.OrderItem::getQuantity
+                ));
+        List<Stock> stocks = stockRepository.findByProductIdIn(productIds);
+
+        stocks.forEach(stock -> {
+            Long quantity = orderQuantities.get(stock.getProductId());
+            stock.deduct(quantity);
+        });
+
+        stockRepository.saveAll(stocks);
 
     }
 }

@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.common.Sort;
 import com.loopers.domain.product.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
@@ -45,7 +46,7 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public ProductsInfo getProducts(int size, int page, String sort) {
+    public ProductsInfo getProducts(int size, int page, Sort sort) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
         return ProductsInfo.create(productDetails, sort);

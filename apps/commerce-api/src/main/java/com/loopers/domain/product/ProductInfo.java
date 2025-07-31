@@ -8,15 +8,15 @@ public class ProductInfo {
     private String productName;
     private String brandName;
     private Long likeCount;
-    private ZonedDateTime createdAt;
+    private ZonedDateTime releasedAt;
 
 
-    public ProductInfo(Long productId, Long price, String productName, String brandName, Long likeCount, ZonedDateTime createdAt) {
+    public ProductInfo(Long productId, Long price, String productName, String brandName, Long likeCount, ZonedDateTime releasedAt) {
         this.productId = productId;
         this.price = price;
         this.productName = productName;
         this.brandName = brandName;
         this.likeCount = likeCount;
-        this.createdAt = createdAt;
+        this.releasedAt = releasedAt;
     }
 }

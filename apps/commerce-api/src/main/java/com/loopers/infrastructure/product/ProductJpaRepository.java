@@ -19,10 +19,10 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.name," +
             "b.name" +
             ",count(pl.id)" +
-            ",p.createdAt" +
+            ",p.releasedAt" +
             ") from ProductEntity p " +
             "left join p.brandEntity b " +
             "left join ProductLikeEntity  pl on p.id = pl.productEntity.id " +
-            "group by p.id,p.price,p.name,b.name , p.createdAt")
+            "group by p.id,p.price,p.name,b.name , p.releasedAt")
     Page<ProductInfo> findProductDetails(Pageable pageable);
 }

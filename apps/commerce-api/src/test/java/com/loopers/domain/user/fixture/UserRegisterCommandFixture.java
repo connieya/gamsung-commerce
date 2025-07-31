@@ -1,6 +1,6 @@
 package com.loopers.domain.user.fixture;
 
-import com.loopers.application.user.port.in.UserRegisterCommand;
+import com.loopers.domain.user.UserRegisterCommand;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
 import org.instancio.Select;

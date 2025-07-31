@@ -1,6 +1,6 @@
 package com.loopers.domain.user.fixture;
 
-import com.loopers.domain.user.BirthDate;
+import com.loopers.domain.user.vo.BirthDate;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import org.instancio.Instancio;

@@ -1,7 +1,7 @@
 package com.loopers.infrastructure.user;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.domain.user.BirthDate;
+import com.loopers.domain.user.vo.BirthDate;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import jakarta.persistence.*;

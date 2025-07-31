@@ -5,6 +5,8 @@ import com.loopers.domain.product.Product;
 import com.loopers.infrastructure.product.brand.BrandEntity;
 import jakarta.persistence.*;
 
+import java.time.ZonedDateTime;
+
 @Entity
 @Table(name = "product")
 public class ProductEntity extends BaseEntity {
@@ -16,6 +18,8 @@ public class ProductEntity extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ref_brand_id")
     private BrandEntity brandEntity;
+
+    private ZonedDateTime releasedAt;
 
     public static ProductEntity fromDomain(Product product , BrandEntity brandEntity) {
         ProductEntity productEntity = new ProductEntity();

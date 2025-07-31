@@ -1,6 +1,5 @@
 package com.loopers.domain.likes;
 
-
 public interface ProductLikeRepository {
 
     ProductLike save(Long userId ,Long productId);

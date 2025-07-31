@@ -1,13 +1,15 @@
 package com.loopers.infrastructure.product;
 
-import com.loopers.application.product.exception.BrandException;
+import com.loopers.domain.product.ProductInfo;
+import com.loopers.domain.product.exception.BrandException;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.brand.Brand;
 import com.loopers.infrastructure.product.brand.BrandEntity;
 import com.loopers.infrastructure.product.brand.BrandJpaRepository;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,7 +29,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Product save(Product product , Long brandId) {
+    public Product save(Product product, Long brandId) {
         BrandEntity brandEntity = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
         ProductEntity productEntity = ProductEntity.fromDomain(product, brandEntity);
         return productJpaRepository.save(productEntity).toDomain();
@@ -38,5 +40,10 @@ public class ProductRepositoryImpl implements ProductRepository {
         BrandEntity brandEntity = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
         return productJpaRepository.findByBrandEntity(brandEntity)
                 .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProductInfo> findProductDetails(Pageable pageable) {
+        return productJpaRepository.findProductDetails(pageable);
     }
 }

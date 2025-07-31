@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.user;
 
-import com.loopers.application.user.port.in.UserInfoResult;
-import com.loopers.application.user.port.in.UserRegisterResult;
+import com.loopers.domain.user.UserInfoResult;
+import com.loopers.domain.user.UserRegisterResult;
 import com.loopers.domain.user.vo.Gender;
 
 import java.time.LocalDate;

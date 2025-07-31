@@ -1,10 +1,5 @@
 package com.loopers.domain.likes;
 
-
-import com.loopers.domain.product.Product;
-
-import java.util.List;
-
 public interface ProductLikeRepository {
 
     ProductLike save(Long userId ,Long productId);
@@ -14,6 +9,4 @@ public interface ProductLikeRepository {
     Long getLikeCount(Long productId);
 
     void delete(Long userId , Long productId);
-
-    List<Product> findAllByProductId(List<Long> productIds);
 }

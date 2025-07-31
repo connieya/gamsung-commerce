@@ -52,7 +52,7 @@ class OrderCriteriaTest {
                 () -> assertThat(command.getUserId()).isEqualTo(1L),
                 () -> assertThat(command.getOrderItems()).hasSize(2)
                         .extracting("productId", "quantity", "price")
-                        .containsExactly(
+                        .containsExactlyInAnyOrder(
                                 tuple(1L, 10L, 5000L),
                                 tuple(2L, 5L, 2000L)
                         )

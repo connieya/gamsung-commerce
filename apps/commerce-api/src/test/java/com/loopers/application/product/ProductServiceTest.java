@@ -3,7 +3,7 @@ package com.loopers.application.product;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.ProductResult;
+import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.brand.Brand;
 import com.loopers.domain.product.brand.BrandRepository;
@@ -44,14 +44,14 @@ class ProductServiceTest {
         when(productLikeRepository.getLikeCount(1L)).thenReturn(10L);
 
         // when
-        ProductResult productResult = productService.getProduct(1L);
+        ProductDetailInfo productDetailInfo = productService.getProduct(1L);
 
         // then
         assertAll(
-                () -> assertThat(productResult.getProductName()).isEqualTo("상품1"),
-                () -> assertThat(productResult.getProductPrice()).isEqualTo(50000L),
-                () -> assertThat(productResult.getBrandName()).isEqualTo("브랜드1"),
-                () -> assertThat(productResult.getLikeCount()).isEqualTo(10L)
+                () -> assertThat(productDetailInfo.getProductName()).isEqualTo("상품1"),
+                () -> assertThat(productDetailInfo.getProductPrice()).isEqualTo(50000L),
+                () -> assertThat(productDetailInfo.getBrandName()).isEqualTo("브랜드1"),
+                () -> assertThat(productDetailInfo.getLikeCount()).isEqualTo(10L)
         );
     }
 

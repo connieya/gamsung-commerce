@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductResult {
+public class ProductDetailInfo {
 
     private String productName;
     private Long productPrice;
@@ -15,15 +15,15 @@ public class ProductResult {
     private Long likeCount;
 
     @Builder
-    private ProductResult(String productName, Long productPrice, String brandName, Long likeCount) {
+    private ProductDetailInfo(String productName, Long productPrice, String brandName, Long likeCount) {
         this.productName = productName;
         this.productPrice = productPrice;
         this.brandName = brandName;
         this.likeCount = likeCount;
     }
 
-    public static ProductResult create(String productName , Long productPrice , String brandName , Long likeCount) {
-        return ProductResult
+    public static ProductDetailInfo create(String productName , Long productPrice , String brandName , Long likeCount) {
+        return ProductDetailInfo
                 .builder()
                 .productName(productName)
                 .productPrice(productPrice)

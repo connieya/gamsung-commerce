@@ -13,6 +13,6 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
     public Order save(Order order) {
-        return orderJpaRepository.save(order);
+        return orderJpaRepository.save(OrderEntity.fromDomain(order)).toDomain();
     }
 }

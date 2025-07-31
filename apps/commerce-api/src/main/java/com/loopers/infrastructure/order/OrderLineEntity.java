@@ -25,5 +25,16 @@ public class OrderLineEntity extends BaseEntity {
         return orderLineEntity;
     }
 
+    public OrderLine toDomain() {
+        return OrderLine
+                .builder()
+                .id(id)
+                .price(orderPrice)
+                .productId(productId)
+                .quantity(quantity)
+                .orderId(orderId)
+                .build();
+    }
+
 
 }

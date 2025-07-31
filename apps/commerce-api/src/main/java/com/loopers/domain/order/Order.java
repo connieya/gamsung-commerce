@@ -9,26 +9,30 @@ import java.util.List;
 public class Order {
 
     private Long id;
-    private String orderNumber;
     private Long totalAmount;
     private Long userId;
     private List<OrderLine> orderLines;
 
 
-
     @Builder
-    private Order(Long id, String orderNumber, Long totalAmount, Long userId, List<OrderLine> orderLines) {
+    private Order(Long id, Long totalAmount, Long userId, List<OrderLine> orderLines) {
         this.id = id;
-        this.orderNumber = orderNumber;
         this.totalAmount = totalAmount;
         this.userId = userId;
         this.orderLines = orderLines;
     }
 
     public static Order create(OrderCommand orderCommand) {
+        List<OrderLine> convert = orderCommand.getOrderItems()
+                .stream()
+                .map(item ->
+                        OrderLine.create(item.getProductId(), item.getQuantity(), item.getPrice())
+                ).toList();
         return Order
                 .builder()
+                .userId(orderCommand.getUserId())
                 .totalAmount(orderCommand.getTotalAmount())
+                .orderLines(convert)
                 .build();
     }
 }

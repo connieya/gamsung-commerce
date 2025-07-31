@@ -27,4 +27,14 @@ public class OrderEntity extends BaseEntity {
 
         return orderEntity;
     }
+
+    public Order toDomain() {
+        return Order
+                .builder()
+                .id(id)
+                .userId(userId)
+                .totalAmount(totalAmount)
+                .orderLines(orderLineEntities.stream().map(OrderLineEntity::toDomain).collect(Collectors.toList()))
+                .build();
+    }
 }

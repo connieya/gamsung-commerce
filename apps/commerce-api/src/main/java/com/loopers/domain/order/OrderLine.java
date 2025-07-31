@@ -9,20 +9,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderLine {
 
+    private Long id;
     private Long productId;
     private Long orderId;
     private Long quantity;
     private Long price;
 
     @Builder
-    private OrderLine(Long productId, Long orderId, Long quantity, Long price) {
+    private OrderLine(Long id, Long productId, Long orderId, Long quantity, Long price) {
+        this.id = id;
         this.productId = productId;
         this.orderId = orderId;
         this.quantity = quantity;
         this.price = price;
     }
 
-    public static OrderLine create(Long productId, Long quantity , Long price){
+    public static OrderLine create(Long productId, Long quantity, Long price) {
         return OrderLine
                 .builder()
                 .productId(productId)

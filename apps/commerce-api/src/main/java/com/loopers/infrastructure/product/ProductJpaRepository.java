@@ -1,12 +1,17 @@
 package com.loopers.infrastructure.product;
 
 import com.loopers.domain.product.ProductInfo;
+import com.loopers.infrastructure.product.brand.BrandEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long> {
+
+    List<ProductEntity> findByBrandEntity(BrandEntity brandEntity);
 
     @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
             "p.id," +

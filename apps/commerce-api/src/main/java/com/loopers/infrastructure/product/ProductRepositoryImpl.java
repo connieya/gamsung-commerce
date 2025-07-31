@@ -12,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
@@ -31,6 +33,13 @@ public class ProductRepositoryImpl implements ProductRepository {
         BrandEntity brandEntity = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
         ProductEntity productEntity = ProductEntity.fromDomain(product, brandEntity);
         return productJpaRepository.save(productEntity).toDomain();
+    }
+
+    @Override
+    public List<Product> findByBrandId(Long brandId) {
+        BrandEntity brandEntity = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+        return productJpaRepository.findByBrandEntity(brandEntity)
+                .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
     }
 
     @Override

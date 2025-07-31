@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +41,8 @@ class ProductServiceTest {
     @DisplayName("상품 상세 조회 시, 상품 정보, 브랜드 정보 및 좋아요 수가 성공적으로 함께 조회된다.")
     void getProductDetail() {
         // given
-        when(productRepository.findById(1L)).thenReturn(Optional.of(Product.create("상품1", 50000L, 1L)));
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(2025, 8, 1, 10, 0, 0, 0, ZoneId.of("Asia/Seoul"));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(Product.create("상품1", 50000L, 1L, zonedDateTime)));
         when(brandRepository.findBrand(1L)).thenReturn(Optional.of(Brand.create("브랜드1", "멋진 브랜드")));
         when(productLikeRepository.getLikeCount(1L)).thenReturn(10L);
 

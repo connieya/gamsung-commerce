@@ -13,6 +13,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -23,7 +26,12 @@ public class ProductService {
 
     @Transactional
     public void register(ProductCommand productCommand) {
-        Product product = Product.create(productCommand.getName(), productCommand.getPrice(), productCommand.getBrandId());
+        Product product = Product.create(
+                productCommand.getName()
+                , productCommand.getPrice()
+                , productCommand.getBrandId()
+                , ZonedDateTime.of(2025, 8, 1, 10, 0, 0, 0, ZoneId.of("Asia/Seoul"))
+        );
         productRepository.save(product, productCommand.getBrandId());
     }
 

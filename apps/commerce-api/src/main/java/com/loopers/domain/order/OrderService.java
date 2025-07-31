@@ -20,7 +20,8 @@ public class OrderService {
         return OrderInfo.from(orderRepository.save(order));
     }
 
-    public OrderInfo getOrder(Long orderId) {
+    @Transactional(readOnly = true)
+    public OrderInfo getOrderDetail(Long orderId) {
         Order order = orderRepository.findOrderDetailById(orderId)
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 

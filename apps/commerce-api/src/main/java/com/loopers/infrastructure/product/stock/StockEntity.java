@@ -12,7 +12,6 @@ public class StockEntity extends BaseEntity {
     private Long productId;
     private Long quantity;
 
-
     public static StockEntity from(Stock stock) {
         StockEntity stockEntity = new StockEntity();
 
@@ -23,7 +22,12 @@ public class StockEntity extends BaseEntity {
     }
 
     public Stock toDomain() {
-
+        return Stock
+                .builder()
+                .id(id)
+                .productId(productId)
+                .quantity(quantity)
+                .build();
     }
 
 }

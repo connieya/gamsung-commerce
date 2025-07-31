@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Stock {
 
+    private Long id;
     private Long productId;
     private Long quantity;
 
     @Builder
-    private Stock(Long productId, Long quantity) {
+    private Stock(Long id, Long productId, Long quantity) {
+        this.id = id;
         this.productId = productId;
         this.quantity = quantity;
     }

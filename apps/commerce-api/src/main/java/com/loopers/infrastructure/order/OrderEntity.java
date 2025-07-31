@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 @Entity
 public class OrderEntity extends BaseEntity {
 
-    private String orderNumber;
     private Long totalAmount;
     private Long userId;
     @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true)
@@ -22,7 +21,6 @@ public class OrderEntity extends BaseEntity {
     public static OrderEntity fromDomain(Order order) {
         OrderEntity orderEntity = new OrderEntity();
 
-        orderEntity.orderNumber = order.getOrderNumber();
         orderEntity.totalAmount = order.getTotalAmount();
         orderEntity.userId = order.getUserId();
         orderEntity.orderLineEntities = order.getOrderLines().stream().map(OrderLineEntity::fromDomain).collect(Collectors.toList());

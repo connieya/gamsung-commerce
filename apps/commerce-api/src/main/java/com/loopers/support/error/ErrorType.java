@@ -19,6 +19,7 @@ public enum ErrorType {
 
     // 포인트 관련 에러
     POINT_INVALID_CHARGE_AMOUNT(HttpStatus.BAD_REQUEST, "Point Invalid Charge Amount", "충전할 포인트는 양수여야 합니다."),
+    POINT_INSUFFICIENT(HttpStatus.BAD_REQUEST, "Point Insufficient", "포인트가 부족합니다."),
 
     BRAND_NOT_FOUND(HttpStatus.NOT_FOUND , "Brand Not Found" , "존재하지 않는 브랜드입니다."),
 

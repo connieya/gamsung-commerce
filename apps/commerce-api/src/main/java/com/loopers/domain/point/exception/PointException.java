@@ -9,4 +9,10 @@ public class PointException {
             super(errorType);
         }
     }
+
+    public static class PointInsufficientException extends CoreException {
+        public PointInsufficientException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
 }

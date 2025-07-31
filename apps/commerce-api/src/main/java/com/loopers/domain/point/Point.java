@@ -42,4 +42,11 @@ public class Point extends Validatable<Point> {
         }
         this.value += value;
     }
+
+    public void deduct(Long totalAmount) {
+        if (this.value < totalAmount) {
+            throw new PointException.PointInsufficientException(ErrorType.POINT_INSUFFICIENT);
+        }
+        this.value -= totalAmount;
+    }
 }

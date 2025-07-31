@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -50,5 +51,9 @@ public class ProductService {
         Pageable pageable = PageRequest.of(size, page);
         Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
         return ProductsInfo.create(productDetails, sort);
+    }
+
+    public List<Product> findAllById(List<Long> productIds) {
+        return productRepository.findAllById(productIds);
     }
 }

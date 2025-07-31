@@ -62,7 +62,6 @@ class ProductLikeRepositoryTest {
         // when
         productLikeRepository.save(savedUser.getId(), savedProduct.getId());
 
-
         // then
         Long likeCount = productLikeRepository.getLikeCount(savedProduct.getId());
         assertThat(likeCount).isEqualTo(1L);

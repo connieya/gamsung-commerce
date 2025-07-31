@@ -19,4 +19,9 @@ public class PointRepositoryImpl implements PointRepository {
     public Optional<Point> findByUserId(String userId) {
         return pointJpaRepository.findByUserId(userId).map(PointEntity::toDomain);
     }
+
+    @Override
+    public Point save(Point point) {
+        return pointJpaRepository.save(PointEntity.from(point)).toDomain();
+    }
 }

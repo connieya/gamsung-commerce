@@ -46,4 +46,10 @@ public class ProductRepositoryImpl implements ProductRepository {
     public Page<ProductInfo> findProductDetails(Pageable pageable) {
         return productJpaRepository.findProductDetails(pageable);
     }
+
+    @Override
+    public List<Product> findAllById(List<Long> productIds) {
+        return productJpaRepository.findAllById(productIds)
+                .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
+    }
 }

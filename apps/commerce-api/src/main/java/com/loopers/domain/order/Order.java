@@ -1,24 +1,38 @@
 package com.loopers.domain.order;
 
-import com.loopers.domain.user.User;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class Order {
 
-    private String orderNumber;
+    private Long id;
     private Long totalAmount;
-    private OrderStatus orderStatus;
-    private User user;
-    private List<OrderItem> orderItems;
+    private Long userId;
+    private List<OrderLine> orderLines;
 
 
-    public enum OrderStatus {
-        PENDING,
-        PAID,
-        SHIPPED,
-        DELIVERED,
-        CANCELLED,
-        RETURNED
+    @Builder
+    private Order(Long id, Long totalAmount, Long userId, List<OrderLine> orderLines) {
+        this.id = id;
+        this.totalAmount = totalAmount;
+        this.userId = userId;
+        this.orderLines = orderLines;
+    }
+
+    public static Order create(OrderCommand orderCommand) {
+        List<OrderLine> convert = orderCommand.getOrderItems()
+                .stream()
+                .map(item ->
+                        OrderLine.create(item.getProductId(), item.getQuantity(), item.getPrice())
+                ).toList();
+        return Order
+                .builder()
+                .userId(orderCommand.getUserId())
+                .totalAmount(orderCommand.getTotalAmount())
+                .orderLines(convert)
+                .build();
     }
 }

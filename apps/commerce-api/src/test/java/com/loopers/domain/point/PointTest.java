@@ -3,9 +3,11 @@ package com.loopers.domain.point;
 import com.loopers.domain.point.exception.PointException;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
@@ -45,6 +47,32 @@ class PointTest {
         assertThatThrownBy(() -> {
             point.charge(value);
         }).isInstanceOf(PointException.PointInvalidChargeAmountException.class);
+    }
+
+    @Test
+    @DisplayName("주문한 금액만큼 포인트를 차감한다.")
+    void deduct() {
+        // given
+        Point point = Point.create("gunny", 10000L);
+
+        // when
+        point.deduct(3000L);
+
+        // then
+        assertThat(point.getValue()).isEqualTo(7000L);
+    }
+
+
+    @Test
+    @DisplayName("보유한 포인트보다 주문 금액이 많은 경우 PointInsufficientException 예외가 발생한다.")
+    void deduct_Fail() {
+        // given
+        Point point = Point.create("gunny", 10000L);
+
+        // when & then
+        assertThatThrownBy(() -> {
+            point.deduct(13000L);
+        }).isInstanceOf(PointException.PointInsufficientException.class);
     }
 
 }

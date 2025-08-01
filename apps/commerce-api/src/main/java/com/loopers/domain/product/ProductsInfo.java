@@ -8,11 +8,18 @@ import org.springframework.data.domain.Page;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 public class ProductsInfo {
     private List<ProductInfo> productInfoList;
     private PageInfo pageInfo;
+
+    private static final Map<Sort, Comparator<ProductInfo>> comparatorMap = Map.of(
+            Sort.PRICE_ASC, Comparator.comparing(ProductInfo::getPrice),
+            Sort.LATEST, Comparator.comparing(ProductInfo::getReleasedAt).reversed(),
+            Sort.LIKES_DESC, Comparator.comparing(ProductInfo::getLikeCount).reversed()
+    );
 
     @Builder
     private ProductsInfo(List<ProductInfo> productInfoList, PageInfo pageInfo) {
@@ -35,24 +42,9 @@ public class ProductsInfo {
     }
 
     private static List<ProductInfo> applySort(List<ProductInfo> productInfos, Sort sort) {
-        if (sort == Sort.PRICE_ASC) {
-            return productInfos.stream()
-                    .sorted(Comparator.comparing(ProductInfo::getPrice))
-                    .toList();
-        }
+        Comparator<ProductInfo> comparator = comparatorMap.getOrDefault(sort, Comparator.comparing(ProductInfo::getProductId));
+        return productInfos.stream().sorted(comparator).toList();
 
-        if (sort == Sort.LATEST) {
-            return productInfos.stream()
-                    .sorted(Comparator.comparing(ProductInfo::getReleasedAt).reversed())
-                    .toList();
-        }
-
-        if (sort == Sort.LIKES_DESC) {
-            return productInfos.stream()
-                    .sorted(Comparator.comparing(ProductInfo::getLikeCount).reversed())
-                    .toList();
-        }
-        return productInfos;
     }
 
 }

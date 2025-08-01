@@ -1,10 +1,6 @@
-package com.loopers.application.user;
+package com.loopers.domain.user;
 
 import com.loopers.domain.user.exception.UserException;
-import com.loopers.domain.user.UserInfoResult;
-import com.loopers.domain.user.UserRegisterCommand;
-import com.loopers.domain.user.User;
-import com.loopers.domain.user.UserService;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.user.fixture.UserRegisterCommandFixture;
 import com.loopers.infrastructure.user.UserRepositoryImpl;

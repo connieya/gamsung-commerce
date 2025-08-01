@@ -1,7 +1,10 @@
 package com.loopers.domain.product.stock;
 
+import com.loopers.domain.common.Validatable;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.support.error.ErrorType;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,9 +12,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Stock {
+public class Stock extends Validatable<Stock> {
     private Long id;
+    @NotNull
     private Long productId;
+    @Positive
     private Long quantity;
 
     @Builder
@@ -22,10 +27,14 @@ public class Stock {
     }
 
     public static Stock create(Long productId, Long quantity) {
-        return Stock.builder()
+        Stock stock = Stock.builder()
                 .productId(productId)
                 .quantity(quantity)
                 .build();
+
+        stock.validate();
+
+        return stock;
     }
 
     public void deduct(Long quantity) {

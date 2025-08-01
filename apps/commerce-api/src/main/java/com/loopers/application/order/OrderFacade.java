@@ -36,5 +36,3 @@ public class OrderFacade {
         stockService.deduct(orderCriteria.getProductIds(), command);
     }
 }
-
-

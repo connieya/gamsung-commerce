@@ -1,10 +1,7 @@
-package com.loopers.application.point;
+package com.loopers.domain.point;
 
-import com.loopers.domain.point.PointService;
 import com.loopers.domain.point.exception.PointException;
-import com.loopers.domain.point.PointInfoResult;
 import com.loopers.domain.user.exception.UserException;
-import com.loopers.domain.point.Point;
 import com.loopers.infrastructure.point.PointRepositoryImpl;
 import com.loopers.infrastructure.point.PointEntity;
 import com.loopers.infrastructure.point.PointJpaRepository;

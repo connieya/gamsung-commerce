@@ -1,8 +1,7 @@
-package com.loopers.application.product;
+package com.loopers.domain.product;
 
 import com.loopers.domain.common.Sort;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.product.*;
 import com.loopers.domain.product.brand.Brand;
 import com.loopers.domain.product.brand.BrandRepository;
 import org.junit.jupiter.api.BeforeEach;

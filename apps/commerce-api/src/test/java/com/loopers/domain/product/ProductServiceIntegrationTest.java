@@ -1,9 +1,5 @@
-package com.loopers.application.product;
+package com.loopers.domain.product;
 
-import com.loopers.domain.product.Product;
-import com.loopers.domain.product.ProductCommand;
-import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.brand.Brand;
 import com.loopers.domain.product.brand.BrandRepository;
 import com.loopers.domain.product.fixture.BrandFixture;

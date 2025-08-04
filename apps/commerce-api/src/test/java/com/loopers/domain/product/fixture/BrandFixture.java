@@ -1,6 +1,6 @@
 package com.loopers.domain.product.fixture;
 
-import com.loopers.domain.product.brand.Brand;
+import com.loopers.domain.brand.Brand;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
 import org.instancio.Select;

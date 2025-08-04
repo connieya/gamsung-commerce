@@ -1,7 +1,7 @@
-package com.loopers.infrastructure.product.brand;
+package com.loopers.infrastructure.brand;
 
-import com.loopers.domain.product.brand.Brand;
-import com.loopers.domain.product.brand.BrandRepository;
+import com.loopers.domain.brand.Brand;
+import com.loopers.domain.brand.BrandRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

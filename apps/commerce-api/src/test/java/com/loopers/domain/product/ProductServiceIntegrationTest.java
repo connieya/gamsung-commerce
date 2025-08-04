@@ -1,7 +1,7 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.product.brand.Brand;
-import com.loopers.domain.product.brand.BrandRepository;
+import com.loopers.domain.brand.Brand;
+import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;

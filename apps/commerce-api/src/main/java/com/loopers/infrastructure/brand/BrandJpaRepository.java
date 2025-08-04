@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.product.brand;
+package com.loopers.infrastructure.brand;
 
 import org.springframework.data.repository.CrudRepository;
 

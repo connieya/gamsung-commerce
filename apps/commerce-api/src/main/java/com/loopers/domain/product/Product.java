@@ -1,6 +1,5 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.product.brand.Brand;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;

@@ -2,7 +2,7 @@ package com.loopers.infrastructure.product;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.product.Product;
-import com.loopers.infrastructure.product.brand.BrandEntity;
+import com.loopers.infrastructure.brand.BrandEntity;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;

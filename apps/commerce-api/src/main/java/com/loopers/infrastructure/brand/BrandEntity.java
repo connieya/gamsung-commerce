@@ -4,9 +4,11 @@ import com.loopers.domain.BaseEntity;
 import com.loopers.domain.brand.Brand;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Getter;
 
 @Entity
 @Table(name = "brand")
+@Getter
 public class BrandEntity extends BaseEntity {
 
     private String name;

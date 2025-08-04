@@ -2,8 +2,8 @@ package com.loopers.interfaces.api.user;
 
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
-import com.loopers.infrastructure.user.entity.UserEntity;
-import com.loopers.infrastructure.user.jpa.UserJpaRepository;
+import com.loopers.infrastructure.user.UserEntity;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;

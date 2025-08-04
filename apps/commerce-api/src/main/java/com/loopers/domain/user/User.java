@@ -1,8 +1,8 @@
 package com.loopers.domain.user;
 
 import com.loopers.domain.common.Validatable;
+import com.loopers.domain.user.vo.BirthDate;
 import com.loopers.domain.user.vo.Gender;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -15,11 +15,13 @@ import lombok.NoArgsConstructor;
 @Getter
 public class User extends Validatable<User> {
 
+    private Long id;
+
     @Pattern(regexp = "^[a-zA-Z0-9]{1,10}$", message = "ID는 영문 및 숫자 10자 이내여야 합니다.")
     @NotBlank
-    private String id;
+    private String userId;
 
-    @Pattern(regexp =  "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$" , message = "이메일은 xx@yy.zz 형식이어야 합니다.")
+    @Pattern(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", message = "이메일은 xx@yy.zz 형식이어야 합니다.")
     @NotBlank
     private String email;
 
@@ -30,8 +32,9 @@ public class User extends Validatable<User> {
     private Gender gender;
 
     @Builder
-    private User(String id, String email, BirthDate birthDate, Gender gender) {
+    private User(Long id, String userId, String email, BirthDate birthDate, Gender gender) {
         this.id = id;
+        this.userId = userId;
         this.email = email;
         this.birthDate = birthDate;
         this.gender = gender;
@@ -39,7 +42,7 @@ public class User extends Validatable<User> {
 
     public static User create(String id, String email, String birthDate, Gender gender) {
         User user = User.builder()
-                .id(id)
+                .userId(id)
                 .email(email)
                 .birthDate(new BirthDate(birthDate))
                 .gender(gender)

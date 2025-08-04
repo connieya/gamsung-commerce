@@ -1,4 +1,4 @@
-package com.loopers.domain.product.exception;
+package com.loopers.domain.brand.exception;
 
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;

@@ -1,7 +1,7 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.common.Sort;
-import com.loopers.domain.product.exception.BrandException;
+import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.Brand;

@@ -32,27 +32,4 @@ public class OrderCriteria {
         return orderItems.stream().map(OrderItem::getProductId).collect(Collectors.toList());
     }
 
-    public OrderCommand toCommand(List<Product> products , Long userId) {
-        Map<Long, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getId, product -> product));
-
-        Long totalAmount = orderItems.stream()
-                .mapToLong(item -> {
-                    Product product = productMap.get(item.getProductId());
-                    return product.getPrice() * item.getQuantity();
-                }).sum();
-
-        List<OrderCommand.OrderItem> convertedItems = orderItems.stream()
-                .map(item -> {
-                    Product product = productMap.get(item.getProductId());
-                    return OrderCommand.OrderItem.builder()
-                            .productId(item.getProductId())
-                            .quantity(item.getQuantity())
-                            .price(product.getPrice())
-                            .build();
-                })
-                .collect(Collectors.toList());
-
-        return OrderCommand.of(userId, convertedItems, totalAmount);
-    }
 }

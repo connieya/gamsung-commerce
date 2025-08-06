@@ -1,6 +1,8 @@
 package com.loopers.interfaces.api.likes;
 
 import com.loopers.domain.likes.ProductLikeService;
+import com.loopers.domain.user.User;
+import com.loopers.domain.user.UserService;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,17 +14,20 @@ import org.springframework.web.bind.annotation.*;
 public class ProductLikeV1Controller implements ProductLikeV1ApiSpec {
 
     private final ProductLikeService productLikeService;
+    private final UserService userService;
 
     @PostMapping("/{productId}")
     @Override
-    public ApiResponse<?> add(@RequestHeader(ApiHeaders.USER_ID) String userId, @PathVariable("productId") Long productId) {
-        return ApiResponse.success();
+    public ApiResponse<Void> add(@RequestHeader(ApiHeaders.USER_ID) String userId, @PathVariable("productId") Long productId) {
+        User user = userService.findByUserId(userId);
+        productLikeService.add(user.getId(),productId);
+        return ApiResponse.success(null);
     }
 
-    @DeleteMapping("/{productId")
+    @DeleteMapping("/{productId}")
     @Override
-    public ApiResponse<?> remove(@RequestHeader(ApiHeaders.USER_ID) String userId, @PathVariable("productId") Long productId) {
-        return ApiResponse.success();
+    public ApiResponse<Void> remove(@RequestHeader(ApiHeaders.USER_ID) String userId, @PathVariable("productId") Long productId) {
+        return ApiResponse.success(null);
     }
 
     @GetMapping

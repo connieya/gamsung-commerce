@@ -18,7 +18,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserV1ApiZE2ETest {
+class UserV1ApiE2ETest {
 
     private static final String ENDPOINT_POST = "/api/v1/users";
     private static final String ENDPOINT_GET = "/api/v1/users/me";
@@ -28,7 +28,7 @@ class UserV1ApiZE2ETest {
     private final DatabaseCleanUp databaseCleanUp;
 
     @Autowired
-    public UserV1ApiZE2ETest(
+    public UserV1ApiE2ETest(
             TestRestTemplate testRestTemplate,
             UserJpaRepository userJpaRepository,
             DatabaseCleanUp databaseCleanUp

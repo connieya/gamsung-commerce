@@ -32,7 +32,7 @@ public class ProductService {
                 productCommand.getName()
                 , productCommand.getPrice()
                 , productCommand.getBrandId()
-                , ZonedDateTime.of(2025, 8, 1, 10, 0, 0, 0, ZoneId.of("Asia/Seoul"))
+                , ZonedDateTime.now()
         );
         productRepository.save(product, productCommand.getBrandId());
     }

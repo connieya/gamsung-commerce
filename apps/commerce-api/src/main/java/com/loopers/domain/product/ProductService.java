@@ -43,7 +43,7 @@ public class ProductService {
         Brand brand = brandRepository.findBrand(productId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
         Long likeCount = productLikeRepository.getLikeCount(productId);
 
-        return ProductDetailInfo.create(product.getName(), product.getPrice(), brand.getName(), likeCount);
+        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
     }
 
     @Transactional(readOnly = true)

@@ -27,6 +27,7 @@ public class ProductEntity extends BaseEntity {
         productEntity.name = product.getName();
         productEntity.price = product.getPrice();
         productEntity.brandEntity = brandEntity;
+        productEntity.releasedAt = product.getReleasedAt();
 
         return productEntity;
     }
@@ -37,6 +38,7 @@ public class ProductEntity extends BaseEntity {
                 .name(name)
                 .price(price)
                 .brandId(brandEntity.getId())
+                .releasedAt(releasedAt)
                 .build();
     }
 

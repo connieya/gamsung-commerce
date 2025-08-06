@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.product;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.common.Sort;
 import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.ProductFixture;
@@ -28,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +49,32 @@ class ProductV1ApiE2ETest {
     void tearDown() {
         databaseCleanUp.truncateAllTables();
     }
+
+    @DisplayName("GET" + BASE_ENDPOINT)
+    @Nested
+    class GetProductDetails {
+
+        @DisplayName("상품 목록 조회")
+        @Test
+        void getProducts() {
+            // given
+
+            // when
+            String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
+                    .queryParam("page", 0)
+                    .queryParam("size", 10)
+                    .queryParam("sort", Sort.LATEST)
+                    .buildAndExpand()
+                    .toUriString();
+
+            ResponseEntity<ApiResponse<ProductV1Dto.SummaryResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
+            });
+
+            // then`
+        }
+
+    }
+
 
     @DisplayName("GET" + BASE_ENDPOINT + "/{productId}")
     @Nested

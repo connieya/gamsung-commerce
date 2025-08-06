@@ -1,13 +1,12 @@
 package com.loopers.interfaces.api.product;
 
+import com.loopers.domain.common.Sort;
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductService;
+import com.loopers.domain.product.ProductsInfo;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -17,8 +16,12 @@ public class ProductV1Controller implements ProductV1ApiSpec {
     private final ProductService productService;
 
     @Override
-    public ApiResponse<?> getProducts() {
-        return null;
+    public ApiResponse<ProductV1Dto.SummaryResponse> getProducts(
+            @RequestParam int page
+            , @RequestParam int size
+            , @RequestParam Sort sort) {
+        ProductsInfo products = productService.getProducts(size, page, sort);
+        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
     }
 
     @GetMapping("/{productId}")

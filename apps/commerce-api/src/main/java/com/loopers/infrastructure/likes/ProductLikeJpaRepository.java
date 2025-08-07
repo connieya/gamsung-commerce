@@ -16,6 +16,6 @@ public interface ProductLikeJpaRepository extends CrudRepository<ProductLikeEnti
 
     void deleteByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
 
-    Optional<ProductLikeEntity> findByUserEntity_Id(Long userEntityId);
+    List<ProductLikeEntity> findByUserEntity_Id(Long userEntityId);
 }
 

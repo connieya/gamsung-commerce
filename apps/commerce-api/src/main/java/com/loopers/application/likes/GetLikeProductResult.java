@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 public class GetLikeProductResult {
-    List<ProductDetailInfo> productDetailInfos;
+    private List<ProductDetailInfo> productDetailInfos;
 
 
     private GetLikeProductResult(List<ProductDetailInfo> productDetailInfos) {

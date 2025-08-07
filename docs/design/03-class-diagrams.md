@@ -55,6 +55,7 @@ classDiagram
         -OrderStatus status
         -int totalPaymentAmount
         -List~OrderItem~ orderItems
+        -Long discountAmount    
         
         + getTotalPaymentAmount() Long
         + changeStatus(OrderStatus status) void
@@ -69,23 +70,62 @@ classDiagram
         -Long orderPrice
     }
     
-      enum OrderStatus
+    class OrderCoupon {
+        -Long id
+        -Order order
+        -Coupon coupon
+    }
+
+
+        
+    
+      class OrderStatus {
+          
         PENDING_PAYMENT
         PAYMENT_COMPLETED
         SHIPPING
         DELIVERED
         CANCELED
+    }
 
+    class Coupon {
+        - Long id
+        - String name
+        - CouponType type
+        - Long value
+    }
+
+    
+    class CouponType {
+        
+        FIXED_AMOUNT
+        PERCENTAGE
+    }
+    
+   
+    
+    class UserCoupon {
+        - Long id
+        - Long couponId
+        - boolean used
+        
+        +use()
+ }
  
     
     Product "N" --> "1" Brand : has
     Product "1" <-- "N" ProductLike : refers to
     Product "1" <-- "1" Stock : manages
-    User "1" <-- "1" Point : owns
+    User "1" --> "1" Point : owns
     Order "1"-->"1" OrderStatus : has
     User "1"-->"N" ProductLike : likes
     User "1" -- "N" Order : places
     Order "1" --> "N" OrderItem : contains
+    Coupon "1" --> "N" UserCoupon : refers to
+    User "1" --> "N" UserCoupon : owns
+    Order "1" --> "1" OrderCoupon : used
+    OrderCoupon "1" --> "1" Coupon : refers to
+    CouponType <|-- Coupon : has
 
 
 ```

@@ -9,8 +9,9 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderCommand {
     private Long userId;
-    private Long totalAmount;
     private List<OrderItem> orderItems;
+    private Long discountAmount;
+
 
     @Getter
     @Builder
@@ -22,18 +23,19 @@ public class OrderCommand {
     }
 
     @Builder
-    private OrderCommand(Long userId, Long totalAmount, List<OrderItem> orderItems) {
+    private OrderCommand(Long userId,  List<OrderItem> orderItems , Long discountAmount) {
         this.userId = userId;
-        this.totalAmount = totalAmount;
         this.orderItems = orderItems;
+        this.discountAmount = discountAmount;
+
     }
 
-    public static OrderCommand of(Long userId, List<OrderItem> orderItems, Long totalAmount) {
+    public static OrderCommand of(Long userId, List<OrderItem> orderItems, Long discountAmount) {
         return OrderCommand
                 .builder()
                 .userId(userId)
                 .orderItems(orderItems)
-                .totalAmount(totalAmount)
+                .discountAmount(discountAmount)
                 .build();
     }
 }

@@ -44,11 +44,11 @@ class OrderCriteriaTest {
                 .set(Select.field(Product::getPrice), 2000L)
                 .create();
 
-        OrderCommand command = OrderCommandMapper.map(1L, orderCriteria, List.of(productA, productB));
+        OrderCommand command = OrderCommandMapper.map(1L, orderCriteria, List.of(productA, productB) ,10000L);
 
         // then
         assertAll(
-                () -> assertThat(command.getTotalAmount()).isEqualTo(60000L),
+                () -> assertThat(command.getDiscountAmount()).isEqualTo(10000L),
                 () -> assertThat(command.getUserId()).isEqualTo(1L),
                 () -> assertThat(command.getOrderItems()).hasSize(2)
                         .extracting("productId", "quantity", "price")

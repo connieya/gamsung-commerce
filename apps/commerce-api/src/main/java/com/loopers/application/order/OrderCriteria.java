@@ -39,4 +39,15 @@ public class OrderCriteria {
         return orderItems.stream().map(OrderItem::getProductId).collect(Collectors.toList());
     }
 
+    public Long getTotalAmount(List<Product> products) {
+        Map<Long, Product> productMap = products.stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
+
+        return orderItems.stream()
+                .mapToLong(item -> {
+                    Product product = productMap.get(item.getProductId());
+                    return product.getPrice() * item.getQuantity();
+                }).sum();
+    }
+
 }

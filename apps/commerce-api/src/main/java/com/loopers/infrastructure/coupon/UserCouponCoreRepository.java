@@ -18,4 +18,16 @@ public class UserCouponCoreRepository implements UserCouponRepository {
         return userCouponJpaRepository.findByCouponId(couponId)
                 .map(UserCouponEntity::toDomain);
     }
+
+    @Override
+    public Optional<UserCoupon> findByUserId(Long id) {
+        return userCouponJpaRepository.findByUserId(id)
+                .map(UserCouponEntity::toDomain);
+    }
+
+
+    @Override
+    public void updateUsedStatus(Long id, boolean used) {
+        userCouponJpaRepository.updateUsedStatus(id ,used);
+    }
 }

@@ -1,5 +1,8 @@
 package com.loopers.application.payment;
 
+import com.loopers.domain.coupon.UserCouponCommand;
+import com.loopers.domain.coupon.UserCouponRepository;
+import com.loopers.domain.coupon.UserCouponService;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.order.OrderRepository;
@@ -13,8 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class PaymentFacade {
     private final PointService pointService;
     private final StockService stockService;
     private final PaymentService paymentService;
+    private final UserCouponService userCouponService;
 
 
     @Transactional
@@ -37,6 +39,8 @@ public class PaymentFacade {
 
         // 재고 차감
         stockService.deduct(orderLines);
+
+        userCouponService.use(UserCouponCommand.of(criteria.userId()));
 
         paymentService.pay(criteria.toCommand());
 

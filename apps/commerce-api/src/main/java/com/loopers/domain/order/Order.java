@@ -48,6 +48,7 @@ public class Order {
                 .map(item ->
                         OrderLine.create(item.getProductId(), item.getQuantity(), item.getPrice())
                 ).toList();
+
         return Order
                 .builder()
                 .userId(orderCommand.getUserId())

@@ -12,14 +12,17 @@ public class OrderLineEntity extends BaseEntity {
     private Long quantity;
     private Long orderPrice;
 
-    public static OrderLineEntity fromDomain(OrderLine orderLine) {
-        OrderLineEntity orderLineEntity = new OrderLineEntity();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private OrderEntity order;
 
-        orderLineEntity.productId = orderLine.getProductId();
-        orderLineEntity.quantity = orderLine.getQuantity();
-        orderLineEntity.orderPrice = orderLine.getPrice();
-
-        return orderLineEntity;
+    public static OrderLineEntity fromDomain(OrderLine orderLine, OrderEntity parentOrder) {
+        OrderLineEntity entity = new OrderLineEntity();
+        entity.productId = orderLine.getProductId();
+        entity.quantity = orderLine.getQuantity();
+        entity.orderPrice = orderLine.getPrice();
+        entity.order = parentOrder;
+        return entity;
     }
 
     public OrderLine toDomain() {

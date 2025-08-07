@@ -3,19 +3,23 @@ package com.loopers.infrastructure.order;
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.order.Order;
 import jakarta.persistence.*;
+import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Table(name = "orders")
 @Entity
+@Getter
 public class OrderEntity extends BaseEntity {
 
     private Long totalAmount;
     private Long userId;
-    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true)
-    @JoinColumn(name = "order_id")
-    private List<OrderLineEntity> orderLineEntities;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderLineEntity> orderLineEntities = new ArrayList<>();
+    private Long discountAmount;
 
 
     public static OrderEntity fromDomain(Order order) {
@@ -23,18 +27,28 @@ public class OrderEntity extends BaseEntity {
 
         orderEntity.totalAmount = order.getTotalAmount();
         orderEntity.userId = order.getUserId();
-        orderEntity.orderLineEntities = order.getOrderLines().stream().map(OrderLineEntity::fromDomain).collect(Collectors.toList());
+        orderEntity.discountAmount = order.getDiscountAmount();
+
+        // 연관관계 주입
+        order.getOrderLines().forEach(orderLine -> {
+            OrderLineEntity lineEntity = OrderLineEntity.fromDomain(orderLine, orderEntity);
+            orderEntity.orderLineEntities.add(lineEntity);
+        });
 
         return orderEntity;
     }
 
+
     public Order toDomain() {
+        System.out.println("orderLineEntities  @@#@#= " + orderLineEntities.size());
         return Order
                 .builder()
                 .id(id)
                 .userId(userId)
                 .totalAmount(totalAmount)
+                .discountAmount(discountAmount)
                 .orderLines(orderLineEntities.stream().map(OrderLineEntity::toDomain).collect(Collectors.toList()))
                 .build();
     }
+
 }

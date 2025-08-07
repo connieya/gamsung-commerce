@@ -22,6 +22,9 @@ public class UserCouponService {
         UserCoupon userCoupon = userCouponRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new CouponException.UserCouponNotFoundException(ErrorType.USER_COUPON_NOT_FOUND));
 
+        if (!userCoupon.canUse()) {
+            throw new CouponException.UserCouponAlreadyUsedException(ErrorType.USER_COUPON_ALREADY_USED);
+        }
         userCoupon.use();
         userCouponRepository.updateUsedStatus(userCoupon.getId() ,userCoupon.isUsed());
 

@@ -25,6 +25,11 @@ public class UserCouponCoreRepository implements UserCouponRepository {
                 .map(UserCouponEntity::toDomain);
     }
 
+    @Override
+    public UserCoupon save(UserCoupon userCoupon) {
+        return null;
+    }
+
 
     @Override
     public void updateUsedStatus(Long id, boolean used) {

@@ -35,7 +35,7 @@ public class PaymentFacade {
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 
         // 포인트 차감
-        pointService.deduct(criteria.userId(), order.getId());
+        pointService.deduct(criteria.userId(), order.getFinalAmount());
         List<OrderLine> orderLines = order.getOrderLines();
 
         // 재고 차감

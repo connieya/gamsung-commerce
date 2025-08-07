@@ -33,6 +33,7 @@ public class PointService implements PointUseCase {
     @Transactional
     public void deduct(String userId , Long totalAmount) {
         Point point = pointRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
+
         point.deduct(totalAmount);
         pointRepository.save(point);
     }

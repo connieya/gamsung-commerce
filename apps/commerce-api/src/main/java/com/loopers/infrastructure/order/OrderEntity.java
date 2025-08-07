@@ -40,7 +40,6 @@ public class OrderEntity extends BaseEntity {
 
 
     public Order toDomain() {
-        System.out.println("orderLineEntities  @@#@#= " + orderLineEntities.size());
         return Order
                 .builder()
                 .id(id)

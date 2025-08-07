@@ -9,6 +9,7 @@ import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
+import com.loopers.domain.point.exception.PointException;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.exception.ProductException;
@@ -102,6 +103,57 @@ class PaymentFacadeIntegrationTest {
                     paymentFacade.pay(criteria);
                 }
         ).isInstanceOf(ProductException.InsufficientStockException.class);
+
+    }
+
+    @Test
+    @DisplayName("주문 시 유저의 포인트 잔액이 부족할 경우 주문은 실패해야 한다")
+    void pay_throwsException_whenPointInsufficientException() {
+        // given
+        User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User savedUser = userRepository.save(user);
+
+        Point point = Point.create(savedUser.getUserId(), 5000L);
+        pointRepository.save(point);
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
+        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+
+        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
+        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+
+        Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
+        Stock stock2 = Stock.create(savedProduct2.getId(), 150L);
+
+        stockRepository.save(stock1);
+        stockRepository.save(stock2);
+
+        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct1.getId())
+                .price(1000L)
+                .quantity(2L)
+                .build();
+
+        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct2.getId())
+                .price(2000L)
+                .quantity(10L)
+                .build();
+        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 5000L);
+        Order order = Order.create(orderCommand);
+        Order savedOrder = orderRepository.save(order);
+
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+
+        // when &  then
+        assertThatThrownBy(
+                () -> {
+                    paymentFacade.pay(criteria);
+                }
+        ).isInstanceOf(PointException.PointInsufficientException.class);
 
     }
 

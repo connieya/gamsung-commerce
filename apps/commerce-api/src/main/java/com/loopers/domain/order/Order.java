@@ -12,6 +12,7 @@ public class Order {
     private Long totalAmount;
     private Long userId;
     private List<OrderLine> orderLines;
+    private Long discountAmount;
 
 
     @Builder

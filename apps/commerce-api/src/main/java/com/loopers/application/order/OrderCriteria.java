@@ -1,6 +1,5 @@
 package com.loopers.application.order;
 
-import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.product.Product;
 import lombok.*;
 
@@ -15,11 +14,6 @@ public class OrderCriteria {
     private String userId;
     private List<OrderItem> orderItems;
     private Long couponId;
-
-    public OrderCriteria(String userId, List<OrderItem> orderItems) {
-        this.userId = userId;
-        this.orderItems = orderItems;
-    }
 
     public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId) {
         this.userId = userId;

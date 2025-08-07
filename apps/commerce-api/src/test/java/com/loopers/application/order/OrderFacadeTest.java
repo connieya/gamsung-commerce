@@ -33,7 +33,7 @@ class OrderFacadeTest {
                 .productId(1L)
                 .quantity(10L)
                 .build();
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem));
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem), 1L);
 
         // when
         when(userService.findByUserId("gunny"))

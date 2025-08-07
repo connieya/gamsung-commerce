@@ -62,4 +62,8 @@ public class Order {
                 .mapToLong(item -> item.getPrice() * item.getQuantity())
                 .sum();
     }
+
+    public Long getFinalAmount() {
+        return this.totalAmount - this.discountAmount;
+    }
 }

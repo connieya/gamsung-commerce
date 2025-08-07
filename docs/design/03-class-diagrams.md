@@ -106,10 +106,12 @@ classDiagram
     
     class UserCoupon {
         - Long id
+        - Long userId
         - Long couponId
         - boolean used
         
         +use()
+        +canUse() boolean
  }
  
     

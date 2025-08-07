@@ -1,5 +1,7 @@
 package com.loopers.interfaces.api.likes;
 
+import com.loopers.application.likes.GetLikeProductResult;
+import com.loopers.application.likes.GetLikeProductUseCase;
 import com.loopers.domain.likes.ProductLikeService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
@@ -15,24 +17,28 @@ public class ProductLikeV1Controller implements ProductLikeV1ApiSpec {
 
     private final ProductLikeService productLikeService;
     private final UserService userService;
+    private final GetLikeProductUseCase getLikeProductUseCase;
 
     @PostMapping("/{productId}")
     @Override
     public ApiResponse<Void> add(@RequestHeader(ApiHeaders.USER_ID) String userId, @PathVariable("productId") Long productId) {
         User user = userService.findByUserId(userId);
-        productLikeService.add(user.getId(),productId);
+        productLikeService.add(user.getId(), productId);
         return ApiResponse.success(null);
     }
 
     @DeleteMapping("/{productId}")
     @Override
     public ApiResponse<Void> remove(@RequestHeader(ApiHeaders.USER_ID) String userId, @PathVariable("productId") Long productId) {
+        User user = userService.findByUserId(userId);
+        productLikeService.remove(user.getId(), productId);
         return ApiResponse.success(null);
     }
 
     @GetMapping
     @Override
-    public ApiResponse<?> getMyLikes(@RequestHeader(ApiHeaders.USER_ID) String userId) {
-        return null;
+    public ApiResponse<ProductLikeV1Dto.LikedProductResponse> getMyLikes(@RequestHeader(ApiHeaders.USER_ID) String userId) {
+        GetLikeProductResult likedProducts = getLikeProductUseCase.getLikedProducts(userId);
+        return ApiResponse.success(ProductLikeV1Dto.LikedProductResponse.from(likedProducts));
     }
 }

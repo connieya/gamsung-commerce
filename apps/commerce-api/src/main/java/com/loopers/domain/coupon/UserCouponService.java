@@ -19,6 +19,7 @@ public class UserCouponService {
     public void use(UserCouponCommand userCouponCommand) {
         User user = userRepository.findByUserId(userCouponCommand.getUserId())
                 .orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
+
         UserCoupon userCoupon = userCouponRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new CouponException.UserCouponNotFoundException(ErrorType.USER_COUPON_NOT_FOUND));
 

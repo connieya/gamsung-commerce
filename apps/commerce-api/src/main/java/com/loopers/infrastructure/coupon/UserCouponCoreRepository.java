@@ -27,7 +27,8 @@ public class UserCouponCoreRepository implements UserCouponRepository {
 
     @Override
     public UserCoupon save(UserCoupon userCoupon) {
-        return null;
+        return userCouponJpaRepository.save(UserCouponEntity.fromDomain(userCoupon))
+                .toDomain();
     }
 
 

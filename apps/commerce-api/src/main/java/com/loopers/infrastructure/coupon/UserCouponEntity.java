@@ -18,6 +18,17 @@ public class UserCouponEntity extends BaseEntity {
     private boolean used;
 
 
+    public static UserCouponEntity fromDomain(UserCoupon userCoupon) {
+        UserCouponEntity userCouponEntity = new UserCouponEntity();
+
+        userCouponEntity.couponId = userCoupon.getCouponId();
+        userCouponEntity.userId = userCoupon.getUserId();
+        userCouponEntity.used = false;
+
+        return userCouponEntity;
+    }
+
+
     public UserCoupon toDomain() {
         return UserCoupon
                 .builder()

@@ -41,7 +41,9 @@ public class PaymentFacade {
         // 재고 차감
         stockService.deduct(orderLines);
 
-        userCouponService.use(UserCouponCommand.of(criteria.userId()));
+        if (order.getDiscountAmount() > 0L) {
+            userCouponService.use(UserCouponCommand.of(criteria.userId()));
+        }
 
         Payment pay = paymentService.pay(criteria.toCommand());
 

@@ -23,12 +23,15 @@ public class OrderFacade {
     private final CouponService couponService;
 
     @Transactional
-    public void place(OrderCriteria orderCriteria) {
+    public OrderResult.Create place(OrderCriteria orderCriteria) {
         User user = userService.findByUserId(orderCriteria.getUserId());
+
         List<Product> products = productService.findAllById(orderCriteria.getProductIds());
+
         Long discountAmount = couponService.getDiscountAmount(orderCriteria.getCouponId(), orderCriteria.getTotalAmount(products));
+
         OrderCommand command = OrderCommandMapper.map(user.getId(), orderCriteria, products, discountAmount);
-        orderService.place(command);
+        return OrderResult.Create.from(orderService.place(command));
     }
 }
 

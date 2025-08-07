@@ -2,7 +2,9 @@ package com.loopers.application.payment;
 
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentStatus;
+import lombok.Getter;
 
+@Getter
 public class PaymentResult {
     private Long paymentId;
     private PaymentStatus paymentStatus;

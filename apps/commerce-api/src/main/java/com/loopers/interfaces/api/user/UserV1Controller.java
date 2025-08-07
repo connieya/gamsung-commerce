@@ -1,12 +1,11 @@
 package com.loopers.interfaces.api.user;
 
-import com.loopers.application.user.port.in.UserInfoResult;
-import com.loopers.application.user.port.in.UserRegisterCommand;
-import com.loopers.application.user.port.in.UserRegisterResult;
-import com.loopers.application.user.port.in.UserUseCase;
+import com.loopers.domain.user.UserInfoResult;
+import com.loopers.domain.user.UserRegisterCommand;
+import com.loopers.domain.user.UserRegisterResult;
+import com.loopers.domain.user.UserUseCase;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
-import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

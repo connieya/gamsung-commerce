@@ -1,6 +1,6 @@
 package com.loopers.domain.user.fixture;
 
-import com.loopers.domain.user.BirthDate;
+import com.loopers.domain.user.vo.BirthDate;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import org.instancio.Instancio;
@@ -14,7 +14,7 @@ public class UserFixture {
 
   public static InstancioApi<User> complete() {
     return Instancio.of(User.class)
-        .generate(Select.field(User::getId), generators -> generators.string().length(5, 10).alphaNumeric())
+        .generate(Select.field(User::getUserId), generators -> generators.string().length(5, 10).alphaNumeric())
 
         .generate(Select.field(User::getEmail), generators -> generators.net().email())
         .supply(Select.field(User::getBirthDate), () -> {

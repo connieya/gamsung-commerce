@@ -1,9 +1,9 @@
 package com.loopers.interfaces.api.point;
 
 import com.loopers.domain.point.Point;
-import com.loopers.infrastructure.point.entity.PointEntity;
-import com.loopers.infrastructure.point.jpa.PointJpaRepository;
-import com.loopers.infrastructure.user.jpa.UserJpaRepository;
+import com.loopers.infrastructure.point.PointEntity;
+import com.loopers.infrastructure.point.PointJpaRepository;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;

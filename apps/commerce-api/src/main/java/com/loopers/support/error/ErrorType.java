@@ -31,6 +31,14 @@ public enum ErrorType {
 
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order Not Found", "존재하지 않는 주문입니다."),
 
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "Coupon Not Found", "존재하지 않는 쿠폰입니다."),
+    USER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "UserCoupon Not Found", "존재하지 않는 사용자 쿠폰입니다."),
+    USER_COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "UserCoupon Already Used", "이미 사용된 쿠폰입니다."),
+
+
+
+
+
     ;
 
 

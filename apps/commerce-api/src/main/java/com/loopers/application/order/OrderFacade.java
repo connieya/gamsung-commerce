@@ -30,7 +30,7 @@ public class OrderFacade {
     public void place(OrderCriteria orderCriteria) {
         User user = userService.findByUserId(orderCriteria.getUserId());
         List<Product> products = productService.findAllById(orderCriteria.getProductIds());
-        OrderCommand command = orderCriteria.toCommand(products, user.getId());
+        OrderCommand command = OrderCommandMapper.map(user.getId() , orderCriteria ,products);
         OrderInfo orderInfo = orderService.place(command);
         pointService.deduct(user.getUserId(), orderInfo.getTotalAmount());
         stockService.deduct(orderCriteria.getProductIds(), command);

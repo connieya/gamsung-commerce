@@ -44,7 +44,7 @@ class OrderCriteriaTest {
                 .set(Select.field(Product::getPrice), 2000L)
                 .create();
 
-        OrderCommand command = orderCriteria.toCommand(List.of(productA, productB), 1L);
+        OrderCommand command = OrderCommandMapper.map(1L, orderCriteria, List.of(productA, productB));
 
         // then
         assertAll(

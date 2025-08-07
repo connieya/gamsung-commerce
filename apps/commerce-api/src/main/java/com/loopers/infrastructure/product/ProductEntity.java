@@ -2,7 +2,7 @@ package com.loopers.infrastructure.product;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.product.Product;
-import com.loopers.infrastructure.product.brand.BrandEntity;
+import com.loopers.infrastructure.brand.BrandEntity;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
@@ -27,6 +27,7 @@ public class ProductEntity extends BaseEntity {
         productEntity.name = product.getName();
         productEntity.price = product.getPrice();
         productEntity.brandEntity = brandEntity;
+        productEntity.releasedAt = product.getReleasedAt();
 
         return productEntity;
     }
@@ -37,6 +38,7 @@ public class ProductEntity extends BaseEntity {
                 .name(name)
                 .price(price)
                 .brandId(brandEntity.getId())
+                .releasedAt(releasedAt)
                 .build();
     }
 

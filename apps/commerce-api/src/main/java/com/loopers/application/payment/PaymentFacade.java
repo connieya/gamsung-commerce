@@ -7,6 +7,7 @@ import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.exception.OrderException;
+import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.product.stock.StockService;
@@ -29,7 +30,7 @@ public class PaymentFacade {
 
 
     @Transactional
-    public void pay(PaymentCriteria.Pay criteria) {
+    public PaymentResult pay(PaymentCriteria.Pay criteria) {
         Order order = orderRepository.findOrderDetailById(criteria.orderId())
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 
@@ -42,9 +43,9 @@ public class PaymentFacade {
 
         userCouponService.use(UserCouponCommand.of(criteria.userId()));
 
-        paymentService.pay(criteria.toCommand());
+        Payment pay = paymentService.pay(criteria.toCommand());
 
+        return PaymentResult.from(pay);
     }
-
 
 }

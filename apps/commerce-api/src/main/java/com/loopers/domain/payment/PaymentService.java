@@ -16,7 +16,7 @@ public class PaymentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void pay(PaymentCommand paymentCommand) {
+    public Payment pay(PaymentCommand paymentCommand) {
         User user = userRepository.findByUserId(paymentCommand.getUserId())
                 .orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 
@@ -25,6 +25,6 @@ public class PaymentService {
                 ,paymentCommand.getOrderId()
                 ,user.getId()
                 , PaymentMethod.POINT);
-        paymentRepository.save(payment);
+        return paymentRepository.save(payment);
     }
 }

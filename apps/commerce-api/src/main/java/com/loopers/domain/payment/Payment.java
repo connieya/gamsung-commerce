@@ -33,7 +33,7 @@ public class Payment {
                 .orderId(orderId)
                 .userId(userId)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(PaymentStatus.CANCELLED)
+                .paymentStatus(PaymentStatus.COMPLETE)
                 .build();
 
     }

@@ -6,6 +6,7 @@ import com.loopers.infrastructure.user.UserEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,9 @@ public class UserCouponEntity extends BaseEntity {
     private Long couponId;
     private Long userId;
     private boolean used;
+
+    @Version
+    private Long version;
 
 
     public static UserCouponEntity fromDomain(UserCoupon userCoupon) {
@@ -41,5 +45,9 @@ public class UserCouponEntity extends BaseEntity {
                 .userId(userId)
                 .used(used)
                 .build();
+    }
+
+    public void used(boolean used) {
+        this.used = used;
     }
 }

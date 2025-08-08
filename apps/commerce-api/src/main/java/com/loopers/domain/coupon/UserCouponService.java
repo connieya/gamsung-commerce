@@ -27,7 +27,7 @@ public class UserCouponService {
             throw new CouponException.UserCouponAlreadyUsedException(ErrorType.USER_COUPON_ALREADY_USED);
         }
         userCoupon.use();
-        userCouponRepository.updateUsedStatus(userCoupon.getId() ,userCoupon.isUsed());
+        userCouponRepository.save(userCoupon);
 
     }
 }

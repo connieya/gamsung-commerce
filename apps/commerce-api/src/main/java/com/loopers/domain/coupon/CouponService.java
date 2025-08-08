@@ -25,7 +25,7 @@ public class CouponService {
                     }
 
                     userCoupon.use();
-                    userCouponRepository.updateUsedStatus(userCoupon.getId() , userCoupon.isUsed());
+                    userCouponRepository.save(userCoupon);
                     return coupon.calculateDiscountAmount(orderAmount);
                 })
                 .orElse(0L); // coupon 이 없으면 할인 없음

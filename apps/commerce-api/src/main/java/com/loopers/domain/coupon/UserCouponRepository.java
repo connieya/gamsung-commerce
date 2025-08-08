@@ -9,6 +9,4 @@ public interface UserCouponRepository {
     Optional<UserCoupon> findByUserId(Long id);
 
     UserCoupon save(UserCoupon userCoupon);
-
-    void updateUsedStatus(Long id, boolean used);
 }

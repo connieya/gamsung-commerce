@@ -29,7 +29,7 @@ public class  OrderFacade {
 
         Long discountAmount = couponService.getDiscountAmount(orderCriteria.getCouponId(), orderCriteria.getTotalAmount(products));
 
-        OrderCommand command = OrderCommandMapper.map(user.getId(), orderCriteria, products, discountAmount);
+        OrderCommand command = OrderCommandMapper.map(user.getId(), orderCriteria, products, discountAmount );
         return OrderResult.Create.from(orderService.place(command));
     }
 }

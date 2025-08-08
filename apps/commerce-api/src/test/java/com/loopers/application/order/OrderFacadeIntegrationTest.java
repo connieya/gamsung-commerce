@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -86,18 +87,18 @@ class OrderFacadeIntegrationTest {
 
         Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId());
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId(), UUID.randomUUID().toString());
 
 
         // when & then
-        assertThatThrownBy( ()-> {
+        assertThatThrownBy(() -> {
             orderFacade.place(orderCriteria);
         }).isInstanceOf(CouponException.UserCouponNotFoundException.class);
     }
 
     @Test
     @DisplayName("주문 성공: 쿠폰 할인이 정상 적용되어 총액 및 할인 금액이 올바르게 계산된다.")
-    void placeOrder_success_withCouponApplied()  {
+    void placeOrder_success_withCouponApplied() {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         User savedUser = userRepository.save(user);
@@ -134,7 +135,7 @@ class OrderFacadeIntegrationTest {
         Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
         userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId()));
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId());
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId(), UUID.randomUUID().toString());
 
 
         // when
@@ -143,8 +144,8 @@ class OrderFacadeIntegrationTest {
 
         // then
         assertAll(
-                ()-> assertThat(orderResult.getTotalAmount()).isEqualTo(17000L),
-                ()-> assertThat(orderResult.getDiscountAmount()).isEqualTo(1700L)
+                () -> assertThat(orderResult.getTotalAmount()).isEqualTo(17000L),
+                () -> assertThat(orderResult.getDiscountAmount()).isEqualTo(1700L)
 
         );
     }
@@ -186,7 +187,7 @@ class OrderFacadeIntegrationTest {
                 .build();
 
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), 0L);
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), 0L, UUID.randomUUID().toString());
 
 
         // when
@@ -195,8 +196,8 @@ class OrderFacadeIntegrationTest {
 
         // then
         assertAll(
-                ()-> assertThat(orderResult.getTotalAmount()).isEqualTo(17000L),
-                ()-> assertThat(orderResult.getDiscountAmount()).isEqualTo(0L)
+                () -> assertThat(orderResult.getTotalAmount()).isEqualTo(17000L),
+                () -> assertThat(orderResult.getDiscountAmount()).isEqualTo(0L)
 
         );
     }

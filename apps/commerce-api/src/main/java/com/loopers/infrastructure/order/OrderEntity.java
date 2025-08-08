@@ -21,6 +21,9 @@ public class OrderEntity extends BaseEntity {
     private List<OrderLineEntity> orderLineEntities = new ArrayList<>();
     private Long discountAmount;
 
+    @Column(name = "idempotency_key", nullable = false, updatable = false, unique = true)
+    private String idempotencyKey;
+
 
     public static OrderEntity fromDomain(Order order) {
         OrderEntity orderEntity = new OrderEntity();

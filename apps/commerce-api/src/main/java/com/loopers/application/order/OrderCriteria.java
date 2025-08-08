@@ -14,11 +14,13 @@ public class OrderCriteria {
     private String userId;
     private List<OrderItem> orderItems;
     private Long couponId;
+    private String idempotencyKey;
 
-    public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId) {
+    public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId , String idempotencyKey) {
         this.userId = userId;
         this.orderItems = orderItems;
         this.couponId = couponId;
+        this.idempotencyKey = idempotencyKey;
     }
 
     @Getter

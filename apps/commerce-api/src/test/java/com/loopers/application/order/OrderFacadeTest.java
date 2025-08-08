@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -33,7 +34,7 @@ class OrderFacadeTest {
                 .productId(1L)
                 .quantity(10L)
                 .build();
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem), 1L);
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem), 1L , UUID.randomUUID().toString());
 
         // when
         when(userService.findByUserId("gunny"))

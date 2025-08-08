@@ -11,6 +11,7 @@ public class OrderCommand {
     private Long userId;
     private List<OrderItem> orderItems;
     private Long discountAmount;
+    private String idempotencyKey;
 
 
     @Getter
@@ -23,14 +24,15 @@ public class OrderCommand {
     }
 
     @Builder
-    private OrderCommand(Long userId,  List<OrderItem> orderItems , Long discountAmount) {
+    private OrderCommand(Long userId,  List<OrderItem> orderItems , Long discountAmount , String idempotencyKey) {
         this.userId = userId;
         this.orderItems = orderItems;
         this.discountAmount = discountAmount;
+        this.idempotencyKey = idempotencyKey;
 
     }
 
-    public static OrderCommand of(Long userId, List<OrderItem> orderItems, Long discountAmount) {
+    public static OrderCommand of(Long userId, List<OrderItem> orderItems, Long discountAmount , String idempotencyKey) {
         return OrderCommand
                 .builder()
                 .userId(userId)

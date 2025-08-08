@@ -26,7 +26,7 @@ public class OrderCommandMapper {
                 })
                 .toList();
 
-        return OrderCommand.of(userId, convertedItems, discountAmount);
+        return OrderCommand.of(userId, convertedItems, discountAmount ,orderCriteria.getIdempotencyKey());
 
     }
 }

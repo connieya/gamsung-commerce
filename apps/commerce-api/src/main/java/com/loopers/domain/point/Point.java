@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Point extends Validatable<Point> {
 
+    private Long id;
+
     @NotBlank
     private String userId;
 
@@ -20,7 +22,8 @@ public class Point extends Validatable<Point> {
     private Long value;
 
     @Builder
-    private Point(String userId, Long value) {
+    private Point(Long id ,String userId, Long value) {
+        this.id = id;
         this.userId = userId;
         this.value = value;
     }

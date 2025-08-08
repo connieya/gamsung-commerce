@@ -8,17 +8,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OrderCommandMapper {
-    public static OrderCommand map(Long userId , OrderCriteria orderCriteria , List<Product> products) {
+    public static OrderCommand map(Long userId, OrderCriteria orderCriteria, List<Product> products, Long discountAmount) {
         Map<Long, Product> productMap = products.stream()
                 .collect(Collectors.toMap(Product::getId, product -> product));
 
         List<OrderCriteria.OrderItem> orderItems = orderCriteria.getOrderItems();
 
-        Long totalAmount = orderItems.stream()
-                .mapToLong(item -> {
-                    Product product = productMap.get(item.getProductId());
-                    return product.getPrice() * item.getQuantity();
-                }).sum();
 
         List<OrderCommand.OrderItem> convertedItems = orderItems.stream()
                 .map(item -> {
@@ -31,7 +26,7 @@ public class OrderCommandMapper {
                 })
                 .toList();
 
-        return OrderCommand.of(userId, convertedItems,totalAmount);
+        return OrderCommand.of(userId, convertedItems, discountAmount);
 
     }
 }

@@ -23,8 +23,13 @@ public class PointEntity extends BaseEntity {
     public Point toDomain() {
         return Point
                 .builder()
+                .id(id)
                 .userId(userId)
                 .value(value)
                 .build();
+    }
+
+    public void changeValue(Long value) {
+        this.value = value;
     }
 }

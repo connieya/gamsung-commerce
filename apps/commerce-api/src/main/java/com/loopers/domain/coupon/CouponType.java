@@ -11,7 +11,7 @@ public enum CouponType {
         public Long calculate(Long orderAmount, Long discountValue) {
             // 주문 금액이 할인 금액보다 작으면 0원 할인
             if (orderAmount < discountValue) {
-                return 0L;
+                return orderAmount;
             }
             return discountValue;
         }

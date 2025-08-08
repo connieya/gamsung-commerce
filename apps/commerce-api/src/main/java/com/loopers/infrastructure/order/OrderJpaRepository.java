@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface OrderJpaRepository extends JpaRepository<OrderEntity, Long> {
 
-    @Query("select o from OrderEntity o join fetch o.orderLineEntities ol where  o.id = :orderId")
-    Optional<OrderEntity> findOrderDetailById(@Param("orderId") Long orderId);
+    @Query("SELECT o FROM OrderEntity o LEFT JOIN FETCH o.orderLineEntities WHERE o.id = :id")
+    Optional<OrderEntity> findOrderDetailById(@Param("id") Long id);
 }

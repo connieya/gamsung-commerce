@@ -18,4 +18,9 @@ public class CouponCoreRepository implements CouponRepository {
         return couponJpaRepository.findById(couponId)
                 .map(CouponEntity::toDomain);
     }
+
+    @Override
+    public Coupon save(Coupon coupon) {
+        return couponJpaRepository.save(CouponEntity.from(coupon)).toDomain();
+    }
 }

@@ -33,9 +33,27 @@ public class StockRepositoryImpl implements StockRepository {
     }
 
     @Override
-    public List<Stock> saveAll(List<Stock> stocks) {
-        return stockJpaRepository.saveAll(stocks.stream().map(StockEntity::from).collect(Collectors.toList()))
+    public List<Stock> findStocksForUpdate(List<Long> productIds) {
+        return stockJpaRepository.findByProductIdInForUpdate(productIds)
                 .stream()
                 .map(StockEntity::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Stock> saveAll(List<Stock> stocks) {
+        List<StockEntity> stockEntities = stocks.stream()
+                .map(stock -> {
+                    // 도메인 객체의 ID를 기반으로 기존 엔티티를 찾아서 병합(merge)
+                    // 또는 단순히 fromDomain()으로 변환
+                    StockEntity entity = stockJpaRepository.findById(stock.getId())
+                            .orElseGet(() -> StockEntity.from(stock));
+                    entity.setQuantity(stock.getQuantity()); // 변경된 필드만 업데이트
+                    return entity;
+                })
+                .collect(Collectors.toList());
+
+        return stockJpaRepository.saveAll(stockEntities).stream()
+                .map(StockEntity::toDomain)
+                .collect(Collectors.toList());
     }
 }

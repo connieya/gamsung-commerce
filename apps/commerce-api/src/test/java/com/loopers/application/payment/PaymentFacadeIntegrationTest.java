@@ -30,12 +30,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -337,7 +340,7 @@ class PaymentFacadeIntegrationTest {
 
     @DisplayName("동일한 쿠폰으로 여러 기기에서 동시에 주문해도, 쿠폰은 단 한번만 사용되어야 한다.")
     @Test
-    void test() throws InterruptedException {
+    void pay_throwsOptimisticLockingFailureException_whenSameCouponUsedConcurrently() throws InterruptedException {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         User savedUser = userRepository.save(user);
@@ -385,28 +388,52 @@ class PaymentFacadeIntegrationTest {
         PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT);
 
         int threadCount = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch endLatch = new CountDownLatch(threadCount);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failureCount = new AtomicInteger(0);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        CountDownLatch latch = new CountDownLatch(threadCount);
 
+        // when
         executorService.submit(() -> {
             try {
+                startLatch.await();
                 paymentFacade.pay(criteria1);
+                successCount.incrementAndGet();
+            } catch (ObjectOptimisticLockingFailureException e) {
+                // 낙관적 락 충돌 예외를 성공적으로 잡음
+                failureCount.incrementAndGet();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } finally {
-                latch.countDown();
+                endLatch.countDown();
             }
         });
 
         executorService.submit(() -> {
             try {
+                startLatch.await();
                 paymentFacade.pay(criteria2);
+                successCount.incrementAndGet();
+            } catch (ObjectOptimisticLockingFailureException e) {
+                // 낙관적 락 충돌 예외를 성공적으로 잡음
+                failureCount.incrementAndGet();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             } finally {
-                latch.countDown();
+                endLatch.countDown();
             }
         });
 
-        latch.await();
+        startLatch.countDown(); // 모든 스레드에게 동시에 시작 신호를 보냄
+        endLatch.await();       // 모든 스레드가 작업을 마칠 때까지 대기
 
+        executorService.shutdown();
+
+        // then
+        assertEquals(1, successCount.get());
+        assertEquals(1, failureCount.get());
 
     }
 

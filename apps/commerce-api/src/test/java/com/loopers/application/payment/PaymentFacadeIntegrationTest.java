@@ -20,7 +20,10 @@ import com.loopers.domain.product.stock.StockRepository;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
+import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +57,14 @@ class PaymentFacadeIntegrationTest {
 
     @Autowired
     OrderRepository orderRepository;
+
+    @Autowired
+    DatabaseCleanUp databaseCleanUp;
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanUp.truncateAllTables();
+    }
 
     @Test
     @DisplayName("재고가 존재하지 않거나 부족할 경우 주문은 실패해야 한다.")

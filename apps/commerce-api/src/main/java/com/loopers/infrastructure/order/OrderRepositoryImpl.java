@@ -28,4 +28,9 @@ public class OrderRepositoryImpl implements OrderRepository {
         return orderJpaRepository.findOrderDetailById(orderId) // fetch join 사용 필요
                 .map(OrderEntity::toDomain);
     }
+
+    @Override
+    public Optional<Order> findById(Long orderId) {
+        return orderJpaRepository.findById(orderId).map(OrderEntity::toDomain);
+    }
 }

@@ -31,7 +31,7 @@ public class PaymentFacade {
 
     @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
-        Order order = orderRepository.findOrderDetailById(criteria.orderId())
+        Order order = orderRepository.findById(criteria.orderId())
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 
         // 포인트 차감

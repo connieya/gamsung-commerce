@@ -250,4 +250,85 @@ class PaymentFacadeIntegrationTest {
         assertThat(stock.getQuantity()).isEqualTo(40L);
     }
 
+
+
+
+    @Test
+    @DisplayName("동일한 유저가 서로 다른 주문을 동시에 수행해도, 포인트가 정상적으로 차감되어야 한다.")
+    void pay_deductsPointsCorrectly_whenSameUserHasConcurrentOrders() throws InterruptedException {
+        // given
+
+        User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User savedUser = userRepository.save(user);
+
+        pointRepository.save(Point.create(savedUser.getUserId(), 10000L));
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
+        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+
+        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
+        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+
+        Stock stock1 = Stock.create(savedProduct1.getId(), 50L);
+        Stock stock2 = Stock.create(savedProduct2.getId(), 50L);
+
+        stockRepository.save(stock1);
+        stockRepository.save(stock2);
+
+        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct1.getId())
+                .price(1000L)
+                .quantity(1L)
+                .build();
+        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct2.getId())
+                .price(2000L)
+                .quantity(2L)
+                .build();
+
+        OrderCommand orderCommand1 = OrderCommand.of(savedUser.getId(), List.of(orderItem1), 0L);
+        Order savedOrder1 =orderRepository.save(Order.create(orderCommand1));
+
+        OrderCommand orderCommand2 = OrderCommand.of(savedUser.getId(), List.of(orderItem2), 0L);
+        Order savedOrder2 = orderRepository.save(Order.create(orderCommand2));
+
+
+        // when
+        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT);
+
+        int threadCount = 2;
+
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        executorService.submit(() -> {
+            try {
+                paymentFacade.pay(criteria1);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        executorService.submit(() -> {
+            try {
+                paymentFacade.pay(criteria2);
+            } finally {
+                latch.countDown();
+            }
+        });
+
+        latch.await();
+
+        // then
+        Point point = pointRepository.findByUserId(savedUser.getUserId()).get();
+
+        assertThat(point).isNotNull();
+        assertThat(point.getValue()).isEqualTo(5000L);
+
+    }
+
 }

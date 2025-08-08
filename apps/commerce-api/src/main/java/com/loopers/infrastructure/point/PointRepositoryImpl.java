@@ -22,6 +22,11 @@ public class PointRepositoryImpl implements PointRepository {
     }
 
     @Override
+    public Optional<Point> findPointForUpdate(String userId) {
+        return pointJpaRepository.findByUserIdForUpdate(userId).map(PointEntity::toDomain);
+    }
+
+    @Override
     @Transactional
     public Point save(Point point) {
         if (point.getId() != null) {

@@ -15,14 +15,16 @@ public class PaymentCommand {
         this.orderId = orderId;
         this.userId = userId;
         this.paymentMethod = paymentMethod;
+        this.finalAmount = finalAmount;
     }
 
-    public static PaymentCommand of(Long orderId ,String userId , PaymentMethod paymentMethod){
+    public static PaymentCommand of(Long orderId ,String userId , PaymentMethod paymentMethod , Long finalAmount) {
         return PaymentCommand
                 .builder()
                 .orderId(orderId)
                 .userId(userId)
                 .paymentMethod(paymentMethod)
+                .finalAmount(finalAmount)
                 .build();
     }
 }

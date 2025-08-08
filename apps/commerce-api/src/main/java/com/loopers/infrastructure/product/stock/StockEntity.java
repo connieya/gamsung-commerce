@@ -30,4 +30,7 @@ public class StockEntity extends BaseEntity {
                 .build();
     }
 
+    public void setQuantity(Long quantity) {
+        this.quantity = quantity;
+    }
 }

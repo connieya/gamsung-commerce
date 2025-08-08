@@ -45,7 +45,7 @@ public class PaymentFacade {
             userCouponService.use(UserCouponCommand.of(criteria.userId()));
         }
 
-        Payment pay = paymentService.pay(criteria.toCommand());
+        Payment pay = paymentService.pay(criteria.toCommand(order.getFinalAmount()));
 
         return PaymentResult.from(pay);
     }

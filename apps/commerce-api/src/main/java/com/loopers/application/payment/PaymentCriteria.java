@@ -10,8 +10,8 @@ public class PaymentCriteria {
             Long orderId,
             PaymentMethod paymentMethod
     ) {
-        public PaymentCommand toCommand() {
-            return PaymentCommand.of(orderId, userId, paymentMethod);
+        public PaymentCommand toCommand(Long finalAmount) {
+            return PaymentCommand.of(orderId, userId, paymentMethod, finalAmount);
         }
     }
 }

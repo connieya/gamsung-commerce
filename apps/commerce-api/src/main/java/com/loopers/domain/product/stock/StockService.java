@@ -48,7 +48,8 @@ public class StockService {
                 .boxed()
                 .toList();
 
-        List<Stock> stocks = stockRepository.findByProductIdIn(productIds);
+        List<Stock> stocks = stockRepository.findStocksForUpdate(productIds);
+
 
         stocks.forEach(stock -> {
             Long quantity = orderQuantities.get(stock.getProductId());

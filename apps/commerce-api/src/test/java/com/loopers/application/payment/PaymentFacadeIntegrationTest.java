@@ -2,6 +2,7 @@ package com.loopers.application.payment;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderLine;
@@ -29,7 +30,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -166,6 +171,83 @@ class PaymentFacadeIntegrationTest {
                 }
         ).isInstanceOf(PointException.PointInsufficientException.class);
 
+    }
+
+    @Test
+    @DisplayName("동일한 상품에 대해 여러 주문이 동시에 요청되어도, 재고가 정상적으로 차감되어야 한다. ")
+    void pay_handlesConcurrentStockDeductionCorrectly() throws InterruptedException {
+        // given
+        // 여러 사용자, 여러 주문을 미리 생성
+        List<User> users = new ArrayList<>();
+        List<Order> orders = new ArrayList<>();
+
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
+        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+
+        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
+        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+
+        Stock stock1 = Stock.create(savedProduct1.getId(), 50L);
+        Stock stock2 = Stock.create(savedProduct2.getId(), 50L);
+
+        Stock savedStock1 = stockRepository.save(stock1);
+        Stock savedStock2 = stockRepository.save(stock2);
+
+        int threadCount = 5;
+        for (int i=0; i<threadCount; i++) {
+            // 동시 요청을 보낼 사용자마다 고유한 아이디를 가진 User와 Point 생성
+            User user = UserFixture.complete().set(Select.field(User::getUserId), "user" + i).create();
+            User savedUser = userRepository.save(user);
+            pointRepository.save(Point.create(savedUser.getUserId(), 1000_000L));
+            users.add(savedUser);
+            // 각 사용자의 주문 생성 (동일 상품에 대한 주문)
+            OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
+                    .productId(savedProduct1.getId())
+                    .price(1000L)
+                    .quantity(2L)
+                    .build();
+            OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem.builder()
+                    .productId(savedProduct2.getId())
+                    .price(2000L)
+                    .quantity(2L)
+                    .build();
+
+            OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 0L);
+            orders.add(orderRepository.save(Order.create(orderCommand)));
+        }
+
+
+
+        // when
+
+        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            final int index = i;
+            executorService.submit(() -> {
+                try {
+                    // 각 스레드가 서로 다른 주문을 처리
+                    Order orderToPay = orders.get(index);
+                    User userPaying = users.get(index);
+                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT);
+                    paymentFacade.pay(criteria);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
+
+        // then
+        Stock stock = stockRepository.findById(savedStock1.getId()).get();
+
+        assertThat(stock).isNotNull();
+        assertThat(stock.getQuantity()).isEqualTo(40L);
     }
 
 }

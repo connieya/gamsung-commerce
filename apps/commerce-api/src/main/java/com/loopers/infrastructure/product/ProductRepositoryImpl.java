@@ -1,11 +1,11 @@
 package com.loopers.infrastructure.product;
 
 import com.loopers.domain.product.ProductInfo;
-import com.loopers.domain.product.exception.BrandException;
+import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.infrastructure.product.brand.BrandEntity;
-import com.loopers.infrastructure.product.brand.BrandJpaRepository;
+import com.loopers.infrastructure.brand.BrandEntity;
+import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -1,12 +1,10 @@
 package com.loopers.domain.product.fixture;
 
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.brand.Brand;
 import org.instancio.Instancio;
 import org.instancio.InstancioApi;
 import org.instancio.Select;
 
-import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 

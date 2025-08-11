@@ -28,7 +28,7 @@ class OrderCriteriaTest {
                 .productId(2L)
                 .quantity(5L)
                 .build();
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2));
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2) ,1L);
 
         // when
         Product productA = ProductFixture.complete()
@@ -44,11 +44,11 @@ class OrderCriteriaTest {
                 .set(Select.field(Product::getPrice), 2000L)
                 .create();
 
-        OrderCommand command = orderCriteria.toCommand(List.of(productA, productB), 1L);
+        OrderCommand command = OrderCommandMapper.map(1L, orderCriteria, List.of(productA, productB) ,10000L);
 
         // then
         assertAll(
-                () -> assertThat(command.getTotalAmount()).isEqualTo(60000L),
+                () -> assertThat(command.getDiscountAmount()).isEqualTo(10000L),
                 () -> assertThat(command.getUserId()).isEqualTo(1L),
                 () -> assertThat(command.getOrderItems()).hasSize(2)
                         .extracting("productId", "quantity", "price")

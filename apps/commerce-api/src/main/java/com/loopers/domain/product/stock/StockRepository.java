@@ -12,4 +12,6 @@ public interface StockRepository {
     List<Stock> findByProductIdIn(List<Long> productIds);
 
     List<Stock> saveAll(List<Stock> stocks);
+
+    List<Stock> findStocksForUpdate(List<Long> productIds);
 }

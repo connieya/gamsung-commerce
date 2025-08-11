@@ -1,11 +1,11 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.common.Sort;
-import com.loopers.domain.product.exception.BrandException;
+import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.product.brand.Brand;
-import com.loopers.domain.product.brand.BrandRepository;
+import com.loopers.domain.brand.Brand;
+import com.loopers.domain.brand.BrandRepository;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,7 +32,7 @@ public class ProductService {
                 productCommand.getName()
                 , productCommand.getPrice()
                 , productCommand.getBrandId()
-                , ZonedDateTime.of(2025, 8, 1, 10, 0, 0, 0, ZoneId.of("Asia/Seoul"))
+                , ZonedDateTime.now()
         );
         productRepository.save(product, productCommand.getBrandId());
     }
@@ -43,7 +43,7 @@ public class ProductService {
         Brand brand = brandRepository.findBrand(productId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
         Long likeCount = productLikeRepository.getLikeCount(productId);
 
-        return ProductDetailInfo.create(product.getName(), product.getPrice(), brand.getName(), likeCount);
+        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
     }
 
     @Transactional(readOnly = true)

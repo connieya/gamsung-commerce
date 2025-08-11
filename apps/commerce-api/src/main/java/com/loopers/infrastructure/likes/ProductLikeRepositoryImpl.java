@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -46,6 +47,14 @@ public class ProductLikeRepositoryImpl implements ProductLikeRepository {
     @Override
     public void delete(Long userId, Long productId) {
         productLikeJpaRepository.deleteByUserEntity_IdAndProductEntity_Id(userId ,productId);
+    }
+
+    @Override
+    public List<ProductLike> findByUserId(Long id) {
+        return productLikeJpaRepository.findByUserEntity_Id(id)
+                .stream()
+                .map(ProductLikeEntity::toDomain)
+                .toList();
     }
 }
 

@@ -1,7 +1,7 @@
 package com.loopers.infrastructure.product;
 
 import com.loopers.domain.product.ProductInfo;
-import com.loopers.infrastructure.product.brand.BrandEntity;
+import com.loopers.infrastructure.brand.BrandEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

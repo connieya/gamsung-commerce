@@ -1,13 +1,10 @@
 package com.loopers.application.order;
 
-import com.loopers.domain.order.Order;
+import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
-import com.loopers.domain.order.OrderInfo;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.point.PointService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductService;
-import com.loopers.domain.product.stock.StockService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,22 +15,22 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class OrderFacade {
-
+public class  OrderFacade {
     private final ProductService productService;
     private final UserService userService;
     private final OrderService orderService;
-    private final PointService pointService;
-    private final StockService stockService;
+    private final CouponService couponService;
 
     @Transactional
-    public void place(OrderCriteria orderCriteria) {
+    public OrderResult.Create place(OrderCriteria orderCriteria) {
         User user = userService.findByUserId(orderCriteria.getUserId());
+
         List<Product> products = productService.findAllById(orderCriteria.getProductIds());
-        OrderCommand command = orderCriteria.toCommand(products, user.getId());
-        OrderInfo orderInfo = orderService.place(command);
-        pointService.deduct(user.getUserId(), orderInfo.getTotalAmount());
-        stockService.deduct(orderCriteria.getProductIds(), command);
+
+        Long discountAmount = couponService.getDiscountAmount(orderCriteria.getCouponId(), orderCriteria.getTotalAmount(products));
+
+        OrderCommand command = OrderCommandMapper.map(user.getId(), orderCriteria, products, discountAmount);
+        return OrderResult.Create.from(orderService.place(command));
     }
 }
 

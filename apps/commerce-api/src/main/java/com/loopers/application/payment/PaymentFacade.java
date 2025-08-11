@@ -1,7 +1,6 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.coupon.UserCouponCommand;
-import com.loopers.domain.coupon.UserCouponRepository;
 import com.loopers.domain.coupon.UserCouponService;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderLine;
@@ -46,6 +45,7 @@ public class PaymentFacade {
         }
 
         Payment pay = paymentService.pay(criteria.toCommand(order.getFinalAmount()));
+        order.complete();
 
         return PaymentResult.from(pay);
     }

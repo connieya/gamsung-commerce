@@ -15,6 +15,7 @@ public class Order {
     private Long userId;
     private List<OrderLine> orderLines;
     private Long discountAmount;
+    private OrderStatus orderStatus;
 
 
     @Builder
@@ -40,6 +41,7 @@ public class Order {
         this.userId = userId;
         this.orderLines = orderLines;
         this.discountAmount = discountAmount;
+        this.orderStatus = OrderStatus.PENDING_PAYMENT;
     }
 
     public static Order create(OrderCommand orderCommand) {
@@ -66,5 +68,9 @@ public class Order {
 
     public Long getFinalAmount() {
         return this.totalAmount - this.discountAmount;
+    }
+
+    public void complete() {
+        this.orderStatus = OrderStatus.PAYMENT_COMPLETED;
     }
 }

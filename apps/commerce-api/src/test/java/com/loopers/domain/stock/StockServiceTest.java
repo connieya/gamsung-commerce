@@ -1,7 +1,10 @@
-package com.loopers.domain.product.stock;
+package com.loopers.domain.stock;
 
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.product.exception.ProductException;
+import com.loopers.domain.stock.Stock;
+import com.loopers.domain.stock.StockRepository;
+import com.loopers.domain.stock.StockService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

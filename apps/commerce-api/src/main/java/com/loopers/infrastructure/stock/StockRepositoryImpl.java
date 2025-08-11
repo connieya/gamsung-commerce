@@ -1,7 +1,7 @@
-package com.loopers.infrastructure.product.stock;
+package com.loopers.infrastructure.stock;
 
-import com.loopers.domain.product.stock.Stock;
-import com.loopers.domain.product.stock.StockRepository;
+import com.loopers.domain.stock.Stock;
+import com.loopers.domain.stock.StockRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

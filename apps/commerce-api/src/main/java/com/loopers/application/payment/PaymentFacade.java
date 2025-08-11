@@ -9,7 +9,7 @@ import com.loopers.domain.order.exception.OrderException;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.point.PointService;
-import com.loopers.domain.product.stock.StockService;
+import com.loopers.domain.stock.StockService;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

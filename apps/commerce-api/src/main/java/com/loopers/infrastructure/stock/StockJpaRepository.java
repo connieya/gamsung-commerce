@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.product.stock;
+package com.loopers.infrastructure.stock;
 
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;

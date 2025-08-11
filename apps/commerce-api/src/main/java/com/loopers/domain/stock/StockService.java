@@ -1,4 +1,4 @@
-package com.loopers.domain.product.stock;
+package com.loopers.domain.stock;
 
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderLine;

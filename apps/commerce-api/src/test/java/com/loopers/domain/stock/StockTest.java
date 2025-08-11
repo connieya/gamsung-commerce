@@ -1,6 +1,7 @@
-package com.loopers.domain.product.stock;
+package com.loopers.domain.stock;
 
 import com.loopers.domain.product.exception.ProductException;
+import com.loopers.domain.stock.Stock;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

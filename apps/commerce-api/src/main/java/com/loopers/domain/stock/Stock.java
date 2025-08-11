@@ -1,4 +1,4 @@
-package com.loopers.domain.product.stock;
+package com.loopers.domain.stock;
 
 import com.loopers.domain.common.Validatable;
 import com.loopers.domain.product.exception.ProductException;

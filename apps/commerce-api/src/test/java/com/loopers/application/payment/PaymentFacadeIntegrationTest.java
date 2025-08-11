@@ -1,6 +1,5 @@
 package com.loopers.application.payment;
 
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.OrderCommand;
@@ -22,6 +21,7 @@ import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.stock.Stock;
+import com.loopers.domain.brand.Brand;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;

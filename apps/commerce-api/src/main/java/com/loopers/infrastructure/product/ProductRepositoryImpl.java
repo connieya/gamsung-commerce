@@ -4,7 +4,7 @@ import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.infrastructure.brand.BrandEntity;
+import com.loopers.domain.brand.Brand;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -30,15 +30,15 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Product save(Product product, Long brandId) {
-        BrandEntity brandEntity = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-        ProductEntity productEntity = ProductEntity.fromDomain(product, brandEntity);
+        Brand brand = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+        ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
         return productJpaRepository.save(productEntity).toDomain();
     }
 
     @Override
     public List<Product> findByBrandId(Long brandId) {
-        BrandEntity brandEntity = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-        return productJpaRepository.findByBrandEntity(brandEntity)
+        Brand brand = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+        return productJpaRepository.findByBrand(brand)
                 .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
     }
 

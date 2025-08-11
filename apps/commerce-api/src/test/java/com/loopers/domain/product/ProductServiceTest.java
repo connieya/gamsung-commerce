@@ -2,8 +2,8 @@ package com.loopers.domain.product;
 
 import com.loopers.domain.common.Sort;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.brand.Brand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

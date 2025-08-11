@@ -1,14 +1,12 @@
 package com.loopers.interfaces.api.product;
 
 import com.loopers.annotation.SprintE2ETest;
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.common.Sort;
-import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
-import com.loopers.infrastructure.brand.BrandEntity;
+import com.loopers.domain.brand.Brand;
 import com.loopers.infrastructure.likes.ProductLikeEntity;
 import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
@@ -88,10 +86,8 @@ class ProductV1ApiE2ETest {
         void getProductDetail() {
             // given
             Brand brand = Brand.create("nike", "just do it!");
-            BrandEntity brandEntity = BrandEntity.fromDomain(brand);
-
             Product product = ProductFixture.complete().set(Select.field(Product::getPrice), 10000L).create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brandEntity);
+            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
 
             User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
             User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
@@ -99,7 +95,7 @@ class ProductV1ApiE2ETest {
             UserEntity userEntity2 = UserEntity.fromDomain(user2);
 
 
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brandEntity));
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
             transactionTemplate.executeWithoutResult(status -> List.of(
                     userEntity1, userEntity2).forEach(testEntityManager::persist)

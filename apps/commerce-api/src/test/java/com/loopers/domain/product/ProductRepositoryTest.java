@@ -1,13 +1,13 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.domain.brand.Brand;
 import org.instancio.Select;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

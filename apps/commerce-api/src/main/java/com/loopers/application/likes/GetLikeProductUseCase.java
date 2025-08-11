@@ -1,6 +1,5 @@
 package com.loopers.application.likes;
 
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.likes.ProductLikeRepository;
@@ -8,6 +7,7 @@ import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
+import com.loopers.domain.brand.Brand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

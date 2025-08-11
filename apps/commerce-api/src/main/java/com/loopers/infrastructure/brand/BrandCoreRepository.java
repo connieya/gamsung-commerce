@@ -13,25 +13,23 @@ import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 @Repository
-public class BrandRepositoryImpl implements BrandRepository {
+public class BrandCoreRepository implements BrandRepository {
 
     private final BrandJpaRepository brandJpaRepository;
 
     @Override
     public Brand save(Brand brand) {
-        return brandJpaRepository.save(BrandEntity.fromDomain(brand)).toDomain();
+        return brandJpaRepository.save(brand);
     }
 
     @Override
     public Optional<Brand> findBrand(Long brandId) {
-        return brandJpaRepository.findById(brandId)
-                .map(BrandEntity::toDomain);
+        return brandJpaRepository.findById(brandId);
     }
 
     @Override
     public List<Brand> findAllById(List<Long> brandIds) {
         return StreamSupport.stream(brandJpaRepository.findAllById(brandIds).spliterator(), false)
-                .map(BrandEntity::toDomain)
                 .collect(Collectors.toList());
     }
 }

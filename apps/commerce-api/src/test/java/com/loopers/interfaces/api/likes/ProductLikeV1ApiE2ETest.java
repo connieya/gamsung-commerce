@@ -1,12 +1,11 @@
 package com.loopers.interfaces.api.likes;
 
 import com.loopers.annotation.SprintE2ETest;
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
-import com.loopers.infrastructure.brand.BrandEntity;
+import com.loopers.domain.brand.Brand;
 import com.loopers.infrastructure.likes.ProductLikeEntity;
 import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
@@ -62,11 +61,11 @@ class ProductLikeV1ApiE2ETest {
             UserEntity userEntity = UserEntity.fromDomain(user);
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userEntity));
 
-            BrandEntity brandEntity = BrandEntity.fromDomain(Brand.create("nike", "just do it!"));
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brandEntity));
+            Brand brand = Brand.create("nike", "just do it!");
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
             Product product = ProductFixture.complete().create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brandEntity);
+            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
 
             // when
@@ -92,8 +91,8 @@ class ProductLikeV1ApiE2ETest {
             UserEntity userEntity = UserEntity.fromDomain(user);
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userEntity));
 
-            BrandEntity brandEntity = BrandEntity.fromDomain(Brand.create("nike", "just do it!"));
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brandEntity));
+            Brand brand = Brand.create("nike", "just do it!");
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
             // when
             String url = UriComponentsBuilder.fromPath(REQUEST_URL)
@@ -128,11 +127,11 @@ class ProductLikeV1ApiE2ETest {
             UserEntity userEntity = UserEntity.fromDomain(user);
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userEntity));
 
-            BrandEntity brandEntity = BrandEntity.fromDomain(Brand.create("nike", "just do it!"));
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brandEntity));
+            Brand brand = Brand.create("nike", "just do it!");
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
             Product product = ProductFixture.complete().create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brandEntity);
+            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
 
             // when
@@ -167,8 +166,7 @@ class ProductLikeV1ApiE2ETest {
                     .create();
 
             Brand brand = Brand.create("nike", "just do it!");
-            BrandEntity brandEntity = BrandEntity.fromDomain(brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brandEntity));
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
             List<ProductEntity> productEntities = IntStream.range(0, initialLikeCount)
                     .mapToObj(i ->
@@ -176,7 +174,7 @@ class ProductLikeV1ApiE2ETest {
                                     ProductFixture.complete()
                                             .set(Select.field(Product::getName), "product" + i)
                                             .create(),
-                                    brandEntity
+                                    brand
                             )
                     )
                     .toList();

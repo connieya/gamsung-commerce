@@ -4,8 +4,8 @@ import com.loopers.domain.common.Sort;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.brand.Brand;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 

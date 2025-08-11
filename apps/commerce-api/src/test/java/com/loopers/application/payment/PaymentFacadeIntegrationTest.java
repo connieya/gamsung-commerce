@@ -16,12 +16,12 @@ import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.product.fixture.ProductFixture;
-import com.loopers.domain.stock.Stock;
 import com.loopers.domain.stock.StockRepository;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.order.Order;
+import com.loopers.domain.stock.Stock;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -262,7 +262,7 @@ class PaymentFacadeIntegrationTest {
         Stock stock2 = Stock.create(savedProduct2.getId(), 50L);
 
         Stock savedStock1 = stockRepository.save(stock1);
-        Stock savedStock2 = stockRepository.save(stock2);
+        stockRepository.save(stock2);
 
         int threadCount = 5;
         for (int i = 0; i < threadCount; i++) {

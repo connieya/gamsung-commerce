@@ -1,8 +1,8 @@
 package com.loopers.domain.stock;
 
 import com.loopers.domain.product.exception.ProductException;
-import com.loopers.domain.stock.Stock;
-import jakarta.validation.ConstraintViolationException;
+import com.loopers.support.error.CoreException;
+import com.loopers.support.error.ErrorType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -14,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class StockTest {
 
 
-
     @DisplayName("1개 미만 정수로 재고 생성 시 실패한다.")
     @ParameterizedTest
     @ValueSource(longs = {
@@ -24,7 +23,8 @@ class StockTest {
     void createFail(Long value){
         // when & then
         assertThatThrownBy(() -> Stock.create(1L, value))
-                .isInstanceOf(ConstraintViolationException.class);
+                .isInstanceOf(CoreException.class)
+                .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);;
     }
 
 

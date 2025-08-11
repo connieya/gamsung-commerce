@@ -7,6 +7,7 @@ import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.payment.PaymentMethod;
+import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.point.exception.PointException;
@@ -75,6 +76,59 @@ class PaymentFacadeIntegrationTest {
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
+    }
+
+
+    @Test
+    @DisplayName("주문에 대한 결제 진행 시 유저 포인트가 차감되고 상품 재고가 차감된 뒤 결제에 성공한다.")
+    void pay_success() {
+        User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User savedUser = userRepository.save(user);
+
+        Point initialPoint = Point.create(savedUser.getUserId(), 10_000L);
+        pointRepository.save(initialPoint);
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
+        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+
+        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
+        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+
+        Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
+        Stock stock2 = Stock.create(savedProduct2.getId(), 10L);
+
+        stockRepository.save(stock1);
+        stockRepository.save(stock2);
+
+        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct1.getId())
+                .price(1000L)
+                .quantity(1L)
+                .build();
+
+        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct2.getId())
+                .price(2000L)
+                .quantity(2L)
+                .build();
+        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 0L);
+        Order order = Order.create(orderCommand);
+        Order savedOrder = orderRepository.save(order);
+
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+
+        // when
+        PaymentResult paymentResult = paymentFacade.pay(criteria);
+        Point updatedPoint = pointRepository.findByUserId("gunny").get();
+
+        // then
+        assertAll(
+                ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETE),
+                ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L)
+        );
     }
 
     @Test

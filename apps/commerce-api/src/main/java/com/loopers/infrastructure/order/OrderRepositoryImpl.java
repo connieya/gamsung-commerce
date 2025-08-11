@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 public class OrderRepositoryImpl implements OrderRepository {
 
     private final OrderJpaRepository orderJpaRepository;
-    private final OrderLineJpaRepository orderLineJpaRepository;
 
     @Override
     public Order save(Order order) {

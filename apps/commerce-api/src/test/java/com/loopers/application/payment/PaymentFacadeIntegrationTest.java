@@ -103,7 +103,7 @@ class PaymentFacadeIntegrationTest {
         Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
         Stock stock2 = Stock.create(savedProduct2.getId(), 10L);
 
-        stockRepository.save(stock1);
+        Stock savedStock = stockRepository.save(stock1);
         stockRepository.save(stock2);
 
         OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
@@ -129,12 +129,14 @@ class PaymentFacadeIntegrationTest {
 
         Point updatedPoint = pointRepository.findByUserId("gunny").get();
         Order updatedOrder = orderRepository.findById(savedOrder.getId()).get();
+        Stock updatedStock = stockRepository.findById(savedStock.getId()).get();
 
         // then
         assertAll(
                 ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETE),
                 ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
-                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED)
+                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED),
+                ()-> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
         );
     }
 

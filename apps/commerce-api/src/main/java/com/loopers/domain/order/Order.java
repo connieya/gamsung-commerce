@@ -56,37 +56,23 @@ public class Order extends BaseEntity {
         this.orderStatus = OrderStatus.PENDING_PAYMENT;
     }
 
-    public static Order fromDomain(Order order) {
-        Order orderEntity = new Order();
-
-        orderEntity.totalAmount = order.getTotalAmount();
-        orderEntity.userId = order.getUserId();
-        orderEntity.discountAmount = order.getDiscountAmount();
-        orderEntity.orderStatus = order.getOrderStatus();
-
-
-        // 연관관계 주입
-        order.getOrderLines().forEach(orderLine -> {
-            OrderLine lineEntity = OrderLine.fromDomain(orderLine, orderEntity);
-            orderEntity.orderLines.add(lineEntity);
-        });
-
-        return orderEntity;
-    }
-
     public static Order create(OrderCommand orderCommand) {
+        List<OrderLine> orderLines = orderCommand.getOrderItems()
+                .stream()
+                .map(item -> OrderLine.create(item.getProductId(), item.getQuantity(), item.getPrice()))
+                .toList();
 
-        return Order
+        Order order = Order
                 .builder()
                 .userId(orderCommand.getUserId())
                 .totalAmount(calculateTotalAmount(orderCommand.getOrderItems()))
                 .discountAmount(orderCommand.getDiscountAmount())
-                .orderLines(orderCommand.getOrderItems()
-                        .stream()
-                        .map(item ->
-                                OrderLine.create(item.getProductId(), item.getQuantity(), item.getPrice())
-                        ).toList())
+                .orderLines(orderLines)
                 .build();
+
+        orderLines.forEach(orderLine -> orderLine.setOrder(order));
+
+        return order;
     }
 
 

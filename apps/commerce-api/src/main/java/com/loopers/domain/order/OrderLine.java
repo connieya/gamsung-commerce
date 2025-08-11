@@ -47,5 +47,7 @@ public class OrderLine extends BaseEntity {
                 .build();
     }
 
-
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 }

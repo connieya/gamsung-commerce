@@ -33,7 +33,6 @@ public class StockService {
 
         List<Stock> stocks = stockRepository.findStocksForUpdate(productIds);
 
-
         stocks.forEach(stock -> {
             Long quantity = orderQuantities.get(stock.getProductId());
             stock.deduct(quantity);

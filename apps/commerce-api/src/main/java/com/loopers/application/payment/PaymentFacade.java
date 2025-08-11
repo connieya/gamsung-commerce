@@ -2,6 +2,7 @@ package com.loopers.application.payment;
 
 import com.loopers.domain.coupon.UserCouponCommand;
 import com.loopers.domain.coupon.UserCouponService;
+import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentService;
@@ -35,6 +36,7 @@ public class PaymentFacade {
 
 
         // 재고 차감
+        List<OrderLine> orderLines = order.getOrderLines();
         List<StockCommand.DeductStocks.Item> items = order.getOrderLines()
                 .stream()
                 .map(orderLine -> StockCommand.DeductStocks.Item.builder()

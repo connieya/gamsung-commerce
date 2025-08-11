@@ -36,6 +36,7 @@ public class OrderService {
 
     @Transactional
     public void complete(Long orderId) {
+        System.out.println("orderService complete ");
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 

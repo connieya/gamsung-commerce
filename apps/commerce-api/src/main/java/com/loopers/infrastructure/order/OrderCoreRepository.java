@@ -2,24 +2,32 @@ package com.loopers.infrastructure.order;
 
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderRepository;
+import com.loopers.domain.order.exception.OrderException;
+import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
-public class OrderRepositoryImpl implements OrderRepository {
+public class OrderCoreRepository implements OrderRepository {
 
     private final OrderJpaRepository orderJpaRepository;
 
     @Override
+    @Transactional
     public Order save(Order order) {
-        OrderEntity orderEntity = OrderEntity.fromDomain(order);
-        OrderEntity saved = orderJpaRepository.save(orderEntity); // cascade로 하위 저장됨
-        return saved.toDomain();
+        if (order.getId() != null) {
+            OrderEntity orderEntity = orderJpaRepository.findById(order.getId())
+                    .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+            orderEntity.complete(order.getOrderStatus());
+            orderJpaRepository.save(orderEntity);
+            return order;
+
+        }
+        return orderJpaRepository.save(OrderEntity.fromDomain(order)).toDomain();
     }
 
     @Override

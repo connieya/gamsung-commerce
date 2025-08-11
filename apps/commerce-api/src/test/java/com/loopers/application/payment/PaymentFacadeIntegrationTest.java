@@ -6,6 +6,7 @@ import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
+import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -29,6 +30,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +83,9 @@ class PaymentFacadeIntegrationTest {
 
 
     @Test
+    @Commit
     @DisplayName("주문에 대한 결제 진행 시 유저 포인트가 차감되고 상품 재고가 차감된 뒤 결제에 성공한다.")
+    @Transactional
     void pay_success() {
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         User savedUser = userRepository.save(user);
@@ -115,19 +120,21 @@ class PaymentFacadeIntegrationTest {
                 .quantity(2L)
                 .build();
         OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 0L);
-        Order order = Order.create(orderCommand);
-        Order savedOrder = orderRepository.save(order);
+        Order initialOrder = Order.create(orderCommand);
+        Order savedOrder = orderRepository.save(initialOrder);
 
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
 
         // when
         PaymentResult paymentResult = paymentFacade.pay(criteria);
         Point updatedPoint = pointRepository.findByUserId("gunny").get();
+        Order updatedOrder = orderRepository.findById(savedOrder.getId()).get();
 
         // then
         assertAll(
                 ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETE),
-                ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L)
+                ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
+                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED)
         );
     }
 

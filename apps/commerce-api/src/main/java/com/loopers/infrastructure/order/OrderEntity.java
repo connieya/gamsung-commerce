@@ -59,4 +59,7 @@ public class OrderEntity extends BaseEntity {
                 .build();
     }
 
+    public void complete(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }

@@ -3,7 +3,6 @@ package com.loopers.application.payment;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.coupon.*;
-import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.OrderStatus;
@@ -22,6 +21,7 @@ import com.loopers.domain.stock.StockRepository;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.domain.order.Order;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -30,8 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.test.annotation.Commit;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +74,8 @@ class PaymentFacadeIntegrationTest {
     @Autowired
     DatabaseCleanUp databaseCleanUp;
 
+
+
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
@@ -83,10 +83,8 @@ class PaymentFacadeIntegrationTest {
 
 
     @Test
-    @Commit
-    @DisplayName("주문에 대한 결제 진행 시 유저 포인트가 차감되고 상품 재고가 차감된 뒤 결제에 성공한다.")
-    @Transactional
-    void pay_success() {
+    @DisplayName("결제 성공 시, 유저 포인트 및 주문 상태가 정상적으로 업데이트되어야 한다.")
+    void pay_updatesStateCorrectly_onSuccessfulPayment() {
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         User savedUser = userRepository.save(user);
 
@@ -127,6 +125,8 @@ class PaymentFacadeIntegrationTest {
 
         // when
         PaymentResult paymentResult = paymentFacade.pay(criteria);
+
+
         Point updatedPoint = pointRepository.findByUserId("gunny").get();
         Order updatedOrder = orderRepository.findById(savedOrder.getId()).get();
 
@@ -174,7 +174,7 @@ class PaymentFacadeIntegrationTest {
                 .price(2000L)
                 .quantity(200L)
                 .build();
-        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 5000L);
+        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 0L);
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 

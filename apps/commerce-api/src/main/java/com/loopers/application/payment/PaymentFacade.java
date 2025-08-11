@@ -9,6 +9,7 @@ import com.loopers.domain.order.exception.OrderException;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.point.PointService;
+import com.loopers.domain.stock.StockCommand;
 import com.loopers.domain.stock.StockService;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +36,17 @@ public class PaymentFacade {
 
         // 포인트 차감
         pointService.deduct(criteria.userId(), order.getFinalAmount());
-        List<OrderLine> orderLines = order.getOrderLines();
+
 
         // 재고 차감
-        stockService.deduct(orderLines);
+        List<StockCommand.DeductStocks.Item> items = order.getOrderLines()
+                .stream()
+                .map(orderLine -> StockCommand.DeductStocks.Item.builder()
+                        .productId(orderLine.getProductId())
+                        .quantity(orderLine.getQuantity())
+                        .build()).toList();
+        StockCommand.DeductStocks deductStocks = StockCommand.DeductStocks.create(items);
+        stockService.deduct(deductStocks);
 
         if (order.getDiscountAmount() > 0L) {
             userCouponService.use(UserCouponCommand.of(criteria.userId()));

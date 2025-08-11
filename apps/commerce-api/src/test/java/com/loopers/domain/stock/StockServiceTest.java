@@ -1,10 +1,6 @@
 package com.loopers.domain.stock;
 
-import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.product.exception.ProductException;
-import com.loopers.domain.stock.Stock;
-import com.loopers.domain.stock.StockRepository;
-import com.loopers.domain.stock.StockService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,22 +27,21 @@ class StockServiceTest {
     @DisplayName("주문한 수량만큼 재고를 차감한다. ")
     void deduct_success() {
         // given
-        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem
+        StockCommand.DeductStocks.Item item1 = StockCommand.DeductStocks.Item
                 .builder()
                 .productId(1L)
                 .quantity(10L)
-                .price(5000L)
                 .build();
 
-        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem
+
+        StockCommand.DeductStocks.Item item2 = StockCommand.DeductStocks.Item
                 .builder()
                 .productId(2L)
-                .quantity(5L)
-                .price(10000L)
+                .quantity(10L)
                 .build();
 
         // when
-        stockService.deduct(List.of(1L, 2L), OrderCommand.of(1L, List.of(orderItem1, orderItem2), 10000L));
+        stockService.deduct(StockCommand.DeductStocks.create(List.of(item1, item2)));
 
         // then
         verify(stockRepository, times(1)).saveAll(anyList());
@@ -56,28 +51,28 @@ class StockServiceTest {
     @DisplayName("상품 재고보다 주문 수량이 많으면 InsufficientStockException 예외가 발생한다.")
     void deduct_fail() {
         // given
-        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem
+        StockCommand.DeductStocks.Item item1 = StockCommand.DeductStocks.Item
                 .builder()
                 .productId(1L)
                 .quantity(10L)
-                .price(5000L)
                 .build();
 
-        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem
+
+        StockCommand.DeductStocks.Item item2 = StockCommand.DeductStocks.Item
                 .builder()
                 .productId(2L)
                 .quantity(5L)
-                .price(10000L)
                 .build();
+
 
         // when
         Stock stock1 = Stock.create(1L, 15L);
         Stock stock2 = Stock.create(2L, 3L);
-        when(stockRepository.findByProductIdIn(List.of(1L, 2L))).thenReturn(List.of(stock1, stock2));
+        when(stockRepository.findStocksForUpdate(List.of(1L, 2L))).thenReturn(List.of(stock1, stock2));
 
         // then
         assertThatThrownBy(() -> {
-            stockService.deduct(List.of(1L, 2L), OrderCommand.of(1L, List.of(orderItem1, orderItem2), 10000L));
+            stockService.deduct(StockCommand.DeductStocks.create(List.of(item1, item2)));
         }).isInstanceOf(ProductException.InsufficientStockException.class);
     }
 }

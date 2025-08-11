@@ -36,6 +36,7 @@ public class OrderEntity extends BaseEntity {
         orderEntity.totalAmount = order.getTotalAmount();
         orderEntity.userId = order.getUserId();
         orderEntity.discountAmount = order.getDiscountAmount();
+        orderEntity.orderStatus = order.getOrderStatus();
 
         // 연관관계 주입
         order.getOrderLines().forEach(orderLine -> {

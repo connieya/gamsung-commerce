@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
+import java.util.Optional;
+
 import static org.mockito.Mockito.*;
 
 
@@ -19,6 +21,9 @@ class ProductLikeServiceTest {
 
     @Mock
     ProductLikeRepository productLikeRepository;
+
+    @Mock
+    LikeSummaryRepository likeSummaryRepository;
 
 
     @Test
@@ -33,6 +38,7 @@ class ProductLikeServiceTest {
 
         // then
         verify(productLikeRepository, times(1)).save(userId, productId);
+        verify(likeSummaryRepository, times(1)).findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT));
     }
 
 
@@ -59,12 +65,17 @@ class ProductLikeServiceTest {
         // given
         Long userId = 1L;
         Long productId = 1L;
-
+        LikeSummary mockLikeSummary = mock(LikeSummary.class);
         // when
+        when(productLikeRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(true);
+
+        when(likeSummaryRepository.findByTarget(any(LikeTarget.class))).thenReturn(Optional.of(mockLikeSummary));
         sut.remove(userId, productId);
 
         // then.
         verify(productLikeRepository, times(1)).delete(userId, productId);
+        verify(likeSummaryRepository, times(1)).findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT));
+        verify(mockLikeSummary, times(1)).decrease();
     }
 
 }

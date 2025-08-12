@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.product;
 
 import com.loopers.annotation.SprintE2ETest;
-import com.loopers.domain.common.Sort;
+import com.loopers.domain.product.ProductSort;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
@@ -61,7 +61,7 @@ class ProductV1ApiE2ETest {
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
                     .queryParam("page", 0)
                     .queryParam("size", 10)
-                    .queryParam("sort", Sort.LATEST)
+                    .queryParam("sort", ProductSort.LATEST_DESC)
                     .buildAndExpand()
                     .toUriString();
 

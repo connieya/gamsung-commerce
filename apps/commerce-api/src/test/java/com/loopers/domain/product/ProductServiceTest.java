@@ -1,6 +1,5 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.common.Sort;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.brand.Brand;
@@ -89,8 +88,8 @@ class ProductServiceTest {
         // given - BeforeEach
 
         // when
-        when(productRepository.findProductDetails(PageRequest.of(0, 1))).thenReturn(targetData);
-        ProductsInfo products = productService.getProducts(0, 1, Sort.LIKES_DESC);
+        when(productRepository.findProductDetails(PageRequest.of(0, 3 , ProductSort.LIKES_DESC.toSort()))).thenReturn(targetData);
+        ProductsInfo products = productService.getProducts_Old(3, 0, ProductSort.LIKES_DESC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
         // then
@@ -110,8 +109,8 @@ class ProductServiceTest {
         // given - BeforeEach
 
         // when
-        when(productRepository.findProductDetails(PageRequest.of(0, 1))).thenReturn(targetData);
-        ProductsInfo products = productService.getProducts(0, 1, Sort.PRICE_ASC);
+        when(productRepository.findProductDetails(PageRequest.of(0, 1 ,ProductSort.PRICE_ASC.toSort()))).thenReturn(targetData);
+        ProductsInfo products = productService.getProducts_Old(1, 0, ProductSort.PRICE_ASC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
         // then
@@ -132,7 +131,7 @@ class ProductServiceTest {
 
         // when
         when(productRepository.findProductDetails(PageRequest.of(0, 1))).thenReturn(targetData);
-        ProductsInfo products = productService.getProducts(0, 1, Sort.LATEST);
+        ProductsInfo products = productService.getProducts_Old(1, 0, ProductSort.LATEST_DESC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
         // then

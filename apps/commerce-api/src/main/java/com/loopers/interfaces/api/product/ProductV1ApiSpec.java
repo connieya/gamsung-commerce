@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.product;
 
-import com.loopers.domain.common.Sort;
+import com.loopers.domain.product.ProductSort;
 import com.loopers.interfaces.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +17,7 @@ public interface ProductV1ApiSpec {
     ApiResponse<?> getProducts(
             @RequestParam int page
             ,@RequestParam int size
-            ,@RequestParam Sort sor);
+            ,@RequestParam ProductSort sor);
 
 
     @Operation(

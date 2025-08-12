@@ -1,6 +1,5 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.common.Sort;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
@@ -11,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,11 +45,18 @@ public class ProductService {
         return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
     }
 
-    @Transactional(readOnly = true)
-    public ProductsInfo getProducts(int size, int page, Sort sort) {
-        Pageable pageable = PageRequest.of(size, page);
+    @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )
+    public ProductsInfo getProducts(int size, int page, ProductSort sortType) {
+        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
-        return ProductsInfo.create(productDetails, sort);
+        return ProductsInfo.create(productDetails);
+    }
+
+    @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )
+    public ProductsInfo getProducts_Old(int size, int page, ProductSort sortType) {
+        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
+        return ProductsInfo.create(productDetails, sortType);
     }
 
     public List<Product> findAllById(List<Long> productIds) {

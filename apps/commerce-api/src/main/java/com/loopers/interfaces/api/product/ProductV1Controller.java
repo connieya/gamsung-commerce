@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.product;
 
-import com.loopers.domain.common.Sort;
+import com.loopers.domain.product.ProductSort;
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.product.ProductsInfo;
@@ -19,8 +19,8 @@ public class ProductV1Controller implements ProductV1ApiSpec {
     public ApiResponse<ProductV1Dto.SummaryResponse> getProducts(
             @RequestParam int page
             , @RequestParam int size
-            , @RequestParam Sort sort) {
-        ProductsInfo products = productService.getProducts(size, page, sort);
+            , @RequestParam ProductSort productSort) {
+        ProductsInfo products = productService.getProducts(size, page, productSort);
         return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
     }
 

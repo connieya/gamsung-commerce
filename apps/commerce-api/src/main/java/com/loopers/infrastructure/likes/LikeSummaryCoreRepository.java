@@ -23,4 +23,9 @@ public class LikeSummaryCoreRepository implements LikeSummaryRepository {
     public Optional<LikeSummary> findByTarget(LikeTarget likeTarget) {
         return likeSummaryJpaRepository.findByTarget(likeTarget);
     }
+
+    @Override
+    public Optional<LikeSummary> findByTargetUpdate(LikeTarget likeTarget) {
+        return likeSummaryJpaRepository.findByTargetForUpdate(likeTarget);
+    }
 }

@@ -3,17 +3,21 @@ package com.loopers.domain.likes;
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.likes.exception.LikeException;
 import com.loopers.support.error.ErrorType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "like_summary")
+@Table(
+        name = "like_summary",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"target_id", "target_type"}
+        )
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class LikeSummary extends BaseEntity {
 
     private static final int MIN_LIKE_COUNT = 0;
@@ -33,7 +37,7 @@ public class LikeSummary extends BaseEntity {
 
     public static LikeSummary create(Long targetId, LikeTargetType targetType) {
         return LikeSummary.builder()
-                .likeCount(0L)
+                .likeCount(1L)
                 .target(LikeTarget.create(targetId, targetType))
                 .build();
     }

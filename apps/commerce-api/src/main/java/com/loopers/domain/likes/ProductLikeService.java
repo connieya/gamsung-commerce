@@ -19,13 +19,13 @@ public class ProductLikeService {
         if (existed) {
             return;
         }
+
         productLikeRepository.save(userId, productId);
-        likeSummaryRepository.findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT))
+        likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT))
                 .ifPresentOrElse(
                         LikeSummary::increase,
                         () -> likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT))
                 );
-
 
     }
 

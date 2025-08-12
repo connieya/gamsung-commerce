@@ -7,7 +7,7 @@ import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
-import com.loopers.infrastructure.likes.ProductLikeEntity;
+import com.loopers.domain.likes.ProductLike;
 import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiResponse;
@@ -101,9 +101,9 @@ class ProductV1ApiE2ETest {
                     userEntity1, userEntity2).forEach(testEntityManager::persist)
             );
 
-            List<ProductLikeEntity> productLikeEntities = List.of(
-                    ProductLikeEntity.from(userEntity1, productEntity)
-                    , ProductLikeEntity.from(userEntity2, productEntity)
+            List<ProductLike> productLikeEntities = List.of(
+                    ProductLike.create(userEntity1, productEntity)
+                    , ProductLike.create(userEntity2, productEntity)
             );
 
             transactionTemplate.executeWithoutResult(status -> productLikeEntities.forEach(testEntityManager::persist));

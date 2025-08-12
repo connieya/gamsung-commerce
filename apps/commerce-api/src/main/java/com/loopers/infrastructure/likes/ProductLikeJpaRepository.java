@@ -1,11 +1,12 @@
 package com.loopers.infrastructure.likes;
 
+import com.loopers.domain.likes.ProductLike;
 import com.loopers.infrastructure.product.ProductEntity;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface ProductLikeJpaRepository extends CrudRepository<ProductLikeEntity , Long> {
+public interface ProductLikeJpaRepository extends CrudRepository<ProductLike, Long> {
 
     boolean existsByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
 
@@ -13,6 +14,6 @@ public interface ProductLikeJpaRepository extends CrudRepository<ProductLikeEnti
 
     void deleteByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
 
-    List<ProductLikeEntity> findByUserEntity_Id(Long userEntityId);
+    List<ProductLike> findByUserEntity_Id(Long userEntityId);
 }
 

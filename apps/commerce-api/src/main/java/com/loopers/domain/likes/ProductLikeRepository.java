@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface ProductLikeRepository {
 
-    ProductLike save(Long userId ,Long productId);
+    ProductLike save(Long userId , Long productId);
 
     boolean existsByUserIdAndProductId(Long userId, Long productId);
 

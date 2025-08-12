@@ -1,8 +1,8 @@
 package com.loopers.infrastructure.likes;
 
+import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.user.exception.UserException;
-import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.product.ProductJpaRepository;
@@ -27,8 +27,7 @@ public class ProductLikeCoreRepository implements ProductLikeRepository {
         UserEntity userEntity = userJpaRepository.findById(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
         ProductEntity productEntity = productJpaRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
 
-        return productLikeJpaRepository.save(ProductLikeEntity.from(userEntity, productEntity))
-                .toDomain();
+        return productLikeJpaRepository.save(ProductLike.create(userEntity, productEntity));
     }
 
     @Override
@@ -49,10 +48,7 @@ public class ProductLikeCoreRepository implements ProductLikeRepository {
 
     @Override
     public List<ProductLike> findByUserId(Long id) {
-        return productLikeJpaRepository.findByUserEntity_Id(id)
-                .stream()
-                .map(ProductLikeEntity::toDomain)
-                .toList();
+        return productLikeJpaRepository.findByUserEntity_Id(id);
     }
 }
 

@@ -22,7 +22,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             ",p.releasedAt" +
             ") from ProductEntity p " +
             "left join p.brand b " +
-            "left join ProductLikeEntity  pl on p.id = pl.productEntity.id " +
+            "left join ProductLike  pl on p.id = pl.productEntity.id " +
             "group by p.id,p.price,p.name,b.name , p.releasedAt")
     Page<ProductInfo> findProductDetails(Pageable pageable);
 }

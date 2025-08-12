@@ -1,11 +1,12 @@
 package com.loopers.domain.likes;
 
+import com.loopers.infrastructure.likes.LikeSummaryJpaRepository;
+import com.loopers.infrastructure.likes.ProductLikeJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 
 import java.util.Optional;
@@ -13,17 +14,18 @@ import java.util.Optional;
 import static org.mockito.Mockito.*;
 
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class ProductLikeServiceTest {
 
-    @InjectMocks
-    ProductLikeService sut;
+    @Autowired
+    ProductLikeService productLikeService;
 
-    @Mock
-    ProductLikeRepository productLikeRepository;
+    @MockitoSpyBean
+    ProductLikeJpaRepository productLikeJpaRepository;
 
-    @Mock
-    LikeSummaryRepository likeSummaryRepository;
+    @MockitoSpyBean
+    LikeSummaryJpaRepository likeSummaryJpaRepository;
+
 
 
     @Test
@@ -34,11 +36,17 @@ class ProductLikeServiceTest {
         Long userId = 1L;
 
         // when
-        sut.add(userId, productId);
+        doReturn(false)
+                .when(productLikeJpaRepository)
+                .existsByUserIdAndProductId(userId, productId);
+
+        productLikeService.add(userId, productId);
 
         // then
-        verify(productLikeRepository, times(1)).save(userId, productId);
-        verify(likeSummaryRepository, times(1)).findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT));
+
+        verify(productLikeJpaRepository, times(1)).save(any(ProductLike.class));
+
+        verify(likeSummaryJpaRepository, times(1)).save(any(LikeSummary.class));
     }
 
 
@@ -49,14 +57,14 @@ class ProductLikeServiceTest {
         Long productId = 1L;
         Long userId = 1L;
 
-        when(productLikeRepository.existsByUserIdAndProductId(userId, productId))
-                .thenReturn(true);
-
+        doReturn(true)
+                .when(productLikeJpaRepository)
+                .existsByUserIdAndProductId(userId, productId);
         // when
-        sut.add(userId, productId);
+        productLikeService.add(userId, productId);
 
         // then
-        verify(productLikeRepository, never()).save(userId, productId);
+        verify(productLikeJpaRepository, never()).save(any(ProductLike.class));
     }
 
     @Test
@@ -67,14 +75,17 @@ class ProductLikeServiceTest {
         Long productId = 1L;
         LikeSummary mockLikeSummary = mock(LikeSummary.class);
         // when
-        when(productLikeRepository.existsByUserIdAndProductId(userId, productId)).thenReturn(true);
+        doReturn(true)
+                .when(productLikeJpaRepository)
+                .existsByUserIdAndProductId(userId, productId);
 
-        when(likeSummaryRepository.findByTarget(any(LikeTarget.class))).thenReturn(Optional.of(mockLikeSummary));
-        sut.remove(userId, productId);
+        doReturn(Optional.of(mockLikeSummary))
+                .when(likeSummaryJpaRepository).findByTarget(any(LikeTarget.class));
+        productLikeService.remove(userId, productId);
 
-        // then.
-        verify(productLikeRepository, times(1)).delete(userId, productId);
-        verify(likeSummaryRepository, times(1)).findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT));
+        // then
+        verify(productLikeJpaRepository, times(1)).deleteByUserIdAndProductId(userId, productId);
+        verify(likeSummaryJpaRepository, times(1)).findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT));
         verify(mockLikeSummary, times(1)).decrease();
     }
 

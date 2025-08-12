@@ -91,10 +91,9 @@ class ProductLikeServiceIntegrationTest {
             });
         }
 
-        startLatch.countDown(); // 모든 스레드에게 시작 신호를 보냄
-        endLatch.await();       // 모든 스레드가 작업을 마칠 때까지 대기
-
-        executorService.shutdown(); // 스레드풀 종료
+        startLatch.countDown();
+        endLatch.await();
+        executorService.shutdown();
 
 
         // then

@@ -37,7 +37,7 @@ public class LikeSummary extends BaseEntity {
 
     public static LikeSummary create(Long targetId, LikeTargetType targetType) {
         return LikeSummary.builder()
-                .likeCount(1L)
+                .likeCount(0L)
                 .target(LikeTarget.create(targetId, targetType))
                 .build();
     }

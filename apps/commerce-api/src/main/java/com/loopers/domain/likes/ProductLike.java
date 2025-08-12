@@ -1,8 +1,6 @@
 package com.loopers.domain.likes;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.infrastructure.product.ProductEntity;
-import com.loopers.infrastructure.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,29 +16,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductLike extends BaseEntity {
 
+    @JoinColumn(name = "ref_user_id", nullable = false)
+    private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ref_user_id")
-    private UserEntity userEntity;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ref_product_id")
-    private ProductEntity productEntity;
+    @JoinColumn(name = "ref_product_id", nullable = false)
+    private Long productId;
 
     @Builder
-    private ProductLike(UserEntity userEntity, ProductEntity productEntity) {
-        this.userEntity = userEntity;
-        this.productEntity = productEntity;
+    private ProductLike(Long userId, Long productId) {
+        this.userId = userId;
+        this.productId = productId;
     }
 
-
-    public static ProductLike create(UserEntity user, ProductEntity product) {
+    public static ProductLike create(Long userId, Long productId) {
         return ProductLike
                 .builder()
-                .userEntity(user)
-                .productEntity(product)
+                .userId(userId)
+                .productId(productId)
                 .build();
     }
-
 
 }

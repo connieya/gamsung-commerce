@@ -8,12 +8,12 @@ import java.util.List;
 
 public interface ProductLikeJpaRepository extends CrudRepository<ProductLike, Long> {
 
-    boolean existsByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
+    boolean existsByUserIdAndProductId(Long userId, Long productId);
 
-    Long countByProductEntity(ProductEntity productEntity);
+    List<ProductLike> findByUserId(Long id);
 
-    void deleteByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
+    void deleteByUserIdAndProductId(Long userId, Long productId);
 
-    List<ProductLike> findByUserEntity_Id(Long userEntityId);
+    Long countByProductId(Long productId);
 }
 

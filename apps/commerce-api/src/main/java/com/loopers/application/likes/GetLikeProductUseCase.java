@@ -4,6 +4,7 @@ import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductDetailInfo;
+import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
 import com.loopers.domain.brand.Brand;
@@ -23,14 +24,16 @@ public class GetLikeProductUseCase {
     private final UserService userService;
     private final ProductLikeRepository productLikeRepository;
     private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
     public GetLikeProductResult getLikedProducts(String userId) {
         User user = userService.findByUserId(userId);
         List<ProductLike> productLikes = productLikeRepository.findByUserId(user.getId());
-        List<Product> products = productLikes.stream()
-                .map(productLikeEntity -> productLikeEntity.getProductEntity().toDomain())
+        List<Long> productsId = productLikes.stream()
+                .map(ProductLike::getProductId)
                 .toList();
+        List<Product> products = productRepository.findAllById(productsId);
         List<Brand> brands = brandRepository.findAllById(products.stream().map(Product::getBrandId).toList());
         Map<Long, Brand> brandMap = brands.stream()
                 .collect(Collectors.toMap(Brand::getId, brand -> brand));

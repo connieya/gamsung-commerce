@@ -102,8 +102,8 @@ class ProductV1ApiE2ETest {
             );
 
             List<ProductLike> productLikeEntities = List.of(
-                    ProductLike.create(userEntity1, productEntity)
-                    , ProductLike.create(userEntity2, productEntity)
+                    ProductLike.create(userEntity1.getId(), productEntity.getId())
+                    , ProductLike.create(userEntity2.getId(), productEntity.getId())
             );
 
             transactionTemplate.executeWithoutResult(status -> productLikeEntities.forEach(testEntityManager::persist));

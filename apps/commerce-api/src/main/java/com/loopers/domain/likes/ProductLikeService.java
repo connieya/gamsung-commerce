@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ProductLikeService {
@@ -19,13 +21,24 @@ public class ProductLikeService {
         if (existed) {
             return;
         }
-
+        System.out.println("userId = " + userId);
         productLikeRepository.save(userId, productId);
-        likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT))
-                .ifPresentOrElse(
-                        LikeSummary::increase,
-                        () -> likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT))
-                );
+        Optional<LikeSummary> byTarget = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT));
+        if (byTarget.isPresent()) {
+            System.out.println("11111");
+            LikeSummary likeSummary = byTarget.get();
+            likeSummary.increase();
+        }else {
+            System.out.println("22222");
+            LikeSummary likeSummary = LikeSummary.create(productId, LikeTargetType.PRODUCT);
+            likeSummary.increase();
+            likeSummaryRepository.save(likeSummary);
+        }
+//        likeSummaryRepository.findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT))
+//                .ifPresentOrElse(
+//                        LikeSummary::increase,
+//                        () -> likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT))
+//                );
 
     }
 

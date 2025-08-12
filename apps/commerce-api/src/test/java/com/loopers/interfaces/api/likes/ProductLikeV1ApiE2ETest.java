@@ -186,7 +186,7 @@ class ProductLikeV1ApiE2ETest {
 
             transactionTemplate.executeWithoutResult(status ->
                     productEntities.forEach(productEntity -> {
-                        ProductLike productLike = ProductLike.create(userEntity, productEntity);
+                        ProductLike productLike = ProductLike.create(userEntity.getId(), productEntity.getId());
                         testEntityManager.persist(productLike);
                     })
             );

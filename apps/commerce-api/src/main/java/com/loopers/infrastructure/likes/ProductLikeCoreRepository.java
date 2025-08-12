@@ -19,36 +19,30 @@ import java.util.List;
 public class ProductLikeCoreRepository implements ProductLikeRepository {
 
     private final ProductLikeJpaRepository productLikeJpaRepository;
-    private final UserJpaRepository userJpaRepository;
-    private final ProductJpaRepository productJpaRepository;
 
     @Override
     public ProductLike save(Long userId, Long productId) {
-        UserEntity userEntity = userJpaRepository.findById(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
-        ProductEntity productEntity = productJpaRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-
-        return productLikeJpaRepository.save(ProductLike.create(userEntity, productEntity));
+        return productLikeJpaRepository.save(ProductLike.create(userId, productId));
     }
 
     @Override
     public boolean existsByUserIdAndProductId(Long userId , Long productId) {
-        return productLikeJpaRepository.existsByUserEntity_IdAndProductEntity_Id(userId, productId);
+        return productLikeJpaRepository.existsByUserIdAndProductId(userId, productId);
     }
 
     @Override
     public Long getLikeCount(Long productId) {
-        ProductEntity productEntity = productJpaRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-        return productLikeJpaRepository.countByProductEntity(productEntity);
+        return productLikeJpaRepository.countByProductId(productId);
     }
 
     @Override
     public void delete(Long userId, Long productId) {
-        productLikeJpaRepository.deleteByUserEntity_IdAndProductEntity_Id(userId ,productId);
+        productLikeJpaRepository.deleteByUserIdAndProductId(userId ,productId);
     }
 
     @Override
     public List<ProductLike> findByUserId(Long id) {
-        return productLikeJpaRepository.findByUserEntity_Id(id);
+        return productLikeJpaRepository.findByUserId(id);
     }
 }
 

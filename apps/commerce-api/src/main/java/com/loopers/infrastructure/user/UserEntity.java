@@ -9,14 +9,16 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "member")
+@Table(name = "users")
 public class UserEntity extends BaseEntity {
 
 
+    @Column(name = "user_id", unique = true, nullable = false)
     private String userId;
 
     private String email;
 
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)

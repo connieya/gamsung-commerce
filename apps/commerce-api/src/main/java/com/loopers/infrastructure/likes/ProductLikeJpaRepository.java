@@ -1,12 +1,9 @@
 package com.loopers.infrastructure.likes;
 
-import com.loopers.domain.likes.ProductLike;
 import com.loopers.infrastructure.product.ProductEntity;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 public interface ProductLikeJpaRepository extends CrudRepository<ProductLikeEntity , Long> {
 

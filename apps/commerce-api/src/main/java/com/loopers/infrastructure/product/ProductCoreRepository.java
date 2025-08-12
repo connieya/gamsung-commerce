@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
-public class ProductRepositoryImpl implements ProductRepository {
+public class ProductCoreRepository implements ProductRepository {
 
     private final ProductJpaRepository productJpaRepository;
     private final BrandJpaRepository brandJpaRepository;

@@ -36,8 +36,8 @@ public enum ErrorType {
     USER_COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "UserCoupon Already Used", "이미 사용된 쿠폰입니다."),
 
 
-
-
+    LIKE_SUMMARY_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Summary Not Found", "좋아요 요약 정보를 찾을 수 없습니다."),
+    LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "Like Count Cannot Be Negative", "좋아요 개수는 0 미만이 될 수 없습니다."),
 
     ;
 

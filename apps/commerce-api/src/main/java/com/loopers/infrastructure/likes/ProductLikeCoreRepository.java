@@ -1,6 +1,5 @@
 package com.loopers.infrastructure.likes;
 
-import com.loopers.domain.product.Product;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.user.exception.UserException;
 import com.loopers.domain.likes.ProductLike;
@@ -14,11 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
-public class ProductLikeRepositoryImpl implements ProductLikeRepository {
+public class ProductLikeCoreRepository implements ProductLikeRepository {
 
     private final ProductLikeJpaRepository productLikeJpaRepository;
     private final UserJpaRepository userJpaRepository;

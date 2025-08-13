@@ -17,7 +17,7 @@ const productNamesPath = path.join(__dirname, '../data/product-names.csv');
 
 // --- 데이터 생성 상수 ---
 const TOTAL_PRODUCTS = 500000;
-const TOTAL_LIKES = 10000; // 상품 좋아요 데이터 개수
+const TOTAL_LIKES = 100000; // 상품 좋아요 데이터 개수
 
 // --- 시작 로직 ---
 if (!fs.existsSync(resultsDir)) {
@@ -135,10 +135,19 @@ sqlContent += `INSERT INTO product_like (ref_user_id, ref_product_id, created_at
 const likeValues = [];
 const userCount = userLines.length;
 
+// 중복된 좋아요 조합을 저장할 Set
+const uniqueLikes = new Set();
+
 for (let i = 0; i < TOTAL_LIKES; i++) {
     const randomUserId = Math.floor(Math.random() * userCount) + 1; // 사용자 ID는 1부터 시작
     const randomProductId = Math.floor(Math.random() * TOTAL_PRODUCTS) + 1; // 상품 ID는 1부터 시작
-    likeValues.push(`(${randomUserId}, ${randomProductId}, NOW(), NOW())`);
+    const uniqueKey = `${randomUserId}-${randomProductId}`;
+
+    // Set에 이미 존재하는지 확인
+    if (!uniqueLikes.has(uniqueKey)) {
+        uniqueLikes.add(uniqueKey);
+        likeValues.push(`(${randomUserId}, ${randomProductId}, NOW(), NOW())`);
+    }
 }
 sqlContent += likeValues.join(',\n') + ';\n';
 console.log(`총 ${TOTAL_LIKES}개의 상품 좋아요 데이터 SQL 문이 생성되었습니다.`);

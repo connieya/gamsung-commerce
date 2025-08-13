@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "product" , indexes = {@Index(columnList = "price")})
+@Table(name = "product")
 public class ProductEntity extends BaseEntity {
 
     private String name;

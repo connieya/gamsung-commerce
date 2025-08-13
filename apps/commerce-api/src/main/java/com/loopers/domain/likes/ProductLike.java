@@ -10,9 +10,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
         name = "product_like",
-        indexes = {
-                @Index(columnList = "ref_product_id")
-        },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"ref_user_id", "ref_product_id"})
         }

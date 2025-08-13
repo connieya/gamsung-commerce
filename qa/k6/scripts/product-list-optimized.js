@@ -13,15 +13,17 @@ export const options = {
 // 메인 테스트 시나리오
 export default function () {
 
-    const specificSort = 'PRICE_ASC';
+    const specificSort = __ENV.SORT_TYPE || 'LATEST_DESC';
 
     const page = 0;
     const size = 5;
 
-    const url = `http://localhost:8080/api/v1/products?page=${page}&size=${size}&productSort=${specificSort}`;
+    const url = `http://localhost:8080/api/v1/products/optimized?page=${page}&size=${size}&productSort=${specificSort}`;
 
     // GET 요청 실행
-    const res = http.get(url);
+    const res = http.get(url, {
+        tags: { productSort: specificSort }
+    });
 
     // 응답 상태 코드가 200인지 확인
     check(res, {

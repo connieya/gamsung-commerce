@@ -26,14 +26,14 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
 
     @Transactional
-    public void register(ProductCommand productCommand) {
+    public void register(ProductCommand.Register register) {
         Product product = Product.create(
-                productCommand.getName()
-                , productCommand.getPrice()
-                , productCommand.getBrandId()
+                register.getName()
+                , register.getPrice()
+                , register.getBrandId()
                 , ZonedDateTime.now()
         );
-        productRepository.save(product, productCommand.getBrandId());
+        productRepository.save(product, register.getBrandId());
     }
 
     @Transactional(readOnly = true)
@@ -60,9 +60,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 쿼리 최적화 (product_like count 서브 쿼리 )
-    public ProductsInfo getProductsOptimized(int size, int page, ProductSort sortType) {
-        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable);
+    public ProductsInfo getProductsOptimized(ProductCommand.Search search) {
+        Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable , search.getBrandId());
         return ProductsInfo.create(productDetails);
     }
 

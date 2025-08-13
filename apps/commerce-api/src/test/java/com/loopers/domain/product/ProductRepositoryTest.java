@@ -119,7 +119,7 @@ class ProductRepositoryTest {
 
         // when
         Pageable pageable = PageRequest.of(0, 10);
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable);
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable , savedBrand.getId());
         List<ProductInfo> content = productDetails.getContent();
 
         // then

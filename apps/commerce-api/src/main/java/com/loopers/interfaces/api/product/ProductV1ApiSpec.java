@@ -16,8 +16,8 @@ public interface ProductV1ApiSpec {
     )
     ApiResponse<?> getProducts(
             @RequestParam int page
-            ,@RequestParam int size
-            ,@RequestParam ProductSort productSort);
+            , @RequestParam int size
+            , @RequestParam ProductSort productSort);
 
     @Operation(
             summary = "상품 목록 조회",
@@ -25,8 +25,10 @@ public interface ProductV1ApiSpec {
     )
     ApiResponse<?> getProductsOptimized(
             @RequestParam int page
-            ,@RequestParam int size
-            ,@RequestParam ProductSort productSort);
+            , @RequestParam int size
+            , @RequestParam ProductSort productSort
+            , @RequestParam Long brandId
+    );
 
 
     @Operation(

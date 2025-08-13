@@ -57,7 +57,7 @@ class ProductServiceIntegrationTest {
             Brand brand = BrandFixture.complete().create();
             Brand savedBrand = brandRepository.save(brand);
 
-            ProductCommand productCommand = ProductCommand.of("상품1", 100000L, savedBrand.getId());
+            ProductCommand.Register productCommand = ProductCommand.Register.create("상품1", 100000L, savedBrand.getId());
 
             // when
             productService.register(productCommand);

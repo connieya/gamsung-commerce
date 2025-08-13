@@ -35,7 +35,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "cast((SELECT COUNT(l) FROM ProductLike l WHERE l.productId = p.id) as long )as likeCount, " +
             "p.releasedAt" +
             ") FROM ProductEntity p " +
-            "LEFT JOIN p.brand b"
+            "LEFT JOIN p.brand b " +
+            "WHERE b.id = :brandId"
     )
-    Page<ProductInfo> findProductDetailsOptimized(Pageable pageable);
+    Page<ProductInfo> findProductDetailsOptimized(Pageable pageable , Long brandId);
 }

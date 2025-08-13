@@ -1,5 +1,10 @@
 -- users 테이블에 user-sample.csv 데이터 삽입
--- 생성 시간: 2025-08-12T02:15:06.001Z
+-- 생성 시간: 2025-08-12T22:36:38.160Z
+
+-- 한글 지원을 위한 문자셋 설정
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+SET character_set_connection=utf8mb4;
 
 TRUNCATE TABLE users;
 

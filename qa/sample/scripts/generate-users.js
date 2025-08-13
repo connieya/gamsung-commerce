@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 // user-sample.csv 파일 경로
-const userSamplePath = path.join(__dirname, '../data/user-sample.csv');
+const userSamplePath = path.join(__dirname, '../data/user-sample_bk.csv');
 // SQL 결과 파일 경로
 const resultSqlPath = path.join(__dirname, '../results', 'users-data.sql');
 // 결과 디렉토리 생성

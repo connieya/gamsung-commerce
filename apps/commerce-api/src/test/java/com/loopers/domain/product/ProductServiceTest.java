@@ -88,7 +88,7 @@ class ProductServiceTest {
         // given - BeforeEach
 
         // when
-        when(productRepository.findProductDetails(PageRequest.of(0, 3 , ProductSort.LIKES_DESC.toSort()))).thenReturn(targetData);
+        when(productRepository.findProductDetails(PageRequest.of(0, 3, ProductSort.LIKES_DESC.toSort()))).thenReturn(targetData);
         ProductsInfo products = productService.getProducts_Old(3, 0, ProductSort.LIKES_DESC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
@@ -109,7 +109,7 @@ class ProductServiceTest {
         // given - BeforeEach
 
         // when
-        when(productRepository.findProductDetails(PageRequest.of(0, 1 ,ProductSort.PRICE_ASC.toSort()))).thenReturn(targetData);
+        when(productRepository.findProductDetails(PageRequest.of(0, 1, ProductSort.PRICE_ASC.toSort()))).thenReturn(targetData);
         ProductsInfo products = productService.getProducts_Old(1, 0, ProductSort.PRICE_ASC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
@@ -128,9 +128,8 @@ class ProductServiceTest {
     @DisplayName("상품 목록 가장 최근 출시일 순으로 정렬")
     void getProducts_withLatestSort() {
         // given - BeforeEach
-
         // when
-        when(productRepository.findProductDetails(PageRequest.of(0, 1))).thenReturn(targetData);
+        when(productRepository.findProductDetails(PageRequest.of(0, 1, ProductSort.LATEST_DESC.toSort()))).thenReturn(targetData);
         ProductsInfo products = productService.getProducts_Old(1, 0, ProductSort.LATEST_DESC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 

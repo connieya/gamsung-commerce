@@ -15,6 +15,7 @@ public class ProductV1Controller implements ProductV1ApiSpec {
 
     private final ProductService productService;
 
+    @GetMapping
     @Override
     public ApiResponse<ProductV1Dto.SummaryResponse> getProducts(
             @RequestParam int page

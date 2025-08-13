@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductLike extends BaseEntity {
 
-    @JoinColumn(name = "ref_user_id", nullable = false)
+    @Column(name = "ref_user_id", nullable = false)
     private Long userId;
 
-    @JoinColumn(name = "ref_product_id", nullable = false)
+    @Column(name = "ref_product_id", nullable = false)
     private Long productId;
 
     @Builder

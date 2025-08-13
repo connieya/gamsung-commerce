@@ -83,4 +83,51 @@ class ProductRepositoryTest {
                         tuple(savedProductB.getId(), "상품B", 70000L, savedBrand.getName(), 2L)
                 );
     }
+
+
+    @Test
+    @DisplayName("상품 목록 조회시 브랜드 정보와 좋아요 개수를 함께 조회한다. (최적화된 쿼리)")
+    @Transactional
+    void findProductDetailsOptimized() {
+        // given
+        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
+        User savedUser1 = userRepository.save(user1);
+        User savedUser2 = userRepository.save(user2);
+
+
+        Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product productA = ProductFixture.complete()
+                .set(Select.field(Product::getName), "상품A")
+                .set(Select.field(Product::getPrice), 50000L)
+                .create();
+
+        Product productB = ProductFixture.complete()
+                .set(Select.field(Product::getName), "상품B")
+                .set(Select.field(Product::getPrice), 70000L)
+                .create();
+
+        Product savedProductA = productRepository.save(productA, savedBrand.getId());
+        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+
+
+        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
+        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
+        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable);
+        List<ProductInfo> content = productDetails.getContent();
+
+        // then
+        assertThat(content).hasSize(2)
+                .extracting("productId", "productName", "price", "brandName", "likeCount")
+                .containsExactlyInAnyOrder(
+                        tuple(savedProductA.getId(), "상품A", 50000L, "adidas", 1L),
+                        tuple(savedProductB.getId(), "상품B", 70000L, "adidas", 2L)
+                );
+    }
 }

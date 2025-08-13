@@ -17,7 +17,16 @@ public interface ProductV1ApiSpec {
     ApiResponse<?> getProducts(
             @RequestParam int page
             ,@RequestParam int size
-            ,@RequestParam ProductSort sor);
+            ,@RequestParam ProductSort productSort);
+
+    @Operation(
+            summary = "상품 목록 조회",
+            description = "상품 목록을 조회합니다."
+    )
+    ApiResponse<?> getProductsOptimized(
+            @RequestParam int page
+            ,@RequestParam int size
+            ,@RequestParam ProductSort productSort);
 
 
     @Operation(

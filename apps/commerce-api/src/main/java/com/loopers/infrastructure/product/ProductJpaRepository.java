@@ -26,4 +26,16 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "group by p.id, p.price, p.name, b.name, p.releasedAt "
     )
     Page<ProductInfo> findProductDetails(Pageable pageable);
+
+    @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
+            "p.id, " +
+            "p.price, " +
+            "p.name, " +
+            "b.name, " +
+            "cast((SELECT COUNT(l) FROM ProductLike l WHERE l.productId = p.id) as long )as likeCount, " +
+            "p.releasedAt" +
+            ") FROM ProductEntity p " +
+            "LEFT JOIN p.brand b"
+    )
+    Page<ProductInfo> findProductDetailsOptimized(Pageable pageable);
 }

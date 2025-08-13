@@ -48,8 +48,15 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
+    public Page<ProductInfo> findProductDetailsOptimized(Pageable pageable) {
+        return productJpaRepository.findProductDetailsOptimized(pageable);
+    }
+
+    @Override
     public List<Product> findAllById(List<Long> productIds) {
         return productJpaRepository.findAllById(productIds)
                 .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
     }
+
+
 }

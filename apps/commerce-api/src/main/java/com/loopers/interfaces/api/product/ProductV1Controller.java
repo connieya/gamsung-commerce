@@ -25,6 +25,16 @@ public class ProductV1Controller implements ProductV1ApiSpec {
         return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
     }
 
+    @GetMapping("/optimized")
+    @Override
+    public ApiResponse<ProductV1Dto.SummaryResponse> getProductsOptimized(
+            @RequestParam int page
+            , @RequestParam int size
+            , @RequestParam ProductSort productSort) {
+        ProductsInfo products = productService.getProductsOptimized(size, page, productSort);
+        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+    }
+
     @GetMapping("/{productId}")
     @Override
     public ApiResponse<ProductV1Dto.DetailResponse> getProduct(@PathVariable Long productId) {

@@ -1,6 +1,10 @@
 package com.loopers.domain.likes;
 
 import com.loopers.domain.likes.exception.LikeException;
+import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.product.exception.ProductException;
+import com.loopers.domain.user.UserRepository;
+import com.loopers.domain.user.exception.UserException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,9 +18,14 @@ public class ProductLikeService {
 
     private final ProductLikeRepository productLikeRepository;
     private final LikeSummaryRepository likeSummaryRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public void add(Long userId, Long productId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
+        productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+
         boolean existed = productLikeRepository.existsByUserIdAndProductId(userId, productId);
         if (existed) {
             return;

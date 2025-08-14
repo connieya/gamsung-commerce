@@ -1,5 +1,8 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.fixture.BrandFixture;
@@ -38,6 +41,9 @@ class ProductRepositoryTest {
     @Autowired
     ProductLikeRepository productLikeRepository;
 
+    @Autowired
+    LikeSummaryRepository likeSummaryRepository;
+
     @Test
     @DisplayName("상품 목록 조회시 브랜드 정보와 좋아요 개수를 함께 조회한다.")
     @Transactional
@@ -71,16 +77,16 @@ class ProductRepositoryTest {
         productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
 
         // when
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 10 , ProductSort.LIKES_DESC.toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
         List<ProductInfo> content = productDetails.getContent();
 
         // then
         assertThat(content).hasSize(2)
                 .extracting("productId", "productName", "price", "brandName", "likeCount")
-                .containsExactlyInAnyOrder(
-                        tuple(savedProductA.getId(), "상품A", 50000L, savedBrand.getName(), 1L),
-                        tuple(savedProductB.getId(), "상품B", 70000L, savedBrand.getName(), 2L)
+                .containsExactly(
+                        tuple(savedProductB.getId(), "상품B", 70000L, savedBrand.getName(), 2L),
+                        tuple(savedProductA.getId(), "상품A", 50000L, savedBrand.getName(), 1L)
                 );
     }
 
@@ -118,16 +124,128 @@ class ProductRepositoryTest {
         productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
 
         // when
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 10 ,ProductSort.PRICE_ASC.toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable , savedBrand.getId());
         List<ProductInfo> content = productDetails.getContent();
 
         // then
         assertThat(content).hasSize(2)
                 .extracting("productId", "productName", "price", "brandName", "likeCount")
-                .containsExactlyInAnyOrder(
+                .containsExactly(
                         tuple(savedProductA.getId(), "상품A", 50000L, "adidas", 1L),
                         tuple(savedProductB.getId(), "상품B", 70000L, "adidas", 2L)
+                );
+    }
+
+
+    @Test
+    @DisplayName("상품 목록 조회시 브랜드 정보와 좋아요 개수를 함께 조회한다. (비정규화 모델)")
+    @Transactional
+    void findProductDetailsDenormalizedLikeCount() {
+        // given
+        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
+        User savedUser1 = userRepository.save(user1);
+        User savedUser2 = userRepository.save(user2);
+
+
+        Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product productA = ProductFixture.complete()
+                .set(Select.field(Product::getName), "상품A")
+                .set(Select.field(Product::getPrice), 50000L)
+                .create();
+
+        Product productB = ProductFixture.complete()
+                .set(Select.field(Product::getName), "상품B")
+                .set(Select.field(Product::getPrice), 70000L)
+                .create();
+
+        Product savedProductA = productRepository.save(productA, savedBrand.getId());
+        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+
+
+        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
+        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
+        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
+
+        LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
+        likeSummary1.increase();
+        LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
+        likeSummary2.increase();
+        likeSummary2.increase();
+        likeSummary2.increase();
+        likeSummaryRepository.save(likeSummary1);
+        likeSummaryRepository.save(likeSummary2);
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10 , ProductSort.DENORMALIZED_LIKES_DESC.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable , savedBrand.getId());
+        List<ProductInfo> content = productDetails.getContent();
+
+        // then
+        assertThat(content).hasSize(2)
+                .extracting("productId", "productName", "price", "brandName", "likeCount")
+                .containsExactly(
+                        tuple(savedProductB.getId(), "상품B", 70000L, "adidas", 3L),
+                        tuple(savedProductA.getId(), "상품A", 50000L, "adidas", 1L)
+                );
+    }
+
+
+    @Test
+    @DisplayName("상품 목록 조회시 브랜드 정보와 좋아요 개수를 함께 조회한다. (비정규화 모델 + 최적화 쿼리)")
+    @Transactional
+    void findProductDetailsDenormalizedLikeCountOptimized() {
+        // given
+        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
+        User savedUser1 = userRepository.save(user1);
+        User savedUser2 = userRepository.save(user2);
+
+
+        Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product productA = ProductFixture.complete()
+                .set(Select.field(Product::getName), "상품A")
+                .set(Select.field(Product::getPrice), 50000L)
+                .create();
+
+        Product productB = ProductFixture.complete()
+                .set(Select.field(Product::getName), "상품B")
+                .set(Select.field(Product::getPrice), 70000L)
+                .create();
+
+        Product savedProductA = productRepository.save(productA, savedBrand.getId());
+        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+
+
+        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
+        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
+        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
+
+        LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
+        likeSummary1.increase();
+        LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
+        likeSummary2.increase();
+        likeSummary2.increase();
+        likeSummary2.increase();
+        likeSummaryRepository.save(likeSummary1);
+        likeSummaryRepository.save(likeSummary2);
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10 , ProductSort.LIKES_DESC.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable , savedBrand.getId());
+        List<ProductInfo> content = productDetails.getContent();
+
+        // then
+        assertThat(content).hasSize(2)
+                .extracting("productId", "productName", "price", "brandName", "likeCount")
+                .containsExactly(
+                        tuple(savedProductB.getId(), "상품B", 70000L, "adidas", 3L),
+                        tuple(savedProductA.getId(), "상품A", 50000L, "adidas", 1L)
                 );
     }
 }

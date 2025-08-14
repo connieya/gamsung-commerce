@@ -7,6 +7,8 @@ public enum ProductSort {
     LATEST_ASC("releasedAt", Sort.Direction.ASC),
     LIKES_ASC("likeCount", Sort.Direction.ASC),
     LIKES_DESC("likeCount", Sort.Direction.DESC),
+    DENORMALIZED_LIKES_ASC("s.likeCount", Sort.Direction.ASC),
+    DENORMALIZED_LIKES_DESC("s.likeCount", Sort.Direction.DESC),
     PRICE_ASC("price", Sort.Direction.ASC),
     PRICE_DESC("price", Sort.Direction.DESC);
 

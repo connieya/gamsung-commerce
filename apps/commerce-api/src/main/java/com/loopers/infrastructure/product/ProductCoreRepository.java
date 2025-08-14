@@ -52,14 +52,19 @@ public class ProductCoreRepository implements ProductRepository {
         return productJpaRepository.findProductDetailsOptimized(pageable , brandId);
     }
 
-//    @Override
-//    public Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable, Long brandId) {
-//        return productJpaRepository.findProductDetailsDenormalizedLikeCount(pageable , brandId);
-//    }
-
     @Override
     public Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable, Long brandId) {
+        return productJpaRepository.findProductDetailsDenormalizedLikeCount(pageable , brandId);
+    }
+
+    @Override
+    public Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable) {
         return productJpaRepository.findProductDetailsDenormalizedLikeCount(pageable);
+    }
+
+    @Override
+    public Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable, Long id) {
+        return productJpaRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable);
     }
 
     @Override

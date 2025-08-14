@@ -67,9 +67,16 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 적용 (product_summary 테이블 좋아요 count )
-    public ProductsInfo getProductsDenormalizedLikeCount(ProductCommand.Search search) {
+    public ProductsInfo getProductsDenormalizedLikeCountWithBrandId(ProductCommand.Search search) {
         Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable , search.getBrandId());
+        return ProductsInfo.create(productDetails);
+    }
+
+    @Transactional(readOnly = true) // 좋아요 비정규화 적용 (product_summary 테이블 좋아요 count )
+    public ProductsInfo getProductsDenormalizedLikeCount(ProductCommand.Search search) {
+        Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable);
         return ProductsInfo.create(productDetails);
     }
 

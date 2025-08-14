@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.brand.BrandCacheRepository;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +24,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final ProductLikeRepository productLikeRepository;
+    private final BrandCacheRepository brandCacheRepository;
 
     @Transactional
     public void register(ProductCommand.Register register) {
@@ -39,7 +40,15 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDetailInfo getProduct(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-        Brand brand = brandRepository.findBrand(productId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+        Long brandId = product.getBrandId();
+
+        Brand brand = brandCacheRepository.findById(brandId)
+                .orElseGet(() -> {
+                    Brand brandFromDb = brandRepository.findBrand(brandId)
+                            .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+                    brandCacheRepository.save(brandFromDb);
+                    return brandFromDb;
+                });
         Long likeCount = productLikeRepository.getLikeCount(productId);
 
         return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);

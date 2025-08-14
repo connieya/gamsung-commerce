@@ -39,4 +39,9 @@ public class Brand extends BaseEntity {
                 .description(description)
                 .build();
     }
+
+    public void update(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

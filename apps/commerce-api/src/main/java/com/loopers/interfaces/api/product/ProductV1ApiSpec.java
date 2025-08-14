@@ -30,6 +30,17 @@ public interface ProductV1ApiSpec {
             , @RequestParam Long brandId
     );
 
+    @Operation(
+            summary = "상품 목록 조회",
+            description = "상품 목록을 조회합니다."
+    )
+    ApiResponse<?> getProductsDenormalizedLikeCount(
+            @RequestParam int page
+            , @RequestParam int size
+            , @RequestParam ProductSort productSort
+            , @RequestParam Long brandId
+    );
+
 
     @Operation(
             summary = "상품 정보 조회",

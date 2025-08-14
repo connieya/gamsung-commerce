@@ -39,4 +39,33 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "WHERE b.id = :brandId"
     )
     Page<ProductInfo> findProductDetailsOptimized(Pageable pageable , Long brandId);
+
+
+//    @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
+//            "p.id, " +
+//            "p.price, " +
+//            "p.name, " +
+//            "b.name, " +
+//            "s.likeCount, " +
+//            "p.releasedAt" +
+//            ") FROM ProductEntity p " +
+//            "LEFT JOIN p.brand b " +
+//            "LEFT JOIN LikeSummary s on s.target.id = p.id and s.target.type = 'PRODUCT'" +
+//            "WHERE b.id = :brandId"
+//    )
+//    Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable , Long brandId);
+
+
+    @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
+            "p.id, " +
+            "p.price, " +
+            "p.name, " +
+            "b.name, " +
+            "s.likeCount, " +
+            "p.releasedAt" +
+            ") FROM ProductEntity p " +
+            "LEFT JOIN p.brand b " +
+            "LEFT JOIN LikeSummary s ON s.target.id = p.id AND s.target.type = 'PRODUCT' "
+    )
+    Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable);
 }

@@ -35,6 +35,21 @@ public class ProductV1Controller implements ProductV1ApiSpec {
         return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
     }
 
+    @GetMapping("/denormalized")
+    @Override
+    public ApiResponse<ProductV1Dto.SummaryResponse> getProductsDenormalizedLikeCount(
+            @RequestParam int page
+            , @RequestParam int size
+            , @RequestParam ProductSort productSort
+            , @RequestParam Long brandId
+    ) {
+        ProductCommand.Search search = ProductCommand.Search.create(page, size, productSort, brandId);
+        ProductsInfo products = productService.getProductsDenormalizedLikeCount(search);
+        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+    }
+
+
+
     @GetMapping("/{productId}")
     @Override
     public ApiResponse<ProductV1Dto.DetailResponse> getProduct(@PathVariable Long productId) {

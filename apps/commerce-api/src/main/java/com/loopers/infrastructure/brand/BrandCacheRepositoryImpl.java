@@ -3,6 +3,7 @@ package com.loopers.infrastructure.brand;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandCacheRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,15 +14,16 @@ import java.util.Optional;
 public class BrandCacheRepositoryImpl implements BrandCacheRepository {
 
     private static final String CACHE_KEY_PREFIX = "brand:detail:";
-    private final RedisTemplate<String , Brand> redisTemplate;
+
+    private final RedisTemplate<String , Object> redisTemplate;
 
 
     @Override
     public Optional<Brand> findById(Long brandId) {
         String key = CACHE_KEY_PREFIX+brandId;
-        Brand cached = redisTemplate.opsForValue().get(key);
+        Object cached = redisTemplate.opsForValue().get(key);
         if (cached != null) {
-            return Optional.of(cached);
+            return Optional.of((Brand) cached);
         }
         return Optional.empty();
     }

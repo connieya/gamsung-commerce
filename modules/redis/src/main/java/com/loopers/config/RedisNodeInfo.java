@@ -1,4 +1,4 @@
-package config;
+package com.loopers.config;
 
 public record RedisNodeInfo(
         String host,

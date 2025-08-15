@@ -1,4 +1,4 @@
-package config;
+package com.loopers.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

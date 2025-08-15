@@ -1,7 +1,13 @@
 package com.loopers.domain.likes;
 
+import com.loopers.domain.product.Product;
+import com.loopers.domain.user.User;
 import com.loopers.infrastructure.likes.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.likes.ProductLikeJpaRepository;
+import com.loopers.infrastructure.product.ProductEntity;
+import com.loopers.infrastructure.product.ProductJpaRepository;
+import com.loopers.infrastructure.user.UserEntity;
+import com.loopers.infrastructure.user.UserJpaRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +32,12 @@ class ProductLikeServiceTest {
     @MockitoSpyBean
     LikeSummaryJpaRepository likeSummaryJpaRepository;
 
+    @MockitoSpyBean
+    UserJpaRepository userJpaRepository;
+
+    @MockitoSpyBean
+    ProductJpaRepository productJpaRepository;
+
 
 
     @Test
@@ -36,6 +48,14 @@ class ProductLikeServiceTest {
         Long userId = 1L;
 
         // when
+        doReturn(Optional.of(UserEntity.class))
+                .when(userJpaRepository)
+                        .findById(userId);
+
+        doReturn(Optional.of(ProductEntity.class))
+                .when(productJpaRepository)
+                        .findById(productId);
+
         doReturn(false)
                 .when(productLikeJpaRepository)
                 .existsByUserIdAndProductId(userId, productId);

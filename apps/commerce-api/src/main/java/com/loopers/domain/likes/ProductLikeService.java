@@ -30,15 +30,12 @@ public class ProductLikeService {
         if (existed) {
             return;
         }
-        System.out.println("userId = " + userId);
         productLikeRepository.save(userId, productId);
         Optional<LikeSummary> byTarget = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT));
         if (byTarget.isPresent()) {
-            System.out.println("11111");
             LikeSummary likeSummary = byTarget.get();
             likeSummary.increase();
         }else {
-            System.out.println("22222");
             LikeSummary likeSummary = LikeSummary.create(productId, LikeTargetType.PRODUCT);
             likeSummary.increase();
             likeSummaryRepository.save(likeSummary);

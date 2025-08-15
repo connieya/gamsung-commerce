@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.brand.BrandCacheRepository;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.brand.Brand;
@@ -24,7 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
 class ProductServiceTest {
@@ -41,6 +42,8 @@ class ProductServiceTest {
     @Mock
     ProductLikeRepository productLikeRepository;
 
+    @Mock
+    BrandCacheRepository brandCacheRepository;
 
     Page<ProductInfo> targetData;
 
@@ -60,6 +63,65 @@ class ProductServiceTest {
 
     }
 
+    @Test
+    @DisplayName("캐시에 브랜드 정보가 없을 때, DB를 조회하고 캐시에 저장한다.")
+    void getProduct_with_cache_miss() {
+        // given
+        Long productId = 2L;
+        Long brandId = 20L;
+        Brand brandFromDb = Brand.create("아디다스","스포츠 브랜드");
+        Product product = Product.create("울트라부스트", 150000L, brandId, ZonedDateTime.now());
+
+        // 캐시 미스 상황을 Mocking: findById() 호출 시 empty를 반환
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(brandCacheRepository.findById(brandId)).thenReturn(Optional.empty());
+
+        // DB 조회 시 brandFromDb를 반환하도록 Mocking
+        when(brandRepository.findBrand(brandId)).thenReturn(Optional.of(brandFromDb));
+        when(productLikeRepository.getLikeCount(productId)).thenReturn(20L);
+
+        // when
+        ProductDetailInfo productDetailInfo = productService.getProduct(productId);
+
+        // then
+        assertThat(productDetailInfo.getBrandName()).isEqualTo("아디다스");
+        // 캐시 조회는 1번, DB 조회는 1번, 캐시 저장은 1번 호출되었는지 확인
+        verify(brandCacheRepository, times(1)).findById(brandId);
+        verify(brandRepository, times(1)).findBrand(brandId);
+        verify(brandCacheRepository, times(1)).save(brandFromDb);
+    }
+
+
+    @Test
+    @DisplayName("캐시에 브랜드 정보가 있을 때, DB를 조회하지 않고 캐시 데이터를 사용한다.")
+    void getProduct_with_cache_hit() {
+        // given
+        Long productId = 1L;
+        Long brandId = 10L;
+        Brand cachedBrand = Brand.create("나이키", "스포츠 브랜드");
+        Product product = Product.create("에어맥스", 100000L, brandId, ZonedDateTime.now());
+
+        // 캐시 히트 상황을 Mocking: findById() 호출 시 캐시 데이터를 반환
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(brandCacheRepository.findById(brandId)).thenReturn(Optional.of(cachedBrand));
+        when(productLikeRepository.getLikeCount(productId)).thenReturn(10L);
+
+        // when
+        ProductDetailInfo productDetailInfo = productService.getProduct(productId);
+
+        // then
+        // 1. 반환된 브랜드 이름이 캐시 데이터와 일치하는지 확인
+        assertThat(productDetailInfo.getBrandName()).isEqualTo("나이키");
+
+        // 2. brandCacheRepository의 findById()가 1번 호출되었는지 확인
+        verify(brandCacheRepository, times(1)).findById(brandId);
+
+        // 3. 캐시 히트이므로 DB 조회(brandRepository.findBrand)는 호출되지 않았는지 확인
+        verify(brandRepository, never()).findBrand(any());
+
+        // 4. 캐시 히트이므로 캐시 저장(brandCacheRepository.save)도 호출되지 않았는지 확인
+        verify(brandCacheRepository, never()).save(any());
+    }
 
     @Test
     @DisplayName("상품 상세 조회 시, 상품 정보, 브랜드 정보 및 좋아요 수가 성공적으로 함께 조회된다.")

@@ -76,6 +76,7 @@ class ProductLikeServiceIntegrationTest {
         Product product = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
 
         Product savedProduct = productRepository.save(product, savedBrand.getId());
+        likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT));
 
         // when
         for (User user : users) {
@@ -121,7 +122,7 @@ class ProductLikeServiceIntegrationTest {
 
         Product product = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
         Product savedProduct = productRepository.save(product, savedBrand.getId());
-
+        likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT));
         // when
         for (User user : users) {
             executorService.submit(() -> {

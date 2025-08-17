@@ -31,29 +31,23 @@ public class ProductLikeService {
             return;
         }
         productLikeRepository.save(userId, productId);
-        Optional<LikeSummary> byTarget = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT));
-        if (byTarget.isPresent()) {
-            LikeSummary likeSummary = byTarget.get();
-            likeSummary.increase();
-        }else {
-            LikeSummary likeSummary = LikeSummary.create(productId, LikeTargetType.PRODUCT);
-            likeSummary.increase();
-            likeSummaryRepository.save(likeSummary);
-        }
-//        likeSummaryRepository.findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT))
-//                .ifPresentOrElse(
-//                        LikeSummary::increase,
-//                        () -> likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT))
-//                );
+        likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT))
+                .ifPresentOrElse(
+                        LikeSummary::increase,
+                        () -> likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT))
+                );
 
     }
 
     @Transactional
     public void remove(Long userId, Long productId) {
+        userRepository.findById(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
+        productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+
         boolean existed = productLikeRepository.existsByUserIdAndProductId(userId, productId);
         if (existed) {
             productLikeRepository.delete(userId, productId);
-            LikeSummary likeSummary = likeSummaryRepository.findByTarget(LikeTarget.create(productId, LikeTargetType.PRODUCT))
+            LikeSummary likeSummary = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT))
                     .orElseThrow(() -> new LikeException.LikeSummaryNotFoundException(ErrorType.LIKE_SUMMARY_NOT_FOUND));
             likeSummary.decrease();
         }

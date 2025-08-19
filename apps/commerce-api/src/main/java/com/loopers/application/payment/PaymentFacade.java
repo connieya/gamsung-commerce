@@ -36,7 +36,6 @@ public class PaymentFacade {
 
 
         // 재고 차감
-        List<OrderLine> orderLines = order.getOrderLines();
         List<StockCommand.DeductStocks.Item> items = order.getOrderLines()
                 .stream()
                 .map(orderLine -> StockCommand.DeductStocks.Item.builder()

@@ -216,7 +216,6 @@ class OrderFacadeIntegrationTest {
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         User savedUser = userRepository.save(user);
 
-
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
@@ -240,7 +239,7 @@ class OrderFacadeIntegrationTest {
                 .build();
 
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), 0L);
+        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId());
 
         int threadCount = 2;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

@@ -5,6 +5,7 @@ import com.loopers.domain.coupon.UserCouponService;
 import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.Payment;
+import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.stock.StockCommand;
@@ -24,15 +25,17 @@ public class PaymentFacade {
     private final PointService pointService;
     private final StockService stockService;
     private final PaymentService paymentService;
-    private final UserCouponService userCouponService;
-
 
     @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
         Order order = orderService.getOrder(criteria.orderId());
 
         // 포인트 차감
-        pointService.deduct(criteria.userId(), order.getFinalAmount());
+        if (criteria.paymentMethod()== PaymentMethod.POINT) {
+            pointService.deduct(criteria.userId(), order.getFinalAmount());
+        } else if (criteria.paymentMethod() == PaymentMethod.CARD) {
+            
+        }
 
 
         // 재고 차감
@@ -44,10 +47,6 @@ public class PaymentFacade {
                         .build()).toList();
         StockCommand.DeductStocks deductStocks = StockCommand.DeductStocks.create(items);
         stockService.deduct(deductStocks);
-
-        if (order.getDiscountAmount() > 0L) {
-            userCouponService.use(UserCouponCommand.of(criteria.userId()));
-        }
 
         Payment pay = paymentService.pay(criteria.toCommand(order.getFinalAmount()));
         orderService.complete(order.getId());

@@ -15,30 +15,17 @@ public class UserCouponCoreRepository implements UserCouponRepository {
 
     @Override
     public Optional<UserCoupon> findByCouponId(Long couponId) {
-        return userCouponJpaRepository.findByCouponId(couponId)
-                .map(UserCouponEntity::toDomain);
+        return userCouponJpaRepository.findByCouponId(couponId);
     }
 
     @Override
     public Optional<UserCoupon> findByUserId(Long id) {
-        return userCouponJpaRepository.findByUserId(id)
-                .map(UserCouponEntity::toDomain);
+        return userCouponJpaRepository.findByUserId(id);
     }
 
     @Override
     public UserCoupon save(UserCoupon userCoupon) {
-        if (userCoupon.getId() != null) {
-            Optional<UserCouponEntity> optionalUserCouponEntity = userCouponJpaRepository.findById(userCoupon.getId());
-            if (optionalUserCouponEntity.isPresent()) {
-                UserCouponEntity userCouponEntity = optionalUserCouponEntity.get();
-                userCouponEntity.used(userCoupon.isUsed());
-                userCouponJpaRepository.save(userCouponEntity);
-                return userCoupon;
-
-            }
-        }
-        return userCouponJpaRepository.save(UserCouponEntity.fromDomain(userCoupon))
-                .toDomain();
+        return userCouponJpaRepository.save(userCoupon);
     }
 
 }

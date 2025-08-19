@@ -25,6 +25,7 @@ public class ProductService {
     private final BrandRepository brandRepository;
     private final ProductLikeRepository productLikeRepository;
     private final BrandCacheRepository brandCacheRepository;
+    private final ProductCacheRepository productCacheRepository;
 
     @Transactional
     public void register(ProductCommand.Register register) {
@@ -71,23 +72,26 @@ public class ProductService {
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 쿼리 최적화 (product_like count 서브 쿼리 )
     public ProductsInfo getProductsOptimized(ProductCommand.Search search) {
         Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable , search.getBrandId());
-        return ProductsInfo.create(productDetails);
-    }
-
-    @Transactional(readOnly = true) // 좋아요 비정규화 적용 (product_summary 테이블 좋아요 count )
-    public ProductsInfo getProductsDenormalizedLikeCountWithBrandId(ProductCommand.Search search) {
-        Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable , search.getBrandId());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable, search.getBrandId());
         return ProductsInfo.create(productDetails);
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 적용 (product_summary 테이블 좋아요 count )
     public ProductsInfo getProductsDenormalizedLikeCount(ProductCommand.Search search) {
         Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable);
+        Page<ProductInfo> page = productCacheRepository.findProductDetails(pageable, search.getBrandId());
+
+        // 캐시 Hit
+        if (page.hasContent()) {
+            return ProductsInfo.create(page);
+        }
+
+        // 캐시 Miss
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable, search.getBrandId());
+        productCacheRepository.save(search.getBrandId(), productDetails);
         return ProductsInfo.create(productDetails);
     }
+
 
     public List<Product> findAllById(List<Long> productIds) {
         return productRepository.findAllById(productIds);

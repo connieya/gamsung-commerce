@@ -11,6 +11,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${project.properties["springDocOpenApiVersion"]}")
     implementation("org.springframework.boot:spring-boot-starter-validation:3.5.0")
+    implementation ("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     // querydsl
     implementation("com.querydsl:querydsl-jpa::jakarta")

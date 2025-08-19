@@ -1,8 +1,5 @@
 package com.loopers.application.payment;
 
-import com.loopers.domain.coupon.UserCouponCommand;
-import com.loopers.domain.coupon.UserCouponService;
-import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
@@ -11,6 +8,7 @@ import com.loopers.domain.point.PointService;
 import com.loopers.domain.stock.StockCommand;
 import com.loopers.domain.stock.StockService;
 import com.loopers.domain.order.Order;
+import com.loopers.infrastructure.payment.PgClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +23,7 @@ public class PaymentFacade {
     private final PointService pointService;
     private final StockService stockService;
     private final PaymentService paymentService;
+    private final PgClient pgClient;
 
     @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
@@ -34,7 +33,7 @@ public class PaymentFacade {
         if (criteria.paymentMethod()== PaymentMethod.POINT) {
             pointService.deduct(criteria.userId(), order.getFinalAmount());
         } else if (criteria.paymentMethod() == PaymentMethod.CARD) {
-            
+                pgClient.request(criteria.userId());
         }
 
 

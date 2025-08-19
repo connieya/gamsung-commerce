@@ -24,7 +24,7 @@ public class PaymentService {
                 paymentCommand.getFinalAmount()
                 ,paymentCommand.getOrderId()
                 ,user.getId()
-                , PaymentMethod.POINT);
+                , paymentCommand.getPaymentMethod());
         return paymentRepository.save(payment);
     }
 }

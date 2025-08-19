@@ -3,6 +3,7 @@ rootProject.name = "gamsung-commerce"
 include(
     ":apps:commerce-api",
     ":modules:jpa",
+    ":modules:redis",
     ":supports:jackson",
     ":supports:logging",
     ":supports:monitoring",
@@ -28,3 +29,5 @@ pluginManagement {
         }
     }
 }
+include("modules:redis")
+findProject(":modules:redis")?.name = "redis"

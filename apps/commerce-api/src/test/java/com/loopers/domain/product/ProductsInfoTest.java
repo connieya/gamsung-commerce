@@ -1,6 +1,5 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.common.Sort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ class ProductsInfoTest {
         // given  - BeforeEach
 
         // when
-        ProductsInfo productsInfo = ProductsInfo.create(targetData, Sort.LIKES_DESC);
+        ProductsInfo productsInfo = ProductsInfo.create(targetData, ProductSort.LIKES_DESC);
         List<ProductInfo> productInfoList = productsInfo.getProductInfoList();
 
         // then
@@ -63,7 +62,7 @@ class ProductsInfoTest {
         // given  - BeforeEach
 
         // when
-        ProductsInfo productsInfo = ProductsInfo.create(targetData, Sort.PRICE_ASC);
+        ProductsInfo productsInfo = ProductsInfo.create(targetData, ProductSort.PRICE_ASC);
         List<ProductInfo> productInfoList = productsInfo.getProductInfoList();
 
         // then
@@ -84,7 +83,7 @@ class ProductsInfoTest {
         // given  - BeforeEach
 
         // when
-        ProductsInfo productsInfo = ProductsInfo.create(targetData, Sort.LATEST);
+        ProductsInfo productsInfo = ProductsInfo.create(targetData, ProductSort.LATEST_DESC);
         List<ProductInfo> productInfoList = productsInfo.getProductInfoList();
 
         // then

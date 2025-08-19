@@ -1,27 +1,41 @@
 package com.loopers.domain.order;
 
+import com.loopers.domain.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Table(name = "order_line")
+@Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class OrderLine {
+public class OrderLine extends BaseEntity {
 
-    private Long id;
     private Long productId;
-    private Long orderId;
     private Long quantity;
-    private Long price;
+    private Long orderPrice;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @Builder
-    private OrderLine(Long id, Long productId, Long orderId, Long quantity, Long price) {
-        this.id = id;
+    private OrderLine(Long productId, Long quantity, Long orderPrice, Order order) {
         this.productId = productId;
-        this.orderId = orderId;
         this.quantity = quantity;
-        this.price = price;
+        this.orderPrice = orderPrice;
+        this.order = order;
+    }
+
+    public static OrderLine fromDomain(OrderLine orderLine, Order parentOrder) {
+        OrderLine entity = new OrderLine();
+        entity.productId = orderLine.getProductId();
+        entity.quantity = orderLine.getQuantity();
+        entity.orderPrice = orderLine.getOrderPrice();
+        entity.order = parentOrder;
+        return entity;
     }
 
     public static OrderLine create(Long productId, Long quantity, Long price) {
@@ -29,7 +43,11 @@ public class OrderLine {
                 .builder()
                 .productId(productId)
                 .quantity(quantity)
-                .price(price)
+                .orderPrice(price)
                 .build();
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

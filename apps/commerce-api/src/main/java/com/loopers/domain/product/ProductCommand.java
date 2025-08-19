@@ -9,23 +9,54 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductCommand {
 
-    private String name;
-    private Long price;
-    private Long brandId;
+    @Getter
+    public static class Register {
+        private String name;
+        private Long price;
+        private Long brandId;
 
-    @Builder
-    private ProductCommand(String name, Long price, Long brandId) {
-        this.name = name;
-        this.price = price;
-        this.brandId = brandId;
+        @Builder
+        private Register(String name, Long price, Long brandId) {
+            this.name = name;
+            this.price = price;
+            this.brandId = brandId;
+        }
+
+        public static Register create(String name, Long price, Long brandId) {
+            return Register
+                    .builder()
+                    .name(name)
+                    .price(price)
+                    .brandId(brandId)
+                    .build();
+        }
     }
 
-    public static ProductCommand of(String name, Long price, Long brandId) {
-        return ProductCommand
-                .builder()
-                .name(name)
-                .price(price)
-                .brandId(brandId)
-                .build();
+    @Getter
+    public static class Search {
+        private int page;
+        private int size;
+        private ProductSort productSort;
+        private Long brandId;
+
+        @Builder
+        private Search(int page, int size, ProductSort productSort, Long brandId) {
+            this.page = page;
+            this.size = size;
+            this.productSort = productSort;
+            this.brandId = brandId;
+        }
+
+        public static Search create(int page, int size, ProductSort productSort, Long brandId) {
+            return Search
+                    .builder()
+                    .page(page)
+                    .size(size)
+                    .productSort(productSort)
+                    .brandId(brandId)
+                    .build();
+        }
     }
+
+
 }

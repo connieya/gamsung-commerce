@@ -21,6 +21,7 @@ spring:
     import:
       - jpa.yml
       - logging.yml
+      - redis.yml
       - monitoring.yml
 
 springdoc:

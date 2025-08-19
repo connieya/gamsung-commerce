@@ -42,7 +42,7 @@ public class OrderInfo {
                                 builder()
                                 .productId(orderLine.getProductId())
                                 .quantity(orderLine.getQuantity())
-                                .price(orderLine.getPrice())
+                                .price(orderLine.getOrderPrice())
                                 .build())
                         .collect(Collectors.toList())
                 )

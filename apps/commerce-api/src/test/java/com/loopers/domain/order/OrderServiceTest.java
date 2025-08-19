@@ -88,7 +88,7 @@ class OrderServiceTest {
 
                 () -> assertThat(orderInfo.getTotalAmount()).isEqualTo(15000L),
                 () -> assertThat(order.getOrderLines()).hasSize(2)
-                        .extracting("productId", "quantity", "price")
+                        .extracting("productId", "quantity", "orderPrice")
                         .containsExactlyInAnyOrder(
                                 tuple(1L, 10L, 500L),
                                 tuple(2L, 5L, 2000L)

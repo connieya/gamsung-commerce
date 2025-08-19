@@ -16,4 +16,10 @@ public interface ProductRepository {
     Page<ProductInfo> findProductDetails(Pageable pageable);
 
     List<Product> findAllById(List<Long> productIds);
+
+    Page<ProductInfo> findProductDetailsOptimized(Pageable pageable , Long brandId);
+
+    Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable , Long brandId);
+
+    Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable, Long id);
 }

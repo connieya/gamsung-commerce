@@ -4,18 +4,16 @@ import com.loopers.domain.likes.ProductLike;
 import com.loopers.infrastructure.product.ProductEntity;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-public interface ProductLikeJpaRepository extends CrudRepository<ProductLikeEntity , Long> {
+public interface ProductLikeJpaRepository extends CrudRepository<ProductLike, Long> {
 
-    boolean existsByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
+    boolean existsByUserIdAndProductId(Long userId, Long productId);
 
-    Long countByProductEntity(ProductEntity productEntity);
+    List<ProductLike> findByUserId(Long id);
 
-    void deleteByUserEntity_IdAndProductEntity_Id(Long userId, Long productId);
+    void deleteByUserIdAndProductId(Long userId, Long productId);
 
-    List<ProductLikeEntity> findByUserEntity_Id(Long userEntityId);
+    Long countByProductId(Long productId);
 }
 

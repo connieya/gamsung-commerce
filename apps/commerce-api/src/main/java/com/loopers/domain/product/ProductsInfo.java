@@ -1,7 +1,6 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.common.PageInfo;
-import com.loopers.domain.common.Sort;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -15,10 +14,10 @@ public class ProductsInfo {
     private List<ProductInfo> productInfoList;
     private PageInfo pageInfo;
 
-    private static final Map<Sort, Comparator<ProductInfo>> comparatorMap = Map.of(
-            Sort.PRICE_ASC, Comparator.comparing(ProductInfo::getPrice),
-            Sort.LATEST, Comparator.comparing(ProductInfo::getReleasedAt).reversed(),
-            Sort.LIKES_DESC, Comparator.comparing(ProductInfo::getLikeCount).reversed()
+    private static final Map<ProductSort, Comparator<ProductInfo>> comparatorMap = Map.of(
+            ProductSort.PRICE_ASC, Comparator.comparing(ProductInfo::getPrice),
+            ProductSort.LATEST_DESC, Comparator.comparing(ProductInfo::getReleasedAt).reversed(),
+            ProductSort.LIKES_DESC, Comparator.comparing(ProductInfo::getLikeCount).reversed()
     );
 
     @Builder
@@ -28,7 +27,7 @@ public class ProductsInfo {
 
     }
 
-    public static ProductsInfo create(Page<ProductInfo> productInfoPage, Sort sort) {
+    public static ProductsInfo create(Page<ProductInfo> productInfoPage) {
         return ProductsInfo
                 .builder()
                 .pageInfo(PageInfo.create(
@@ -37,12 +36,25 @@ public class ProductsInfo {
                         , productInfoPage.getTotalPages()
                         , productInfoPage.getTotalElements()
                         , productInfoPage.hasNext()))
-                .productInfoList(applySort(productInfoPage.getContent(), sort))
+                .productInfoList(productInfoPage.getContent())
                 .build();
     }
 
-    private static List<ProductInfo> applySort(List<ProductInfo> productInfos, Sort sort) {
-        Comparator<ProductInfo> comparator = comparatorMap.getOrDefault(sort, Comparator.comparing(ProductInfo::getProductId));
+    public static ProductsInfo create(Page<ProductInfo> productInfoPage , ProductSort productSort) {
+        return ProductsInfo
+                .builder()
+                .pageInfo(PageInfo.create(
+                        productInfoPage.getNumber()
+                        , productInfoPage.getSize()
+                        , productInfoPage.getTotalPages()
+                        , productInfoPage.getTotalElements()
+                        , productInfoPage.hasNext()))
+                .productInfoList(applySort(productInfoPage.getContent(), productSort))
+                .build();
+    }
+
+    private static List<ProductInfo> applySort(List<ProductInfo> productInfos, ProductSort productSort) {
+        Comparator<ProductInfo> comparator = comparatorMap.getOrDefault(productSort, Comparator.comparing(ProductInfo::getProductId));
         return productInfos.stream().sorted(comparator).toList();
 
     }

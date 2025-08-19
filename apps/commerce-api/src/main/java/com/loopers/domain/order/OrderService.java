@@ -27,4 +27,19 @@ public class OrderService {
 
         return OrderInfo.from(order);
     }
+
+    @Transactional(readOnly = true)
+    public Order getOrder(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+    }
+
+    @Transactional
+    public void complete(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+
+        order.complete();
+        orderRepository.save(order);
+    }
 }

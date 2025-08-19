@@ -2,7 +2,6 @@ package com.loopers.interfaces.api.brand;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
-import com.loopers.infrastructure.brand.BrandEntity;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -82,14 +79,12 @@ public class BrandV1ApiE2ETest {
                     .description("Just Do It.")
                     .build();
 
-            BrandEntity brandEntity = BrandEntity.fromDomain(brand);
-
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brandEntity));
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
 
             HttpEntity<?> requestEntity = HttpEntity.EMPTY;
             String url = UriComponentsBuilder.fromPath(REQUEST_URL)
-                    .buildAndExpand(brandEntity.getId())
+                    .buildAndExpand(brand.getId())
                     .toUriString();
 
             ParameterizedTypeReference<ApiResponse<BrandV1Dto.BrandResponse>> responseType = new ParameterizedTypeReference<ApiResponse<BrandV1Dto.BrandResponse>>() {
@@ -101,9 +96,9 @@ public class BrandV1ApiE2ETest {
             // then
             assertAll(
                     () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
-                    () -> assertThat(response.getBody().data().id()).isEqualTo(brandEntity.getId()),
-                    () -> assertThat(response.getBody().data().name()).isEqualTo(brandEntity.getName()),
-                    () -> assertThat(response.getBody().data().description()).isEqualTo(brandEntity.getDescription())
+                    () -> assertThat(response.getBody().data().id()).isEqualTo(brand.getId()),
+                    () -> assertThat(response.getBody().data().name()).isEqualTo(brand.getName()),
+                    () -> assertThat(response.getBody().data().description()).isEqualTo(brand.getDescription())
             );
         }
     }

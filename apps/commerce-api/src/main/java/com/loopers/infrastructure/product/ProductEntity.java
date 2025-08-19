@@ -2,7 +2,7 @@ package com.loopers.infrastructure.product;
 
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.product.Product;
-import com.loopers.infrastructure.brand.BrandEntity;
+import com.loopers.domain.brand.Brand;
 import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
@@ -17,16 +17,16 @@ public class ProductEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ref_brand_id")
-    private BrandEntity brandEntity;
+    private Brand brand;
 
     private ZonedDateTime releasedAt;
 
-    public static ProductEntity fromDomain(Product product , BrandEntity brandEntity) {
+    public static ProductEntity fromDomain(Product product , Brand brand) {
         ProductEntity productEntity = new ProductEntity();
 
         productEntity.name = product.getName();
         productEntity.price = product.getPrice();
-        productEntity.brandEntity = brandEntity;
+        productEntity.brand = brand;
         productEntity.releasedAt = product.getReleasedAt();
 
         return productEntity;
@@ -37,7 +37,7 @@ public class ProductEntity extends BaseEntity {
                 .id(id)
                 .name(name)
                 .price(price)
-                .brandId(brandEntity.getId())
+                .brandId(brand.getId())
                 .releasedAt(releasedAt)
                 .build();
     }

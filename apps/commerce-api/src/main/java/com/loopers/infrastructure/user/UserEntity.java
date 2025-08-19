@@ -5,18 +5,23 @@ import com.loopers.domain.user.vo.BirthDate;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.vo.Gender;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "member")
+@Table(name = "users")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserEntity extends BaseEntity {
 
 
+    @Column(name = "user_id", unique = true, nullable = false)
     private String userId;
 
     private String email;
 
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)

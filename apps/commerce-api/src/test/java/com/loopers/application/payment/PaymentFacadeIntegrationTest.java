@@ -1,14 +1,12 @@
 package com.loopers.application.payment;
 
-import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.coupon.*;
-import com.loopers.domain.coupon.exception.CouponException;
-import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
-import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.order.OrderRepository;
+import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.PaymentMethod;
+import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.point.exception.PointException;
@@ -17,21 +15,21 @@ import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.product.fixture.ProductFixture;
-import com.loopers.domain.product.stock.Stock;
-import com.loopers.domain.product.stock.StockRepository;
+import com.loopers.domain.stock.StockRepository;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.domain.order.Order;
+import com.loopers.domain.stock.Stock;
+import com.loopers.domain.brand.Brand;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
-import org.junit.After;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,9 +74,70 @@ class PaymentFacadeIntegrationTest {
     @Autowired
     DatabaseCleanUp databaseCleanUp;
 
+
+
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
+    }
+
+
+    @Test
+    @DisplayName("결제 성공 시, 유저 포인트 및 주문 상태가 정상적으로 업데이트되어야 한다.")
+    void pay_updatesStateCorrectly_onSuccessfulPayment() {
+        User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User savedUser = userRepository.save(user);
+
+        Point initialPoint = Point.create(savedUser.getUserId(), 10_000L);
+        pointRepository.save(initialPoint);
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
+        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+
+        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
+        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+
+        Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
+        Stock stock2 = Stock.create(savedProduct2.getId(), 10L);
+
+        Stock savedStock = stockRepository.save(stock1);
+        stockRepository.save(stock2);
+
+        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct1.getId())
+                .price(1000L)
+                .quantity(1L)
+                .build();
+
+        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct2.getId())
+                .price(2000L)
+                .quantity(2L)
+                .build();
+        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 0L);
+        Order initialOrder = Order.create(orderCommand);
+        Order savedOrder = orderRepository.save(initialOrder);
+
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+
+        // when
+        PaymentResult paymentResult = paymentFacade.pay(criteria);
+
+
+        Point updatedPoint = pointRepository.findByUserId("gunny").get();
+        Order updatedOrder = orderRepository.findById(savedOrder.getId()).get();
+        Stock updatedStock = stockRepository.findById(savedStock.getId()).get();
+
+        // then
+        assertAll(
+                ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETE),
+                ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
+                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED),
+                ()-> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
+        );
     }
 
     @Test
@@ -117,7 +176,7 @@ class PaymentFacadeIntegrationTest {
                 .price(2000L)
                 .quantity(200L)
                 .build();
-        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 5000L);
+        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1, orderItem2), 0L);
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
@@ -205,7 +264,7 @@ class PaymentFacadeIntegrationTest {
         Stock stock2 = Stock.create(savedProduct2.getId(), 50L);
 
         Stock savedStock1 = stockRepository.save(stock1);
-        Stock savedStock2 = stockRepository.save(stock2);
+        stockRepository.save(stock2);
 
         int threadCount = 5;
         for (int i = 0; i < threadCount; i++) {

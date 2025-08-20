@@ -1,6 +1,7 @@
-package com.loopers.domain.payment;
+package com.loopers.domain.payment.processor;
 
 import com.loopers.domain.order.OrderService;
+import com.loopers.domain.payment.*;
 import com.loopers.domain.point.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

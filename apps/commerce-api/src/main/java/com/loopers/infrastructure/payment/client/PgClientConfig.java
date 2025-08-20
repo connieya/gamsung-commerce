@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.payment;
+package com.loopers.infrastructure.payment.client;
 
 import feign.Request;
 import org.springframework.context.annotation.Bean;

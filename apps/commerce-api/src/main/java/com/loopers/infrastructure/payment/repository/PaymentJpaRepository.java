@@ -1,4 +1,4 @@
-package com.loopers.infrastructure.payment;
+package com.loopers.infrastructure.payment.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

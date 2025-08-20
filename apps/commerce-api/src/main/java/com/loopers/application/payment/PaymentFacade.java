@@ -2,6 +2,7 @@ package com.loopers.application.payment;
 
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.*;
+import com.loopers.domain.payment.processor.PaymentProcessor;
 import com.loopers.domain.stock.StockCommand;
 import com.loopers.domain.stock.StockService;
 import com.loopers.domain.order.Order;

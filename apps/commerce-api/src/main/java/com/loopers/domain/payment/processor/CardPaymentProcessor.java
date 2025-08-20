@@ -1,7 +1,6 @@
 package com.loopers.domain.payment.processor;
 
 import com.loopers.domain.payment.*;
-import com.loopers.infrastructure.payment.client.PgClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -9,13 +8,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CardPaymentProcessor implements PaymentProcessor {
 
-    private final PgClient pgClient;
+    private final PaymentAdapter paymentAdapter;
     private final PaymentService paymentService;
 
     @Override
     public Payment pay(PaymentCommand paymentCommand) {
-        pgClient.request(paymentCommand.getUserId());
+        Payment payment = paymentService.create(paymentCommand, PaymentStatus.PENDING);
+        paymentAdapter.request(paymentCommand);
 
-        return paymentService.create(paymentCommand , PaymentStatus.PENDING);
+        return payment;
     }
 }

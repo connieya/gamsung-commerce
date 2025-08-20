@@ -15,6 +15,7 @@ public class OrderCriteria {
     private List<OrderItem> orderItems;
     private Long couponId;
 
+    @Builder
     public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId) {
         this.userId = userId;
         this.orderItems = orderItems;

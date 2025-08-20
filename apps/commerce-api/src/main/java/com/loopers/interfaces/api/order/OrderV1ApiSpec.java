@@ -5,6 +5,7 @@ import com.loopers.interfaces.api.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @Tag(name = "Order V1 API", description = "주문 관련 API 입니다.")
@@ -14,7 +15,7 @@ public interface OrderV1ApiSpec {
             summary = "주문 요청",
             description = "상품을 주문합니다."
     )
-    ApiResponse<?> place();
+    ApiResponse<OrderV1Dto.Response.Place> place(@RequestHeader(ApiHeaders.USER_ID) String userId, @RequestBody OrderV1Dto.Request.Place request);
 
 
     @Operation(

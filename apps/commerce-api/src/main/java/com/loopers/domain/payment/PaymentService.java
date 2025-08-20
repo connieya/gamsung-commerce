@@ -16,7 +16,7 @@ public class PaymentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Payment pay(PaymentCommand paymentCommand) {
+    public Payment create(PaymentCommand paymentCommand) {
         User user = userRepository.findByUserId(paymentCommand.getUserId())
                 .orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 

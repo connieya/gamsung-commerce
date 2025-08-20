@@ -15,7 +15,7 @@ public class PgSimulator implements PaymentAdapter {
 
     @Override
     public void request(PaymentCommand paymentCommand) {
-        PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(String.valueOf(paymentCommand.getOrderId()), "1234-1234-1234", paymentCommand.getFinalAmount(), "", PgSimulatorRequest.CardType.KB);
+        PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(String.valueOf(paymentCommand.getOrderId())+"23456", "1234-1234-1234-1234", paymentCommand.getFinalAmount(), "http://localhost:8080/example", PgSimulatorRequest.CardType.KB);
         ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request(paymentCommand.getUserId(), requestTransaction);
         PgSimulatorResponse.RequestTransaction data = response.data();
         System.out.println("data.reason() = " + data.reason());

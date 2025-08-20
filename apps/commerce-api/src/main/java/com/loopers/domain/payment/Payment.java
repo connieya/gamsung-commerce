@@ -33,7 +33,7 @@ public class Payment {
                 .orderId(orderId)
                 .userId(userId)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(PaymentStatus.COMPLETE)
+                .paymentStatus(PaymentStatus.PENDING)
                 .build();
 
     }

@@ -53,7 +53,7 @@ public class Order extends BaseEntity {
         this.userId = userId;
         this.orderLines = orderLines;
         this.discountAmount = discountAmount;
-        this.orderStatus = OrderStatus.PENDING_PAYMENT;
+        this.orderStatus = OrderStatus.INIT;
     }
 
     public static Order create(OrderCommand orderCommand) {
@@ -77,7 +77,7 @@ public class Order extends BaseEntity {
 
 
     public void complete() {
-        this.orderStatus = OrderStatus.PAYMENT_COMPLETED;
+        this.orderStatus = OrderStatus.PAID;
     }
 
     private static Long calculateTotalAmount(List<OrderCommand.OrderItem> orderItems) {

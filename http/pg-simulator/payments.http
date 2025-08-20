@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### 결제 정보 확인
-GET {{pg-simulator}}/api/v1/payments/20250816:TR:9577c5
+GET {{pg-simulator}}/api/v1/payments/20250820:TR:f7321b
 X-USER-ID: 135135
 
 ### 주문에 엮인 결제 정보 조회

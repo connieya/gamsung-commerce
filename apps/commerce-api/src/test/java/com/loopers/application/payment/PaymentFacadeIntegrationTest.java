@@ -22,7 +22,6 @@ import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.stock.Stock;
 import com.loopers.domain.brand.Brand;
-import com.loopers.domain.coupon.Coupon;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -30,14 +29,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -134,9 +131,9 @@ class PaymentFacadeIntegrationTest {
 
         // then
         assertAll(
-                ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETE),
+                ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.PAID),
                 ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
-                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED),
+                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAID),
                 ()-> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
         );
     }

@@ -15,6 +15,6 @@ public class CardPaymentProcessor implements PaymentProcessor {
     public Payment pay(PaymentCommand paymentCommand) {
         pgClient.request(paymentCommand.getUserId());
 
-        return paymentService.create(paymentCommand);
+        return paymentService.create(paymentCommand , PaymentStatus.PENDING);
     }
 }

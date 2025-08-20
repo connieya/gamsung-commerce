@@ -18,7 +18,7 @@ public class PointPaymentProcessor implements PaymentProcessor {
     @Transactional
     public Payment pay(PaymentCommand paymentCommand) {
         pointService.deduct(paymentCommand.getUserId(), paymentCommand.getFinalAmount());
-        Payment payment = paymentService.create(paymentCommand);
+        Payment payment = paymentService.create(paymentCommand , PaymentStatus.PAID);
         orderService.complete(paymentCommand.getOrderId());
         return payment;
     }

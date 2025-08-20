@@ -26,14 +26,14 @@ public class Payment {
         this.paymentMethod = paymentMethod;
     }
 
-    public static Payment create(Long amount , Long orderId , Long userId , PaymentMethod paymentMethod){
+    public static Payment create(Long amount , Long orderId , Long userId , PaymentMethod paymentMethod , PaymentStatus paymentStatus){
         return Payment
                 .builder()
                 .amount(amount)
                 .orderId(orderId)
                 .userId(userId)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(PaymentStatus.PENDING)
+                .paymentStatus(paymentStatus)
                 .build();
 
     }

@@ -28,6 +28,7 @@ public class PaymentFacade {
     @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
         Order order = orderService.getOrder(criteria.orderId());
+        order.validatePay();
 
         // 포인트 차감
         if (criteria.paymentMethod()== PaymentMethod.POINT) {

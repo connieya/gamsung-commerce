@@ -30,6 +30,8 @@ public enum ErrorType {
     STOCK_INSUFFICIENT(HttpStatus.BAD_REQUEST, "Stock Insufficient", "재고가 부족합니다."),
 
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order Not Found", "존재하지 않는 주문입니다."),
+    ORDER_INVALID_STATUS(HttpStatus.BAD_REQUEST, "Order Invalid Status", "주문 상태가 결제를 진행할 수 없는 상태입니다."),
+    ORDER_INVALID_AMOUNT(HttpStatus.BAD_REQUEST, "Order Invalid Amount", "최종 결제 금액이 0 이하일 수 없습니다."),
 
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "Coupon Not Found", "존재하지 않는 쿠폰입니다."),
     USER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "UserCoupon Not Found", "존재하지 않는 사용자 쿠폰입니다."),

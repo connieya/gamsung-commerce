@@ -10,4 +10,16 @@ public class OrderException {
             super(errorType);
         }
     }
+
+    public static class OrderInvalidStatusException extends CoreException {
+        public OrderInvalidStatusException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
+
+    public static class OrderInvalidAmountException extends CoreException {
+        public OrderInvalidAmountException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
 }

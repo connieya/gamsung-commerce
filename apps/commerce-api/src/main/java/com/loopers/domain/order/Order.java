@@ -10,8 +10,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Table(name = "orders")
 @Entity
@@ -19,7 +22,11 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
+    @Column(name = "total_amount", nullable = false)
     private Long totalAmount;
+
+    @Column(name = "order_number", nullable = false)
+    private String orderNumber;
 
     @Column(name = "ref_user_id", nullable = false)
     private Long userId;
@@ -55,6 +62,7 @@ public class Order extends BaseEntity {
         this.orderLines = orderLines;
         this.discountAmount = discountAmount;
         this.orderStatus = OrderStatus.INIT;
+        this.orderNumber = generateOrderNumber();
     }
 
     public static Order create(OrderCommand orderCommand) {
@@ -100,4 +108,10 @@ public class Order extends BaseEntity {
             throw new OrderException.OrderInvalidAmountException(ErrorType.ORDER_INVALID_AMOUNT);
         }
     }
+
+    private String generateOrderNumber() {
+        return "ORD-" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
+                + "-" + UUID.randomUUID().toString().substring(0, 8);
+    }
+
 }

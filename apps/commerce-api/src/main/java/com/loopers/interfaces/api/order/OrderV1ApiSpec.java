@@ -31,7 +31,7 @@ public interface OrderV1ApiSpec {
             description = "주문 ID로 단일 주문 상세 정보를 조회합니다."
     )
     ApiResponse<?> getOrder(
-            @PathVariable("orderId") Long orderId
+            @PathVariable("orderNumber") Long orderId
     );
 
 }

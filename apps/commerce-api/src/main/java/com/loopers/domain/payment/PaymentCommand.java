@@ -23,9 +23,13 @@ public class PaymentCommand {
     }
 
     public record Search(
-            String transactionKey
+            String transactionKey,
+            String orderNumber
     ){
 
+        public static Search of(String transactionKey , String orderNumber) {
+            return new Search(transactionKey , orderNumber);
+        }
     }
 
 }

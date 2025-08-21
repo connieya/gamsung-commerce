@@ -5,7 +5,8 @@ import com.loopers.domain.order.OrderService;
 import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.payment.Payment;
-import com.loopers.domain.payment.PaymentAdapter;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ public class PaymentFacade {
 
     private final OrderService orderService;
     private final Map<String, PaymentProcessor> paymentProcessorMap;
-    private final PaymentAdapter paymentAdapter;
+    private final PaymentService paymentService;
 
     @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
@@ -33,6 +34,7 @@ public class PaymentFacade {
 
     @Transactional
     public void complete(PaymentCriteria.Complete complete) {
-      paymentAdapter.getTransactionDetail(null);
+        PaymentCommand.Search search = PaymentCommand.Search.of(complete.transactionKey() , complete.orderNumber());
+        paymentService.complete(search);
     }
 }

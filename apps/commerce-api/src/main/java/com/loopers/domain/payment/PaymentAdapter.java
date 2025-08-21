@@ -1,9 +1,11 @@
 package com.loopers.domain.payment;
 
+import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
+
 public interface PaymentAdapter {
 
     void request(PaymentCommand.Transaction paymentCommand);
 
-    void getTransactionDetail(PaymentCommand.Search paymentCommand);
+    PgSimulatorResponse.TransactionDetail getTransactionDetail(PaymentCommand.Search paymentCommand);
 
 }

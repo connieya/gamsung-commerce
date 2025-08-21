@@ -48,15 +48,9 @@ public class PgSimulator implements PaymentAdapter {
     }
 
     @Override
-    public void getTransactionDetail(PaymentCommand.Search paymentCommand) {
+    public PgSimulatorResponse.TransactionDetail getTransactionDetail(PaymentCommand.Search paymentCommand) {
         ApiResponse<PgSimulatorResponse.TransactionDetail> response = client.getTransaction("12345", paymentCommand.transactionKey());
-        PgSimulatorResponse.TransactionDetail data = response.data();
-
-//        paymentRepository.findByOR
-
-        if (data.transactionStatus() == TransactionStatus.SUCCESS) {
-
-        }
+        return response.data();
 
     }
 }

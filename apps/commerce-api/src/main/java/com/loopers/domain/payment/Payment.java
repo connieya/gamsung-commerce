@@ -34,7 +34,7 @@ public class Payment extends BaseEntity {
     private PaymentStatus paymentStatus;
 
     @Builder
-    private Payment(Long amount, Long orderId, String orderNumber,  Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
+    private Payment(Long amount, Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.amount = amount;
         this.orderId = orderId;
         this.orderNumber = orderNumber;
@@ -43,7 +43,7 @@ public class Payment extends BaseEntity {
         this.paymentStatus = paymentStatus;
     }
 
-    public static Payment create(Long amount, Long orderId, String orderNumber, Long userId , PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
+    public static Payment create(Long amount, Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         return Payment
                 .builder()
                 .amount(amount)
@@ -57,5 +57,13 @@ public class Payment extends BaseEntity {
 
     public void fail() {
         this.paymentStatus = PaymentStatus.FAILED;
+    }
+
+    public void complete() {
+        this.paymentStatus = PaymentStatus.PAID;
+    }
+
+    public void pending() {
+        this.paymentStatus = PaymentStatus.PENDING;
     }
 }

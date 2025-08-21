@@ -3,9 +3,11 @@ package com.loopers.domain.payment;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.exception.OrderException;
+import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.exception.UserException;
+import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final PaymentAdapter paymentAdapter;
 
     @Transactional
     public Payment create(PaymentCommand.Create paymentCommand, PaymentStatus paymentStatus) {
@@ -36,5 +39,21 @@ public class PaymentService {
                 , paymentStatus);
 
         return paymentRepository.save(payment);
+    }
+
+    @Transactional
+    public void complete(PaymentCommand.Search paymentCommand) {
+        PgSimulatorResponse.TransactionDetail transactionDetail = paymentAdapter.getTransactionDetail(paymentCommand);
+
+        Payment payment = paymentRepository.findByOrderNumber(paymentCommand.orderNumber())
+                .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+
+        if (transactionDetail.transactionStatus() == TransactionStatus.SUCCESS) {
+            payment.complete();
+        } else if (transactionDetail.transactionStatus() == TransactionStatus.FAILED) {
+            payment.fail();
+        } else {
+            payment.pending();
+        }
     }
 }

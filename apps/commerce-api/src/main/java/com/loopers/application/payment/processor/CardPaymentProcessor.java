@@ -22,7 +22,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
         PaymentCommand.Create create = PaymentCommand.Create.of(paymentProcessContext.getOrderId(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount());
         Payment payment = paymentService.create(create, PaymentStatus.PENDING);
 
-        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getOrderNumber(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount());
+        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getOrderNumber(), payment.getId(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount());
         paymentAdapter.request(transaction);
 
         return payment;

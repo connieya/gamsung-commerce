@@ -41,6 +41,13 @@ public enum ErrorType {
     LIKE_SUMMARY_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Summary Not Found", "좋아요 요약 정보를 찾을 수 없습니다."),
     LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "Like Count Cannot Be Negative", "좋아요 개수는 0 미만이 될 수 없습니다."),
 
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Payment Not Found", "존재하지 않는 결제 정보입니다."),
+    PAYMENT_PG_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Payment PG Request Failed", "PG 결제 요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    PAYMENT_PG_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Timeout", "PG 결제 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요."),
+
+
+
+
     ;
 
 

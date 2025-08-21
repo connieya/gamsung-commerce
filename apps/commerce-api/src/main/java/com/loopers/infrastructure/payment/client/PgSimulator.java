@@ -1,12 +1,15 @@
 package com.loopers.infrastructure.payment.client;
 
 import com.loopers.domain.payment.*;
+import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.interfaces.api.ApiResponse;
+import com.loopers.support.error.ErrorType;
 import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
@@ -27,7 +30,6 @@ public class PgSimulator implements PaymentAdapter {
         try {
             ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
             PgSimulatorResponse.RequestTransaction data = response.data();
-            System.out.println("data.reason() = " + data.reason());
             System.out.println("data.transactionKey() = " + data.transactionKey());
         } catch (FeignException e) {
             System.out.println("FeignException occurred: " + e);
@@ -35,9 +37,13 @@ public class PgSimulator implements PaymentAdapter {
 
     }
 
+    @Transactional
     public void requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
         System.out.println("Fallback method called due to: " + throwable.getMessage());
-        // Handle the fallback logic here, e.g., log the error or return a default response
-        throw new RuntimeException("Payment request failed, fallback executed", throwable);
+        Payment payment = paymentRepository.findById(paymentCommand.paymentId())
+                .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+
+        payment.fail();
+        throw new PaymentException.PaymentRequestFailedException(ErrorType.PAYMENT_PG_REQUEST_FAILED);
     }
 }

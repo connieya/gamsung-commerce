@@ -20,9 +20,20 @@ public class PaymentV1Controller {
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(
                 userId,
                 request.orderId(),
-                request.paymentMethod()
+                request.paymentMethod(),
+                request.cardType(),
+                request.cardNumber()
         );
         PaymentResult paymentResult = paymentFacade.pay(criteria);
         return ApiResponse.success(PaymentV1Dto.Response.Pay.from(paymentResult));
     }
+
+    @PostMapping("/callback")
+    public ApiResponse<?> callback(@RequestBody PaymentV1Dto.Request.CallbackTransaction callback) {
+        System.out.println("callback = " + callback);
+        PaymentCriteria.Complete complete = PaymentCriteria.Complete.of(callback.transactionKey(), callback.orderId(), callback.cardType(), callback.cardNo(), callback.amount());
+        paymentFacade.complete(complete);
+        return ApiResponse.success();
+    }
+
 }

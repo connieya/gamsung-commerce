@@ -1,32 +1,45 @@
 package com.loopers.domain.payment;
 
+import com.loopers.domain.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "payment")
 @Getter
-public class Payment {
-    private Long id;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Payment extends BaseEntity {
+
+    @Column(name = "amount", nullable = false)
     private Long amount;
+
+    @Column(name = "ref_order_id ", nullable = false)
     private Long orderId;
+
+    @Column(name = "ref_user_id", nullable = false)
     private Long userId;
-    private PaymentStatus paymentStatus;
+
+    @Column(name = "method", nullable = false)
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @Builder
-    private Payment(Long id, Long amount, Long orderId, Long userId, PaymentStatus paymentStatus, PaymentMethod paymentMethod) {
-        this.id = id;
+    private Payment(Long amount, Long orderId, Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.amount = amount;
         this.orderId = orderId;
         this.userId = userId;
-        this.paymentStatus = paymentStatus;
         this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
     }
 
-    public static Payment create(Long amount , Long orderId , Long userId , PaymentMethod paymentMethod , PaymentStatus paymentStatus){
+    public static Payment create(Long amount, Long orderId, Long userId , PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         return Payment
                 .builder()
                 .amount(amount)
@@ -35,6 +48,5 @@ public class Payment {
                 .paymentMethod(paymentMethod)
                 .paymentStatus(paymentStatus)
                 .build();
-
     }
 }

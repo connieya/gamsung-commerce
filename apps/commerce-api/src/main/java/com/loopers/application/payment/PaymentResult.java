@@ -1,7 +1,7 @@
 package com.loopers.application.payment;
 
-import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.Payment;
 import lombok.Getter;
 
 @Getter

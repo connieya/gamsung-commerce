@@ -13,6 +13,6 @@ public class PaymentCoreRepository implements PaymentRepository {
 
     @Override
     public Payment save(Payment payment) {
-        return paymentJpaRepository.save(PaymentEntity.fromDomain(payment)).toDomain();
+        return paymentJpaRepository.save(payment);
     }
 }

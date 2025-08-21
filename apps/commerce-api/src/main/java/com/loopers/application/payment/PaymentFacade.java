@@ -2,9 +2,9 @@ package com.loopers.application.payment;
 
 import com.loopers.application.payment.processor.PaymentProcessContext;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.payment.*;
 import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
+import com.loopers.domain.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -26,6 +26,7 @@ public class PaymentService {
                 , user.getId()
                 , paymentCommand.paymentMethod()
                 , paymentStatus);
+
         return paymentRepository.save(payment);
     }
 }

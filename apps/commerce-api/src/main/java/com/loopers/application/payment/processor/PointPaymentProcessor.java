@@ -6,6 +6,7 @@ import com.loopers.domain.payment.*;
 import com.loopers.domain.point.PointService;
 import com.loopers.domain.stock.StockCommand;
 import com.loopers.domain.stock.StockService;
+import com.loopers.domain.payment.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

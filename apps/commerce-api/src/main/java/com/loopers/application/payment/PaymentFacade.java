@@ -1,8 +1,9 @@
 package com.loopers.application.payment;
 
+import com.loopers.application.payment.processor.PaymentProcessContext;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.*;
-import com.loopers.domain.payment.processor.PaymentProcessor;
+import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class PaymentFacade {
         order.validatePay();
 
         PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
-        Payment payment = paymentProcessor.pay(criteria.toCommand(order.getFinalAmount()));
+        Payment payment = paymentProcessor.pay(PaymentProcessContext.of(criteria));
 
         return PaymentResult.from(payment);
     }

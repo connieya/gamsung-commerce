@@ -1,30 +1,26 @@
 package com.loopers.domain.payment;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class PaymentCommand {
-    private Long orderId;
-    private String userId;
-    private PaymentMethod paymentMethod;
-    private Long finalAmount;
 
-    @Builder
-    private PaymentCommand(Long orderId, String userId, PaymentMethod paymentMethod, Long finalAmount) {
-        this.orderId = orderId;
-        this.userId = userId;
-        this.paymentMethod = paymentMethod;
-        this.finalAmount = finalAmount;
+    public record Create(
+            Long orderId,
+            String userId,
+            PaymentMethod paymentMethod,
+            Long finalAmount
+    ) {
+        public static Create of(Long orderId, String userId, PaymentMethod paymentMethod, Long finalAmount) {
+            return new Create(orderId, userId, paymentMethod, finalAmount);
+        }
     }
 
-    public static PaymentCommand of(Long orderId ,String userId , PaymentMethod paymentMethod , Long finalAmount) {
-        return PaymentCommand
-                .builder()
-                .orderId(orderId)
-                .userId(userId)
-                .paymentMethod(paymentMethod)
-                .finalAmount(finalAmount)
-                .build();
+    public record Transaction(String orderId, CardType cardType, String cardNumber, Long amount) {
+        public static Transaction of(String orderId, CardType cardType, String cardNumber, Long amount) {
+            return new Transaction(orderId, cardType, cardNumber, amount);
+        }
+
     }
+
 }

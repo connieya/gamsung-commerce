@@ -4,6 +4,7 @@ import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -68,8 +69,8 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(pointEntity));
 
         Product product = ProductFixture.complete()
-                .set(Select.field(Product::getName) ,"foo")
-                .set(Select.field(Product::getPrice) ,5000L)
+                .set(Select.field(Product::getName), "foo")
+                .set(Select.field(Product::getPrice), 5000L)
                 .create();
         ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
@@ -89,7 +90,7 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT);
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
@@ -107,9 +108,9 @@ public class PaymentV1ApiE2ETest {
     }
 
 
-
     @Test
     @DisplayName("카드 결제 요청 시 PG사 처리를 위해 PENDING 상태를 반환한다.")
+        // FIXME PG Simulator 호출을 위한 임시 테스트
     void pay_returnsPendingStatus_whenUsingCard() {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
@@ -120,8 +121,8 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
         Product product = ProductFixture.complete()
-                .set(Select.field(Product::getName) ,"foo")
-                .set(Select.field(Product::getPrice) ,5000L)
+                .set(Select.field(Product::getName), "foo")
+                .set(Select.field(Product::getPrice), 5000L)
                 .create();
         ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
@@ -141,7 +142,7 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD);
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-5678-9012-3456");
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");

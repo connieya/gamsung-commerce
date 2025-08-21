@@ -16,15 +16,15 @@ public class PaymentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Payment create(PaymentCommand paymentCommand, PaymentStatus paymentStatus) {
-        User user = userRepository.findByUserId(paymentCommand.getUserId())
+    public Payment create(PaymentCommand.Create paymentCommand, PaymentStatus paymentStatus) {
+        User user = userRepository.findByUserId(paymentCommand.userId())
                 .orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 
         Payment payment = Payment.create(
-                paymentCommand.getFinalAmount()
-                , paymentCommand.getOrderId()
+                paymentCommand.finalAmount()
+                , paymentCommand.orderId()
                 , user.getId()
-                , paymentCommand.getPaymentMethod()
+                , paymentCommand.paymentMethod()
                 , paymentStatus);
         return paymentRepository.save(payment);
     }

@@ -5,6 +5,7 @@ import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.OrderStatus;
+import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -73,7 +74,6 @@ class PaymentFacadeIntegrationTest {
     DatabaseCleanUp databaseCleanUp;
 
 
-
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
@@ -119,7 +119,7 @@ class PaymentFacadeIntegrationTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when
         PaymentResult paymentResult = paymentFacade.pay(criteria);
@@ -131,10 +131,10 @@ class PaymentFacadeIntegrationTest {
 
         // then
         assertAll(
-                ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.PAID),
-                ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
-                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAID),
-                ()-> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
+                () -> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.PAID),
+                () -> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
+                () -> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAID),
+                () -> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
         );
     }
 
@@ -178,7 +178,7 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when &  then
         assertThatThrownBy(
@@ -229,7 +229,7 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when &  then
         assertThatThrownBy(
@@ -300,7 +300,7 @@ class PaymentFacadeIntegrationTest {
                     // 각 스레드가 서로 다른 주문을 처리
                     Order orderToPay = orders.get(index);
                     User userPaying = users.get(index);
-                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT);
+                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
                     paymentFacade.pay(criteria);
                 } finally {
                     latch.countDown();
@@ -360,8 +360,8 @@ class PaymentFacadeIntegrationTest {
 
 
         // when
-        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT);
-        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         int threadCount = 2;
 

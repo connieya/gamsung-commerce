@@ -1,9 +1,9 @@
-package com.loopers.domain.payment.processor;
+package com.loopers.application.payment.processor;
 
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentCommand;
 
 public interface PaymentProcessor {
 
-    Payment pay(PaymentCommand paymentCommand);
+    Payment pay(PaymentProcessContext command);
 }

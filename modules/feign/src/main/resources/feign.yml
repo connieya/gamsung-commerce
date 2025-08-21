@@ -1,0 +1,21 @@
+resilience4j:
+  retry:
+    instances:
+      pgRetry:
+        max-attempts: 3
+        wait-duration: 1s
+        enable-exponential-backoff: true
+        fail-after-max-attempts: true
+        exponential-backoff-multiplier: 2
+        enable-randomized-wait: true
+        randomized-wait-factor: 0.5
+        retry-exceptions:
+          - feign.RetryableException
+          - feign.FeignException
+
+  circuitbreaker:
+    instances:
+      pgCircuit:
+        sliding-window-size: 5
+        failure-rate-threshold: 20
+        wait-duration-in-open-state: 10s

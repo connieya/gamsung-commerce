@@ -19,6 +19,9 @@ public class Payment extends BaseEntity {
     @Column(name = "ref_order_id ", nullable = false)
     private Long orderId;
 
+    @Column(name = "order_number", nullable = false)
+    private String orderNumber;
+
     @Column(name = "ref_user_id", nullable = false)
     private Long userId;
 
@@ -31,19 +34,21 @@ public class Payment extends BaseEntity {
     private PaymentStatus paymentStatus;
 
     @Builder
-    private Payment(Long amount, Long orderId, Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
+    private Payment(Long amount, Long orderId, String orderNumber,  Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.amount = amount;
         this.orderId = orderId;
+        this.orderNumber = orderNumber;
         this.userId = userId;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
     }
 
-    public static Payment create(Long amount, Long orderId, Long userId , PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
+    public static Payment create(Long amount, Long orderId, String orderNumber, Long userId , PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         return Payment
                 .builder()
                 .amount(amount)
                 .orderId(orderId)
+                .orderNumber(orderNumber)
                 .userId(userId)
                 .paymentMethod(paymentMethod)
                 .paymentStatus(paymentStatus)

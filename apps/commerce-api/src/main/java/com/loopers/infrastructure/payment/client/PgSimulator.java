@@ -46,4 +46,17 @@ public class PgSimulator implements PaymentAdapter {
         payment.fail();
         throw new PaymentException.PaymentRequestFailedException(ErrorType.PAYMENT_PG_REQUEST_FAILED);
     }
+
+    @Override
+    public void getTransactionDetail(PaymentCommand.Search paymentCommand) {
+        ApiResponse<PgSimulatorResponse.TransactionDetail> response = client.getTransaction("12345", paymentCommand.transactionKey());
+        PgSimulatorResponse.TransactionDetail data = response.data();
+
+//        paymentRepository.findByOR
+
+        if (data.transactionStatus() == TransactionStatus.SUCCESS) {
+
+        }
+
+    }
 }

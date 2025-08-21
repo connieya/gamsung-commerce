@@ -20,6 +20,11 @@ public class PaymentCommand {
         public static Transaction of(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
             return new Transaction(orderId, paymentId, cardType, cardNumber, amount);
         }
+    }
+
+    public record Search(
+            String transactionKey
+    ){
 
     }
 

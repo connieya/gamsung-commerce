@@ -1,5 +1,8 @@
 package com.loopers.domain.payment;
 
+import com.loopers.domain.order.Order;
+import com.loopers.domain.order.OrderRepository;
+import com.loopers.domain.order.exception.OrderException;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.exception.UserException;
@@ -14,15 +17,20 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
     @Transactional
     public Payment create(PaymentCommand.Create paymentCommand, PaymentStatus paymentStatus) {
         User user = userRepository.findByUserId(paymentCommand.userId())
                 .orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
 
+        Order order = orderRepository.findById(paymentCommand.orderId())
+                .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+
         Payment payment = Payment.create(
                 paymentCommand.finalAmount()
                 , paymentCommand.orderId()
+                , order.getOrderNumber()
                 , user.getId()
                 , paymentCommand.paymentMethod()
                 , paymentStatus);

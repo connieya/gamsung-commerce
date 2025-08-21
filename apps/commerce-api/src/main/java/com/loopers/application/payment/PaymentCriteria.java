@@ -15,4 +15,16 @@ public class PaymentCriteria {
     ) {
 
     }
+
+    public record Complete(
+            String transactionKey,
+            String orderNumber,
+            CardType cardType,
+            String cardNo,
+            Long amount
+    ) {
+        public static Complete of(String transactionKey, String orderNumber, CardType cardType, String cardNo, Long amount) {
+            return new Complete(transactionKey, orderNumber, cardType, cardNo, amount);
+        }
+    }
 }

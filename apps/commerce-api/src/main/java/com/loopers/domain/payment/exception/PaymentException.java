@@ -16,4 +16,16 @@ public class PaymentException {
             super(errorType);
         }
     }
- }
+
+    public static class PgTimeoutException extends CoreException {
+        public PgTimeoutException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
+
+    public static class CircuitOpenException extends CoreException {
+        public CircuitOpenException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
+}

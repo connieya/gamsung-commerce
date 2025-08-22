@@ -19,3 +19,6 @@ resilience4j:
         sliding-window-size: 5
         failure-rate-threshold: 20
         wait-duration-in-open-state: 10s
+        minimum-number-of-calls: 3
+        recordExceptions:
+          - feign.RetryableException

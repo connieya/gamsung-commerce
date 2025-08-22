@@ -5,6 +5,7 @@ import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.support.error.ErrorType;
 import feign.FeignException;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
@@ -21,29 +22,31 @@ public class PgSimulator implements PaymentAdapter {
 
 
     @Override
-    @Retry(name = "pgRetry", fallbackMethod = "requestFallback")
     @CircuitBreaker(name = "pgCircuit", fallbackMethod = "requestFallback")
     public void request(PaymentCommand.Transaction paymentCommand) {
         PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(
                 paymentCommand.orderId(), paymentCommand.cardNumber(), paymentCommand.amount(), CALLBACK_URL, paymentCommand.cardType());
 
-        try {
-            ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
-            PgSimulatorResponse.RequestTransaction data = response.data();
-            System.out.println("data.transactionKey() = " + data.transactionKey());
-        } catch (FeignException e) {
-            System.out.println("FeignException occurred: " + e);
-        }
+        ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
+
 
     }
 
     @Transactional
     public void requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
-        System.out.println("Fallback method called due to: " + throwable.getMessage());
         Payment payment = paymentRepository.findById(paymentCommand.paymentId())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
 
         payment.fail();
+
+        if (throwable instanceof feign.RetryableException) {
+            throw new PaymentException.PgTimeoutException(ErrorType.PAYMENT_PG_TIMEOUT);
+        }
+
+        if (throwable instanceof CallNotPermittedException) {
+            throw new PaymentException.CircuitOpenException(ErrorType.PAYMENT_PG_CIRCUIT_OPEN);
+        }
+
         throw new PaymentException.PaymentRequestFailedException(ErrorType.PAYMENT_PG_REQUEST_FAILED);
     }
 

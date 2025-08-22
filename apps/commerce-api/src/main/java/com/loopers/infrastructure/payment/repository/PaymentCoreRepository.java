@@ -5,6 +5,8 @@ import com.loopers.domain.payment.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,5 +28,10 @@ public class PaymentCoreRepository implements PaymentRepository {
     @Override
     public Optional<Payment> findByOrderNumber(String orderNumber) {
         return paymentJpaRepository.findByOrderNumber(orderNumber);
+    }
+
+    @Override
+    public List<Payment> findByPendingAndCreatedAt(LocalDateTime threshold) {
+        return paymentJpaRepository.findByPaymentStatus(threshold);
     }
 }

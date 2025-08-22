@@ -13,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -67,5 +70,10 @@ public class PaymentService {
     public void paid(Long id) {
         Payment payment = paymentRepository.findById(id).orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.paid();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Payment> getPendingPayment(LocalDateTime threshold) {
+        return paymentRepository.findByPendingAndCreatedAt(threshold);
     }
 }

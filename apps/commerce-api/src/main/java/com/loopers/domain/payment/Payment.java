@@ -59,7 +59,7 @@ public class Payment extends BaseEntity {
         this.paymentStatus = PaymentStatus.FAILED;
     }
 
-    public void complete() {
+    public void paid() {
         this.paymentStatus = PaymentStatus.PAID;
     }
 

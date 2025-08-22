@@ -13,7 +13,9 @@ public class PaymentCriteria {
             CardType cardType,
             String cardNumber
     ) {
-
+        public static Pay of(String userId, Long orderId, PaymentMethod paymentMethod, CardType cardType, String cardNumber) {
+            return new Pay(userId, orderId, paymentMethod, cardType, cardNumber);
+        }
     }
 
     public record Complete(

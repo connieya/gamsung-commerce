@@ -49,11 +49,23 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
 
         if (transactionDetail.transactionStatus() == TransactionStatus.SUCCESS) {
-            payment.complete();
+            payment.paid();
         } else if (transactionDetail.transactionStatus() == TransactionStatus.FAILED) {
             payment.fail();
         } else {
             payment.pending();
         }
+    }
+
+    @Transactional
+    public void fail(Long id) {
+        Payment payment = paymentRepository.findById(id).orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+        payment.fail();
+    }
+
+    @Transactional
+    public void paid(Long id) {
+        Payment payment = paymentRepository.findById(id).orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+        payment.paid();
     }
 }

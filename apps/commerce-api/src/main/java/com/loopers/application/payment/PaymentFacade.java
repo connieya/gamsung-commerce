@@ -21,7 +21,6 @@ public class PaymentFacade {
     private final Map<String, PaymentProcessor> paymentProcessorMap;
     private final PaymentService paymentService;
 
-    @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
         Order order = orderService.getOrder(criteria.orderId());
         order.validatePay();

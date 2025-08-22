@@ -32,13 +32,8 @@ public class PgSimulator implements PaymentAdapter {
 
     }
 
-    @Transactional
+
     public void requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
-        Payment payment = paymentRepository.findById(paymentCommand.paymentId())
-                .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
-
-        payment.fail();
-
         if (throwable instanceof feign.RetryableException) {
             throw new PaymentException.PgTimeoutException(ErrorType.PAYMENT_PG_TIMEOUT);
         }

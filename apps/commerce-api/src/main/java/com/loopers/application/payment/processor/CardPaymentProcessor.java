@@ -5,6 +5,7 @@ import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.*;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.exception.PaymentException;
+import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,8 +26,8 @@ public class CardPaymentProcessor implements PaymentProcessor {
 
         PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getOrderNumber(), payment.getId(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount());
         try{
-            paymentAdapter.request(transaction);
-            paymentService.paid(payment.getId());
+            PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
+            paymentService.execute(PaymentCommand.Execute.of(requestTransaction.transactionKey(),requestTransaction.status() ,payment.getId()));
         }catch (Exception e){
             paymentService.fail(payment.getId());
             throw e;

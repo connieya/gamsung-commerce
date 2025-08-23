@@ -16,19 +16,30 @@ public class PaymentCommand {
         }
     }
 
-    public record Transaction(String orderId, Long paymentId ,  CardType cardType, String cardNumber, Long amount) {
+    public record Transaction(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
         public static Transaction of(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
             return new Transaction(orderId, paymentId, cardType, cardNumber, amount);
         }
     }
 
+    public record Execute(
+            String transactionKey,
+            TransactionStatus transactionStatus,
+            Long paymentId
+    ) {
+        public static Execute of(String transactionKey, TransactionStatus transactionStatus, Long paymentId) {
+            return new Execute(transactionKey, transactionStatus, paymentId);
+        }
+    }
+
+
     public record Search(
             String transactionKey,
             String orderNumber
-    ){
+    ) {
 
-        public static Search of(String transactionKey , String orderNumber) {
-            return new Search(transactionKey , orderNumber);
+        public static Search of(String transactionKey, String orderNumber) {
+            return new Search(transactionKey, orderNumber);
         }
     }
 

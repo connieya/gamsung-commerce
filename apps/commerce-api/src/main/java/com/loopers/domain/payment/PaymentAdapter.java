@@ -4,7 +4,7 @@ import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
 
 public interface PaymentAdapter {
 
-    void request(PaymentCommand.Transaction paymentCommand);
+    PgSimulatorResponse.RequestTransaction request(PaymentCommand.Transaction paymentCommand);
 
     PgSimulatorResponse.TransactionDetail getTransactionDetail(PaymentCommand.Search paymentCommand);
 

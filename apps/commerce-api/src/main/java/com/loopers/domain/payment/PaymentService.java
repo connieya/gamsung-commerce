@@ -76,4 +76,11 @@ public class PaymentService {
     public List<Payment> getPendingPayment(LocalDateTime threshold) {
         return paymentRepository.findByPendingAndCreatedAt(threshold);
     }
+
+    @Transactional
+    public void execute(PaymentCommand.Execute execute) {
+        Payment payment = paymentRepository.findById(execute.paymentId())
+                .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+        payment.execute(execute.transactionStatus());
+    }
 }

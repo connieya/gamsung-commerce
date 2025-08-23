@@ -7,7 +7,7 @@ public class PgSimulatorResponse {
 
     public record RequestTransaction(
             String transactionKey,
-            String status,
+            TransactionStatus status,
             String reason
     ) {
     }

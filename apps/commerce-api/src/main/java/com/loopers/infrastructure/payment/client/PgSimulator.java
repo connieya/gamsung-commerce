@@ -18,22 +18,22 @@ public class PgSimulator implements PaymentAdapter {
 
     private final static String CALLBACK_URL = "http://localhost:8080/api/v1/payments/callback";
     private final PgSimulatorClient client;
-    private final PaymentRepository paymentRepository;
 
 
     @Override
     @CircuitBreaker(name = "pgCircuit", fallbackMethod = "requestFallback")
-    public void request(PaymentCommand.Transaction paymentCommand) {
+    public PgSimulatorResponse.RequestTransaction request(PaymentCommand.Transaction paymentCommand) {
         PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(
                 paymentCommand.orderId(), paymentCommand.cardNumber(), paymentCommand.amount(), CALLBACK_URL, paymentCommand.cardType());
 
         ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
-
+        return response.data();
 
     }
 
 
     public void requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
+        System.out.println("throwable = " + throwable);
         if (throwable instanceof feign.RetryableException) {
             throw new PaymentException.PgTimeoutException(ErrorType.PAYMENT_PG_TIMEOUT);
         }

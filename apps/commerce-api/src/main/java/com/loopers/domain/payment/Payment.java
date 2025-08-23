@@ -66,4 +66,17 @@ public class Payment extends BaseEntity {
     public void pending() {
         this.paymentStatus = PaymentStatus.PENDING;
     }
+
+    public void execute(TransactionStatus transactionStatus) {
+        if (transactionStatus == TransactionStatus.SUCCESS) {
+            this.paymentStatus = PaymentStatus.PAID;
+            return;
+        }
+        if (transactionStatus == TransactionStatus.FAILED) {
+            this.paymentStatus = PaymentStatus.FAILED;
+            return;
+        }
+        this.paymentStatus = PaymentStatus.PENDING;
+
+    }
 }

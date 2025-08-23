@@ -1,40 +1,82 @@
 package com.loopers.domain.payment;
 
+import com.loopers.domain.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "payment")
 @Getter
-public class Payment {
-    private Long id;
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Payment extends BaseEntity {
+
+    @Column(name = "amount", nullable = false)
     private Long amount;
+
+    @Column(name = "ref_order_id ", nullable = false)
     private Long orderId;
+
+    @Column(name = "order_number", nullable = false)
+    private String orderNumber;
+
+    @Column(name = "ref_user_id", nullable = false)
     private Long userId;
-    private PaymentStatus paymentStatus;
+
+    @Column(name = "method", nullable = false)
+    @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
     @Builder
-    private Payment(Long id, Long amount, Long orderId, Long userId, PaymentStatus paymentStatus, PaymentMethod paymentMethod) {
-        this.id = id;
+    private Payment(Long amount, Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.amount = amount;
         this.orderId = orderId;
+        this.orderNumber = orderNumber;
         this.userId = userId;
-        this.paymentStatus = paymentStatus;
         this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
     }
 
-    public static Payment create(Long amount , Long orderId , Long userId , PaymentMethod paymentMethod){
+    public static Payment create(Long amount, Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         return Payment
                 .builder()
                 .amount(amount)
                 .orderId(orderId)
+                .orderNumber(orderNumber)
                 .userId(userId)
                 .paymentMethod(paymentMethod)
-                .paymentStatus(PaymentStatus.COMPLETE)
+                .paymentStatus(paymentStatus)
                 .build();
+    }
+
+    public void fail() {
+        this.paymentStatus = PaymentStatus.FAILED;
+    }
+
+    public void paid() {
+        this.paymentStatus = PaymentStatus.PAID;
+    }
+
+    public void pending() {
+        this.paymentStatus = PaymentStatus.PENDING;
+    }
+
+    public void execute(TransactionStatus transactionStatus) {
+        if (transactionStatus == TransactionStatus.SUCCESS) {
+            this.paymentStatus = PaymentStatus.PAID;
+            return;
+        }
+        if (transactionStatus == TransactionStatus.FAILED) {
+            this.paymentStatus = PaymentStatus.FAILED;
+            return;
+        }
+        this.paymentStatus = PaymentStatus.PENDING;
 
     }
 }

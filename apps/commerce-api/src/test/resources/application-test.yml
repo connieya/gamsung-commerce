@@ -1,0 +1,16 @@
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      pgCircuit:
+        sliding-window-size: 2
+        minimum-number-of-calls: 2 # ★★★ 최소 2번 호출되어야 서킷 상태 변경 판단 시작
+        failure-rate-threshold: 50 # ★★★ 실패율 50% (즉, 2번 중 1번만 실패해도 다음부터 열릴 수 있음)
+        wait-duration-in-open-state: 5s # 테스트를 위해 짧게 설정
+
+
+  retry:
+    instances:
+      pgRetry:
+        max-attempts: 2 # 테스트 시간을 줄이기 위해 재시도는 2번만 하도록 설정
+        wait-duration: 100ms

@@ -15,12 +15,11 @@ public class CouponCoreRepository implements CouponRepository {
 
     @Override
     public Optional<Coupon> findById(Long couponId) {
-        return couponJpaRepository.findById(couponId)
-                .map(CouponEntity::toDomain);
+        return couponJpaRepository.findById(couponId);
     }
 
     @Override
     public Coupon save(Coupon coupon) {
-        return couponJpaRepository.save(CouponEntity.from(coupon)).toDomain();
+        return couponJpaRepository.save(coupon);
     }
 }

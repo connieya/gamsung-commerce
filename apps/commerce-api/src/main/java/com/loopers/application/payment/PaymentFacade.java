@@ -1,58 +1,39 @@
 package com.loopers.application.payment;
 
-import com.loopers.domain.coupon.UserCouponCommand;
-import com.loopers.domain.coupon.UserCouponService;
-import com.loopers.domain.order.OrderLine;
+import com.loopers.application.payment.processor.PaymentProcessContext;
 import com.loopers.domain.order.OrderService;
-import com.loopers.domain.payment.Payment;
-import com.loopers.domain.payment.PaymentService;
-import com.loopers.domain.point.PointService;
-import com.loopers.domain.stock.StockCommand;
-import com.loopers.domain.stock.StockService;
+import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
+import com.loopers.domain.payment.Payment;
+import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PaymentFacade {
 
     private final OrderService orderService;
-    private final PointService pointService;
-    private final StockService stockService;
+    private final Map<String, PaymentProcessor> paymentProcessorMap;
     private final PaymentService paymentService;
-    private final UserCouponService userCouponService;
 
-
-    @Transactional
     public PaymentResult pay(PaymentCriteria.Pay criteria) {
         Order order = orderService.getOrder(criteria.orderId());
+        order.validatePay();
 
-        // 포인트 차감
-        pointService.deduct(criteria.userId(), order.getFinalAmount());
+        PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
+        Payment payment = paymentProcessor.pay(PaymentProcessContext.of(criteria));
 
+        return PaymentResult.from(payment);
+    }
 
-        // 재고 차감
-        List<OrderLine> orderLines = order.getOrderLines();
-        List<StockCommand.DeductStocks.Item> items = order.getOrderLines()
-                .stream()
-                .map(orderLine -> StockCommand.DeductStocks.Item.builder()
-                        .productId(orderLine.getProductId())
-                        .quantity(orderLine.getQuantity())
-                        .build()).toList();
-        StockCommand.DeductStocks deductStocks = StockCommand.DeductStocks.create(items);
-        stockService.deduct(deductStocks);
-
-        if (order.getDiscountAmount() > 0L) {
-            userCouponService.use(UserCouponCommand.of(criteria.userId()));
-        }
-
-        Payment pay = paymentService.pay(criteria.toCommand(order.getFinalAmount()));
-        orderService.complete(order.getId());
-
-        return PaymentResult.from(pay);
+    @Transactional
+    public void complete(PaymentCriteria.Complete complete) {
+        PaymentCommand.Search search = PaymentCommand.Search.of(complete.transactionKey() , complete.orderNumber());
+        paymentService.complete(search);
     }
 }

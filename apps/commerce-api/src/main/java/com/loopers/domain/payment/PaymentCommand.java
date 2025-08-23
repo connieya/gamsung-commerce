@@ -1,30 +1,46 @@
 package com.loopers.domain.payment;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class PaymentCommand {
-    private Long orderId;
-    private String userId;
-    private PaymentMethod paymentMethod;
-    private Long finalAmount;
 
-    @Builder
-    private PaymentCommand(Long orderId, String userId, PaymentMethod paymentMethod, Long finalAmount) {
-        this.orderId = orderId;
-        this.userId = userId;
-        this.paymentMethod = paymentMethod;
-        this.finalAmount = finalAmount;
+    public record Create(
+            Long orderId,
+            String userId,
+            PaymentMethod paymentMethod,
+            Long finalAmount
+    ) {
+        public static Create of(Long orderId, String userId, PaymentMethod paymentMethod, Long finalAmount) {
+            return new Create(orderId, userId, paymentMethod, finalAmount);
+        }
     }
 
-    public static PaymentCommand of(Long orderId ,String userId , PaymentMethod paymentMethod , Long finalAmount) {
-        return PaymentCommand
-                .builder()
-                .orderId(orderId)
-                .userId(userId)
-                .paymentMethod(paymentMethod)
-                .finalAmount(finalAmount)
-                .build();
+    public record Transaction(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
+        public static Transaction of(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
+            return new Transaction(orderId, paymentId, cardType, cardNumber, amount);
+        }
     }
+
+    public record Execute(
+            String transactionKey,
+            TransactionStatus transactionStatus,
+            Long paymentId
+    ) {
+        public static Execute of(String transactionKey, TransactionStatus transactionStatus, Long paymentId) {
+            return new Execute(transactionKey, transactionStatus, paymentId);
+        }
+    }
+
+
+    public record Search(
+            String transactionKey,
+            String orderNumber
+    ) {
+
+        public static Search of(String transactionKey, String orderNumber) {
+            return new Search(transactionKey, orderNumber);
+        }
+    }
+
 }

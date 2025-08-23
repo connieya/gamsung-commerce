@@ -2,6 +2,7 @@ package com.loopers.application.order;
 
 import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
+import com.loopers.domain.order.OrderInfo;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductService;
@@ -31,6 +32,13 @@ public class  OrderFacade {
 
         OrderCommand command = OrderCommandMapper.map(user.getId(), orderCriteria, products, discountAmount);
         return OrderResult.Create.from(orderService.place(command));
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResult.GetDetail getOrderDetail(Long orderId){
+        OrderInfo orderDetail = orderService.getOrderDetail(orderId);
+
+        return OrderResult.GetDetail.from(orderDetail);
     }
 }
 

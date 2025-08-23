@@ -1,24 +1,33 @@
 package com.loopers.domain.coupon;
 
+import com.loopers.domain.BaseEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Getter
-public class UserCoupon {
-    private Long id;
-    private Long userId;
+@Entity
+@Table(name = "user_coupon",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"couponId", "userId"})
+        })
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserCoupon extends BaseEntity {
+
     private Long couponId;
+    private Long userId;
     private boolean used;
 
+    @Version
+    private Long version;
 
     @Builder
-    private UserCoupon(Long id, Long userId, Long couponId, boolean used) {
-        this.id = id;
-        this.userId = userId;
+    public UserCoupon(Long couponId, Long userId, boolean used) {
         this.couponId = couponId;
+        this.userId = userId;
         this.used = used;
     }
 
@@ -30,7 +39,6 @@ public class UserCoupon {
                 .used(false)
                 .build();
     }
-
 
     public void use() {
         this.used = true;

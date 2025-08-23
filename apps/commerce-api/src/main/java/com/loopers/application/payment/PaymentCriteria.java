@@ -1,5 +1,6 @@
 package com.loopers.application.payment;
 
+import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
 
@@ -8,10 +9,24 @@ public class PaymentCriteria {
     public record Pay(
             String userId,
             Long orderId,
-            PaymentMethod paymentMethod
+            PaymentMethod paymentMethod,
+            CardType cardType,
+            String cardNumber
     ) {
-        public PaymentCommand toCommand(Long finalAmount) {
-            return PaymentCommand.of(orderId, userId, paymentMethod, finalAmount);
+        public static Pay of(String userId, Long orderId, PaymentMethod paymentMethod, CardType cardType, String cardNumber) {
+            return new Pay(userId, orderId, paymentMethod, cardType, cardNumber);
+        }
+    }
+
+    public record Complete(
+            String transactionKey,
+            String orderNumber,
+            CardType cardType,
+            String cardNo,
+            Long amount
+    ) {
+        public static Complete of(String transactionKey, String orderNumber, CardType cardType, String cardNo, Long amount) {
+            return new Complete(transactionKey, orderNumber, cardType, cardNo, amount);
         }
     }
 }

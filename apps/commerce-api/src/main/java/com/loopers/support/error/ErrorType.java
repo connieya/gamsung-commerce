@@ -30,6 +30,8 @@ public enum ErrorType {
     STOCK_INSUFFICIENT(HttpStatus.BAD_REQUEST, "Stock Insufficient", "재고가 부족합니다."),
 
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order Not Found", "존재하지 않는 주문입니다."),
+    ORDER_INVALID_STATUS(HttpStatus.BAD_REQUEST, "Order Invalid Status", "주문 상태가 결제를 진행할 수 없는 상태입니다."),
+    ORDER_INVALID_AMOUNT(HttpStatus.BAD_REQUEST, "Order Invalid Amount", "최종 결제 금액이 0 이하일 수 없습니다."),
 
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "Coupon Not Found", "존재하지 않는 쿠폰입니다."),
     USER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "UserCoupon Not Found", "존재하지 않는 사용자 쿠폰입니다."),
@@ -38,6 +40,13 @@ public enum ErrorType {
 
     LIKE_SUMMARY_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Summary Not Found", "좋아요 요약 정보를 찾을 수 없습니다."),
     LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "Like Count Cannot Be Negative", "좋아요 개수는 0 미만이 될 수 없습니다."),
+
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Payment Not Found", "존재하지 않는 결제 정보입니다."),
+    PAYMENT_PG_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Payment PG Request Failed", "PG 결제 요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
+    PAYMENT_PG_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Timeout", "PG 결제 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요."),
+    PAYMENT_PG_CIRCUIT_OPEN(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Circuit Open", "현재 결제 시스템이 불안정합니다. 잠시 후 다시 시도해주세요.");
+
+
 
     ;
 

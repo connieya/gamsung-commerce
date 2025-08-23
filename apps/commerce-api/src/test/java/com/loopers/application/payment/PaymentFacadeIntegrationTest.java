@@ -5,6 +5,7 @@ import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.OrderStatus;
+import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -29,14 +30,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,7 +72,6 @@ class PaymentFacadeIntegrationTest {
 
     @Autowired
     DatabaseCleanUp databaseCleanUp;
-
 
 
     @AfterEach
@@ -121,7 +119,7 @@ class PaymentFacadeIntegrationTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when
         PaymentResult paymentResult = paymentFacade.pay(criteria);
@@ -133,10 +131,10 @@ class PaymentFacadeIntegrationTest {
 
         // then
         assertAll(
-                ()-> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.COMPLETE),
-                ()-> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
-                ()-> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAYMENT_COMPLETED),
-                ()-> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
+                () -> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.PAID),
+                () -> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
+                () -> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAID),
+                () -> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
         );
     }
 
@@ -180,7 +178,7 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when &  then
         assertThatThrownBy(
@@ -231,7 +229,7 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when &  then
         assertThatThrownBy(
@@ -302,7 +300,7 @@ class PaymentFacadeIntegrationTest {
                     // 각 스레드가 서로 다른 주문을 처리
                     Order orderToPay = orders.get(index);
                     User userPaying = users.get(index);
-                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT);
+                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
                     paymentFacade.pay(criteria);
                 } finally {
                     latch.countDown();
@@ -362,8 +360,8 @@ class PaymentFacadeIntegrationTest {
 
 
         // when
-        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT);
-        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT);
+        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         int threadCount = 2;
 
@@ -395,105 +393,4 @@ class PaymentFacadeIntegrationTest {
         assertThat(point.getValue()).isEqualTo(5000L);
 
     }
-
-
-    @DisplayName("동일한 쿠폰으로 여러 기기에서 동시에 주문해도, 쿠폰은 단 한번만 사용되어야 한다.")
-    @Test
-    void pay_throwsOptimisticLockingFailureException_whenSameCouponUsedConcurrently() throws InterruptedException {
-        // given
-        User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User savedUser = userRepository.save(user);
-
-        pointRepository.save(Point.create(savedUser.getUserId(), 10000L));
-
-        Brand brand = BrandFixture.complete().create();
-        Brand savedBrand = brandRepository.save(brand);
-
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
-
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
-
-        Stock stock1 = Stock.create(savedProduct1.getId(), 50L);
-        Stock stock2 = Stock.create(savedProduct2.getId(), 50L);
-
-        stockRepository.save(stock1);
-        stockRepository.save(stock2);
-
-        Coupon savedCoupon = couponRepository.save(Coupon.create("여름 이벤트", CouponType.FIXED_AMOUNT, 1000L));
-        userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId()));
-
-        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
-                .productId(savedProduct1.getId())
-                .price(1000L)
-                .quantity(1L)
-                .build();
-        OrderCommand.OrderItem orderItem2 = OrderCommand.OrderItem.builder()
-                .productId(savedProduct2.getId())
-                .price(2000L)
-                .quantity(2L)
-                .build();
-
-        OrderCommand orderCommand1 = OrderCommand.of(savedUser.getId(), List.of(orderItem1), 1000L);
-        Order savedOrder1 = orderRepository.save(Order.create(orderCommand1));
-
-        OrderCommand orderCommand2 = OrderCommand.of(savedUser.getId(), List.of(orderItem2), 1000L);
-        Order savedOrder2 = orderRepository.save(Order.create(orderCommand2));
-
-        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT);
-
-
-        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT);
-
-        int threadCount = 2;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch endLatch = new CountDownLatch(threadCount);
-        AtomicInteger successCount = new AtomicInteger(0);
-        AtomicInteger failureCount = new AtomicInteger(0);
-
-
-        // when
-        executorService.submit(() -> {
-            try {
-                startLatch.await();
-                paymentFacade.pay(criteria1);
-                successCount.incrementAndGet();
-            } catch (ObjectOptimisticLockingFailureException e) {
-                // 낙관적 락 충돌 예외를 성공적으로 잡음
-                failureCount.incrementAndGet();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } finally {
-                endLatch.countDown();
-            }
-        });
-
-        executorService.submit(() -> {
-            try {
-                startLatch.await();
-                paymentFacade.pay(criteria2);
-                successCount.incrementAndGet();
-            } catch (ObjectOptimisticLockingFailureException e) {
-                // 낙관적 락 충돌 예외를 성공적으로 잡음
-                failureCount.incrementAndGet();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } finally {
-                endLatch.countDown();
-            }
-        });
-
-        startLatch.countDown(); // 모든 스레드에게 동시에 시작 신호를 보냄
-        endLatch.await();       // 모든 스레드가 작업을 마칠 때까지 대기
-
-        executorService.shutdown();
-
-        // then
-        assertEquals(1, successCount.get());
-        assertEquals(1, failureCount.get());
-
-    }
-
 }

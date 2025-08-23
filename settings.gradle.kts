@@ -2,8 +2,10 @@ rootProject.name = "gamsung-commerce"
 
 include(
     ":apps:commerce-api",
+    ":apps:pg-simulator",
     ":modules:jpa",
     ":modules:redis",
+    ":modules:feign",
     ":supports:jackson",
     ":supports:logging",
     ":supports:monitoring",

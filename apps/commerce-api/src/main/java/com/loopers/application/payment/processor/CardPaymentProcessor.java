@@ -1,11 +1,13 @@
 package com.loopers.application.payment.processor;
 
+import com.loopers.application.payment.PaymentResult;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.*;
 import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
+import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,21 +20,21 @@ public class CardPaymentProcessor implements PaymentProcessor {
     private final OrderService orderService;
 
     @Override
-    public Payment pay(PaymentProcessContext paymentProcessContext) {
+    public PaymentResult pay(PaymentProcessContext paymentProcessContext) {
         Order order = orderService.getOrder(paymentProcessContext.getOrderId());
 
         PaymentCommand.Create create = PaymentCommand.Create.of(paymentProcessContext.getOrderId(), paymentProcessContext.getUserId(), PaymentMethod.CARD, order.getFinalAmount());
         Payment payment = paymentService.create(create, PaymentStatus.PENDING);
 
         PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getOrderNumber(), payment.getId(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount());
-        try{
+        try {
             PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
-            paymentService.execute(PaymentCommand.Execute.of(requestTransaction.transactionKey(),requestTransaction.status() ,payment.getId()));
-        }catch (Exception e){
+            payment.execute(requestTransaction.status());
+            paymentService.execute(PaymentCommand.Execute.of(requestTransaction.transactionKey(), requestTransaction.status(), payment.getId()));
+            return PaymentResult.from(payment);
+        } catch (PaymentException.CircuitOpenException e) {
             paymentService.fail(payment.getId());
-            throw e;
+            throw new PaymentException.CircuitOpenException(ErrorType.PAYMENT_PG_CIRCUIT_OPEN);
         }
-
-        return payment;
     }
 }

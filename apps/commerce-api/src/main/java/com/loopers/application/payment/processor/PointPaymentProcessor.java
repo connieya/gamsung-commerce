@@ -1,5 +1,6 @@
 package com.loopers.application.payment.processor;
 
+import com.loopers.application.payment.PaymentResult;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderService;
 import com.loopers.domain.payment.*;
@@ -24,7 +25,7 @@ public class PointPaymentProcessor implements PaymentProcessor {
 
     @Override
     @Transactional
-    public Payment pay(PaymentProcessContext paymentProcessContext) {
+    public PaymentResult pay(PaymentProcessContext paymentProcessContext) {
         Order order = orderService.getOrder(paymentProcessContext.getOrderId());
         PaymentCommand.Create create = PaymentCommand.Create.of(paymentProcessContext.getOrderId(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount());
 
@@ -43,6 +44,6 @@ public class PointPaymentProcessor implements PaymentProcessor {
         stockService.deduct(deductStocks);
 
         orderService.complete(create.orderId());
-        return payment;
+        return PaymentResult.from(payment);
     }
 }

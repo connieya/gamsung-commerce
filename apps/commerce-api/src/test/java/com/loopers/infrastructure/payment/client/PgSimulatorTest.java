@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.loopers.domain.payment.*;
 import com.loopers.domain.payment.exception.PaymentException;
 import feign.Request;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,11 @@ class PgSimulatorTest {
         mockServer.start();
     }
 
+    @AfterEach
+    void tearDown() {
+        mockServer.stop();
+    }
+
     @Test
     @DisplayName("정해진 횟수 이상 타임아웃 발생 시 서킷이 열리고 CircuitOpenException을 던진다.")
     void circuitOpens_andThrowsException_afterMultipleTimeouts() {
@@ -46,7 +52,7 @@ class PgSimulatorTest {
                         .withFixedDelay(4000)
                 ));
 
-        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of("12345", 1L, CardType.HYUNDAI, "1234-5678-9012-3456", 1000L);
+        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(1L,"12345",  CardType.HYUNDAI, "1234-5678-9012-3456", 1000L, 1L);
 
 
         for (int i = 0; i < REQUIRED_FAILURES_TO_OPEN_CIRCUIT; i++) {

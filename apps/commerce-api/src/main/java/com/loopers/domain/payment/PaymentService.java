@@ -87,19 +87,18 @@ public class PaymentService {
 
     @Transactional
     public Payment requestPayment(PaymentCommand.Transaction transaction) {
-        Payment payment = paymentRepository.findById(transaction.paymentId())
-                .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+        Payment payment = Payment.create(transaction.amount(), transaction.orderId(), transaction.orderNumber(), transaction.userId(), PaymentMethod.CARD, PaymentStatus.PENDING);
 
-        applicationEventPublisher.publishEvent(PaymentEvent.Ready.of(transaction.paymentId(), transaction.orderNumber()));
+        Payment savedPayment = paymentRepository.save(payment);
+
+        applicationEventPublisher.publishEvent(PaymentEvent.Ready.of(savedPayment.getId(), transaction.orderNumber()));
         try {
             PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
-            payment.execute(requestTransaction.status());
-            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), transaction.paymentId(), transaction.orderNumber(), requestTransaction.status()));
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), savedPayment.getId(), transaction.orderNumber(), requestTransaction.status()));
             return payment;
         } catch (CoreException e) {
-            payment.fail();
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
-            applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.paymentId(), transaction.orderNumber(), attemptStatus));
+            applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(savedPayment.getId(), transaction.orderNumber(), attemptStatus));
             return payment;
         }
     }

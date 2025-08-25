@@ -28,9 +28,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
 
         PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getOrderNumber(), payment.getId(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount());
         try {
-            PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
-            payment.execute(requestTransaction.status());
-            paymentService.execute(PaymentCommand.Execute.of(requestTransaction.transactionKey(), requestTransaction.status(), payment.getId()));
+            paymentService.requestPayment(transaction);
             return PaymentResult.from(payment);
         } catch (PaymentException.CircuitOpenException e) {
             paymentService.fail(payment.getId());

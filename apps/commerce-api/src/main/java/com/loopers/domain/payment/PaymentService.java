@@ -8,6 +8,7 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.exception.UserException;
 import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
+import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -82,5 +83,17 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(execute.paymentId())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.execute(execute.transactionStatus());
+    }
+
+    @Transactional
+    public void requestPayment(PaymentCommand.Transaction transaction) {
+        Payment payment = paymentRepository.findById(transaction.paymentId())
+                .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+        try {
+            PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
+            payment.execute(requestTransaction.status());
+        }catch (CoreException e) {
+            payment.fail();
+        }
     }
 }

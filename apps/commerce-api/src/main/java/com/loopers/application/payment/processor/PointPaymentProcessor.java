@@ -27,18 +27,14 @@ public class PointPaymentProcessor implements PaymentProcessor {
 
     @Override
     @Transactional
-    public PaymentResult pay(PaymentProcessContext paymentProcessContext) {
+    public void pay(PaymentProcessContext paymentProcessContext) {
         Order order = orderService.getOrder(paymentProcessContext.getOrderId());
         PaymentCommand.Create create = PaymentCommand.Create.of(paymentProcessContext.getOrderId(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount());
 
         pointService.deduct(create.userId(), order.getFinalAmount());
-        Payment payment = paymentService.create(create , PaymentStatus.PAID);
-
+        paymentService.create(create , PaymentStatus.PAID);
 
         applicationEventPublisher.publishEvent(PaymentEvent.Success.of(order.getId() , order.getOrderLines()));
 
-
-        orderService.complete(create.orderId());
-        return PaymentResult.from(payment);
     }
 }

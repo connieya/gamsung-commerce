@@ -86,7 +86,7 @@ public class PaymentService {
 
 
     @Transactional
-    public Payment requestPayment(PaymentCommand.Transaction transaction) {
+    public void requestPayment(PaymentCommand.Transaction transaction) {
         Payment payment = Payment.create(transaction.amount(), transaction.orderId(), transaction.orderNumber(), transaction.userId(), PaymentMethod.CARD, PaymentStatus.PENDING);
 
         Payment savedPayment = paymentRepository.save(payment);
@@ -95,11 +95,10 @@ public class PaymentService {
         try {
             PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
             applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), savedPayment.getId(), transaction.orderNumber(), requestTransaction.status()));
-            return payment;
         } catch (CoreException e) {
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
             applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(savedPayment.getId(), transaction.orderNumber(), attemptStatus));
-            return payment;
+
         }
     }
 }

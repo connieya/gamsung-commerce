@@ -85,7 +85,7 @@ public class Order extends BaseEntity {
     }
 
 
-    public void complete() {
+    public void paid() {
         this.orderStatus = OrderStatus.PAID;
     }
 

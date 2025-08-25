@@ -3,7 +3,11 @@ package com.loopers.domain.payment;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.exception.OrderException;
+import com.loopers.domain.payment.attempt.AttemptStatus;
+import com.loopers.domain.payment.attempt.PaymentAttempt;
+import com.loopers.domain.payment.event.PaymentEvent;
 import com.loopers.domain.payment.exception.PaymentException;
+import com.loopers.domain.payment.exception.PaymentFailure;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.exception.UserException;
@@ -11,6 +15,7 @@ import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +30,7 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
     private final PaymentAdapter paymentAdapter;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public Payment create(PaymentCommand.Create paymentCommand, PaymentStatus paymentStatus) {
@@ -86,14 +92,22 @@ public class PaymentService {
     }
 
     @Transactional
-    public void requestPayment(PaymentCommand.Transaction transaction) {
+    public PgSimulatorResponse.RequestTransaction requestPayment(PaymentCommand.Transaction transaction) {
         Payment payment = paymentRepository.findById(transaction.paymentId())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
+
+        applicationEventPublisher.publishEvent(PaymentEvent.Ready.of(transaction.paymentId(), transaction.orderNumber()));
         try {
             PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
             payment.execute(requestTransaction.status());
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(),transaction.paymentId(),transaction.orderNumber(),requestTransaction.status()));
+            return requestTransaction;
         }catch (CoreException e) {
             payment.fail();
+            AttemptStatus attemptStatus = (e instanceof  PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
+            applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.paymentId(),transaction.orderNumber(),attemptStatus));
         }
+
+        return null;
     }
 }

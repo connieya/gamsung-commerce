@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CardPaymentProcessor implements PaymentProcessor {
 
-    private final PaymentAdapter paymentAdapter;
     private final PaymentService paymentService;
     private final OrderService orderService;
 
@@ -27,12 +26,9 @@ public class CardPaymentProcessor implements PaymentProcessor {
         Payment payment = paymentService.create(create, PaymentStatus.PENDING);
 
         PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getOrderNumber(), payment.getId(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount());
-        try {
-            paymentService.requestPayment(transaction);
-            return PaymentResult.from(payment);
-        } catch (PaymentException.CircuitOpenException e) {
-            paymentService.fail(payment.getId());
-            throw new PaymentException.CircuitOpenException(ErrorType.PAYMENT_PG_CIRCUIT_OPEN);
-        }
+        Payment requestedPayment = paymentService.requestPayment(transaction);
+
+        return PaymentResult.from(requestedPayment);
+
     }
 }

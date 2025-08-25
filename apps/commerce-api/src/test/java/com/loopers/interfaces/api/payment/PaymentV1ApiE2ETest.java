@@ -5,6 +5,7 @@ import com.loopers.domain.brand.Brand;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -96,14 +97,23 @@ public class PaymentV1ApiE2ETest {
         headers.add(ApiHeaders.USER_ID, "gunny");
 
         // when
-        ResponseEntity<ApiResponse<PaymentV1Dto.Response.Pay>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
+        ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
         });
+
 
         // then
         assertAll(
-                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(),
-                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo(PaymentStatus.PAID)
+                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue()
         );
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Payment payment = testEntityManager.getEntityManager()
+                    .createQuery("select p from Payment p where p.orderNumber = :orderNumber", Payment.class)
+                    .setParameter("orderNumber", order.getOrderNumber())
+                    .getSingleResult();
+            assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.PAID);
+
+        });
 
     }
 
@@ -153,11 +163,9 @@ public class PaymentV1ApiE2ETest {
 
         // then
         assertAll(
-                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(),
-                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo(PaymentStatus.PENDING)
+                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue()
         );
 
     }
-
 
 }

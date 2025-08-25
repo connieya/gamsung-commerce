@@ -16,7 +16,7 @@ public class PaymentV1Controller {
     private final PaymentFacade paymentFacade;
 
     @PostMapping
-    public ApiResponse<PaymentV1Dto.Response.Pay> payment(@RequestHeader(ApiHeaders.USER_ID) String userId , @RequestBody PaymentV1Dto.Request.Pay request) {
+    public ApiResponse<Void> payment(@RequestHeader(ApiHeaders.USER_ID) String userId , @RequestBody PaymentV1Dto.Request.Pay request) {
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(
                 userId,
                 request.orderId(),
@@ -24,8 +24,8 @@ public class PaymentV1Controller {
                 request.cardType(),
                 request.cardNumber()
         );
-        PaymentResult paymentResult = paymentFacade.pay(criteria);
-        return ApiResponse.success(PaymentV1Dto.Response.Pay.from(paymentResult));
+        paymentFacade.pay(criteria);
+        return ApiResponse.success(null);
     }
 
     @PostMapping("/callback")

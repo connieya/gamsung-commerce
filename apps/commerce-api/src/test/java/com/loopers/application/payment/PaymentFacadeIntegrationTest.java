@@ -122,7 +122,7 @@ class PaymentFacadeIntegrationTest {
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
 
         // when
-        PaymentResult paymentResult = paymentFacade.pay(criteria);
+        paymentFacade.pay(criteria);
 
 
         Point updatedPoint = pointRepository.findByUserId("gunny").get();
@@ -131,7 +131,6 @@ class PaymentFacadeIntegrationTest {
 
         // then
         assertAll(
-                () -> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.PAID),
                 () -> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
                 () -> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAID),
                 () -> assertThat(updatedStock.getQuantity()).isEqualTo(4L)

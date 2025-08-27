@@ -22,6 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,17 +70,17 @@ class ProductLikeServiceTest {
         Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product,savedBrand);
+        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
         ProductEntity savedProduct = productJpaRepository.save(productEntity);
 
         // when
         doReturn(Optional.of(userEntity))
                 .when(userJpaRepository)
-                        .findById(savedUser.getId());
+                .findById(savedUser.getId());
 
         doReturn(Optional.of(productEntity))
                 .when(productJpaRepository)
-                        .findById(savedProduct.getId());
+                .findById(savedProduct.getId());
 
         doReturn(false)
                 .when(productLikeJpaRepository)
@@ -106,7 +107,7 @@ class ProductLikeServiceTest {
         Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product,savedBrand);
+        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
         ProductEntity savedProduct = productJpaRepository.save(productEntity);
 
         // when
@@ -129,7 +130,7 @@ class ProductLikeServiceTest {
     }
 
     @Test
-    @DisplayName("좋아요: 요청 시 성공적으로 삭제된다.")
+    @DisplayName("좋아요 취소 요청 시 성공적으로 삭제된다.")
     void remove_successfullyDeletesLike() {
         // given
         User user = UserFixture.complete().create();
@@ -139,7 +140,7 @@ class ProductLikeServiceTest {
         Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product,savedBrand);
+        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
         ProductEntity savedProduct = productJpaRepository.save(productEntity);
 
         // when
@@ -170,5 +171,62 @@ class ProductLikeServiceTest {
         verify(productLikeJpaRepository, times(1)).deleteByUserIdAndProductId(savedUser.getId(), savedProduct.getId());
         verify(likeSummaryJpaRepository, times(1)).findByTargetForUpdate(target);
     }
+
+
+    @Test
+    @DisplayName("좋아요 등록 시 집계 반영에 실패해도, 좋아요 등록은 성공한다.")
+    void addLike_whenSummaryUpdateFails_addsLikeSuccessfully() {
+        // given
+        User user = UserFixture.complete().create();
+        UserEntity userEntity = UserEntity.fromDomain(user);
+        UserEntity savedUser = userJpaRepository.save(userEntity);
+
+        Product product = ProductFixture.complete().create();
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandJpaRepository.save(brand);
+        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
+        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+
+        // when
+        doThrow(new RuntimeException("boom"))
+                .when(likeSummaryJpaRepository).findByTargetForUpdate(any());
+
+        productLikeService.add(savedUser.getId(), savedProduct.getId());
+
+        boolean existsByUserIdAndProductId = productLikeJpaRepository.existsByUserIdAndProductId(savedUser.getId(), savedProduct.getId());
+        Optional<LikeSummary> likeSummary = likeSummaryJpaRepository.findByTarget(LikeTarget.create(savedProduct.getId(), LikeTargetType.PRODUCT));
+
+        // then
+        assertThat(existsByUserIdAndProductId).isEqualTo(true);
+        assertThat(likeSummary.isEmpty()).isTrue();
+    }
+
+    @Test
+    @DisplayName("좋아요 취소 시 집계 반영에 실패해도, 좋아요 취소는 성공한다.")
+    void removeLike_whenSummaryUpdateFails_removesLikeSuccessfully() {
+        // given
+        User user1 = UserFixture.complete().create();
+        UserEntity userEntity1 = UserEntity.fromDomain(user1);
+        UserEntity savedUser1 = userJpaRepository.save(userEntity1);
+
+        Product product = ProductFixture.complete().create();
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandJpaRepository.save(brand);
+        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
+        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+
+        // when
+        productLikeJpaRepository.save(ProductLike.create(savedUser1.getId(), savedProduct.getId()));
+
+        productLikeService.remove(savedUser1.getId(), savedProduct.getId());
+
+        List<ProductLike> productLike = productLikeJpaRepository.findByProductId(savedProduct.getId());
+        Optional<LikeSummary> likeSummary = likeSummaryJpaRepository.findByTarget(LikeTarget.create(savedProduct.getId(), LikeTargetType.PRODUCT));
+
+        // then
+        assertThat(productLike.size()).isEqualTo(0L);
+        assertThat(likeSummary.isEmpty()).isTrue();
+    }
+
 
 }

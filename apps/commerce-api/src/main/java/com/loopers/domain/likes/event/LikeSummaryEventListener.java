@@ -8,6 +8,9 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
 
 @Component
 @RequiredArgsConstructor
@@ -15,16 +18,21 @@ public class LikeSummaryEventListener {
 
     private final LikeSummaryRepository likeSummaryRepository;
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void add(ProductLikeEvent.Add event) {
-        likeSummaryRepository.findByTargetUpdate(LikeTarget.create(event.productId(), event.likeTargetType()))
-                .ifPresentOrElse(
-                        LikeSummary::increase,
-                        () -> likeSummaryRepository.save(LikeSummary.create(event.productId(), event.likeTargetType()))
-                );
+        likeSummaryRepository.findByTargetUpdate(
+                LikeTarget.create(event.productId(), event.likeTargetType())
+        ).ifPresentOrElse(
+                LikeSummary::increase, // 존재하면 increase 실행
+                () -> {
+                    LikeSummary likeSummary = LikeSummary.create(event.productId(), event.likeTargetType());
+                    likeSummary.increase();
+                    likeSummaryRepository.save(likeSummary);
+                }
+        );
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void remove(ProductLikeEvent.Remove event) {
         LikeSummary likeSummary = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(event.productId(), event.likeTargetType()))
                 .orElseThrow(() -> new LikeException.LikeSummaryNotFoundException(ErrorType.LIKE_SUMMARY_NOT_FOUND));

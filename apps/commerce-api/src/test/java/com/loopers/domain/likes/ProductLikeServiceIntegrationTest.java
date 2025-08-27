@@ -9,6 +9,8 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.infrastructure.product.ProductEntity;
+import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,6 +28,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
 
 
 @SpringBootTest
@@ -55,6 +59,53 @@ class ProductLikeServiceIntegrationTest {
     void tearDown() {
         databaseCleanUp.truncateAllTables();
     }
+
+
+    @Test
+    @DisplayName("좋아요 등록 성공 시 집계가 잘 반영된다.")
+    void addLike_successfullyUpdatesLikeSummary() {
+        // given
+        User user = UserFixture.complete().create();
+        User savedUser = userRepository.save(user);
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product = ProductFixture.complete().create();
+        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+
+        // when
+        productLikeService.add(savedUser.getId(), savedProduct.getId());
+
+        LikeSummary likeSummary = likeSummaryRepository.findByTarget(LikeTarget.create(savedProduct.getId(), LikeTargetType.PRODUCT)).get();
+
+        assertThat(likeSummary.getLikeCount()).isEqualTo(1);
+    }
+
+
+    @Test
+    @DisplayName("좋아요 취소 시, 집계가 성공적으로 반영되어 좋아요 수가 0이 된다.")
+    void removeLike_whenSummaryExists_decreasesLikeCountToZero() {
+        // given
+        User user = UserFixture.complete().create();
+        User savedUser = userRepository.save(user);
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product = ProductFixture.complete().create();
+        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+
+        likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT));
+
+        // when
+        productLikeService.remove(savedUser.getId(), savedProduct.getId());
+
+        LikeSummary likeSummary = likeSummaryRepository.findByTarget(LikeTarget.create(savedProduct.getId(), LikeTargetType.PRODUCT)).get();
+
+        assertThat(likeSummary.getLikeCount()).isEqualTo(0L);
+    }
+
 
     @Test
     @DisplayName("동일한 상품에 대해 여러명이 좋아요/싫어요를 요청해도, 상품의 좋아요 개수가 정상 반영되어야 한다.")

@@ -21,4 +21,10 @@ public class AttemptCommand {
             return new Failure(paymentId, orderNumber, attemptStatus);
         }
     }
+
+    public record Success(Long paymentId, String orderNumber, AttemptStatus attemptStatus) {
+        public static Success of(Long paymentId, String orderNumber, AttemptStatus attemptStatus) {
+            return new Success(paymentId, orderNumber, attemptStatus);
+        }
+    }
 }

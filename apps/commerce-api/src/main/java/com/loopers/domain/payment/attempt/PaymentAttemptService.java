@@ -30,4 +30,11 @@ public class PaymentAttemptService {
         PaymentAttempt paymentAttempt = PaymentAttempt.create(failure.paymentId(), failure.orderNumber(), failure.attemptStatus());
         paymentAttemptRepository.save(paymentAttempt);
     }
+
+    @Transactional
+    public void markSuccess(AttemptCommand.Success success) {
+        PaymentAttempt paymentAttempt = PaymentAttempt.create(success.paymentId(), success.orderNumber(), success.attemptStatus());
+        paymentAttemptRepository.save(paymentAttempt);
+
+    }
 }

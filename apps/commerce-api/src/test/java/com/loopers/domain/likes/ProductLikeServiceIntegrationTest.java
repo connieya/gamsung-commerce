@@ -14,6 +14,7 @@ import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,29 @@ class ProductLikeServiceIntegrationTest {
         LikeSummary likeSummary = likeSummaryRepository.findByTarget(LikeTarget.create(savedProduct.getId(), LikeTargetType.PRODUCT)).get();
 
         assertThat(likeSummary.getLikeCount()).isEqualTo(1);
+    }
+
+    // FIXME 임시 테스트 용
+    @Test
+//    @Disabled
+    @DisplayName("좋아요 집계에 실패해도 좋아요 는 반영된다.")
+    void addLike_successfullyUpdatesLikeSummary2() {
+        // given
+        User user = UserFixture.complete().create();
+        User savedUser = userRepository.save(user);
+
+        Brand brand = BrandFixture.complete().create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product = ProductFixture.complete().create();
+        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+
+        // when
+        productLikeService.add(savedUser.getId(), savedProduct.getId());
+
+        List<ProductLike> productLike = productLikeRepository.findByUserId(savedUser.getId());
+        assertThat(productLike.size()).isEqualTo(1L);
+
     }
 
 

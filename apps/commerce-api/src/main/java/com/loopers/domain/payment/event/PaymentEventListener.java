@@ -8,9 +8,13 @@ import com.loopers.domain.payment.attempt.AttemptStatus;
 import com.loopers.domain.payment.attempt.PaymentAttemptService;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.support.error.ErrorType;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ public class PaymentEventListener {
     private final PaymentRepository paymentRepository;
 
     @EventListener
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void recordTransactionRequest(PaymentEvent.Ready event) {
         Payment payment = Payment.create(event.totalAmount(), event.orderId(), event.orderNumber(), event.userId(), event.paymentMethod(), PaymentStatus.PENDING);
         Payment savedPayment = paymentRepository.save(payment);

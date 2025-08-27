@@ -5,9 +5,7 @@ import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.OrderStatus;
-import com.loopers.domain.payment.CardType;
-import com.loopers.domain.payment.PaymentMethod;
-import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.*;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.point.exception.PointException;
@@ -69,6 +67,9 @@ class PaymentFacadeIntegrationTest {
 
     @Autowired
     UserCouponRepository userCouponRepository;
+
+    @Autowired
+    PaymentRepository paymentRepository;
 
     @Autowired
     DatabaseCleanUp databaseCleanUp;
@@ -236,6 +237,13 @@ class PaymentFacadeIntegrationTest {
                     paymentFacade.pay(criteria);
                 }
         ).isInstanceOf(PointException.PointInsufficientException.class);
+
+        Order updatedOrder = orderRepository.findById(savedOrder.getId()).get();
+        Payment updatedPayment = paymentRepository.findByOrderNumber(savedOrder.getOrderNumber()).get();
+
+
+        assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.INIT);
+        assertThat(updatedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
 
     }
 

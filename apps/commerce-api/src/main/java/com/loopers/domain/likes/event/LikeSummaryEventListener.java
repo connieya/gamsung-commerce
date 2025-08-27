@@ -7,6 +7,7 @@ import com.loopers.domain.likes.exception.LikeException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +21,10 @@ public class LikeSummaryEventListener {
 
     private final LikeSummaryRepository likeSummaryRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Async
+    @EventListener
     public void add(ProductLikeEvent.Add event) {
         likeSummaryRepository.findByTargetUpdate(
                 LikeTarget.create(event.productId(), event.likeTargetType())
@@ -33,6 +36,7 @@ public class LikeSummaryEventListener {
                     likeSummaryRepository.save(likeSummary);
                 }
         );
+        throw new IllegalArgumentException("dd");
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

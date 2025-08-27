@@ -32,11 +32,10 @@ public class PointPaymentProcessor implements PaymentProcessor {
         PaymentCommand.Create create = PaymentCommand.Create.of(paymentProcessContext.getOrderId(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount());
 
         applicationEventPublisher.publishEvent(PaymentEvent.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), PaymentMethod.POINT));
+
         pointService.deduct(create.userId(), order.getFinalAmount());
 
-        Payment payment = paymentService.create(create, PaymentStatus.PAID);
-
-        applicationEventPublisher.publishEvent(PaymentEvent.Success.of(payment.getId(), order.getId(), order.getOrderNumber(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount(), order.getOrderLines()));
+        applicationEventPublisher.publishEvent(PaymentEvent.Success.of(order.getId(), order.getOrderNumber(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount(), order.getOrderLines()));
 
     }
 }

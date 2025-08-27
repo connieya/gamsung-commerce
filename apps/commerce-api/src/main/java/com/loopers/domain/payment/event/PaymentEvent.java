@@ -28,11 +28,11 @@ public class PaymentEvent {
         }
     }
 
-    public record Success(Long paymentId, Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod,
+    public record Success(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod,
                           Long finalAmount,
                           List<OrderLine> orderLines) {
-        public static Success of(Long paymentId, Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines) {
-            return new Success(paymentId, orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines);
+        public static Success of(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines) {
+            return new Success(orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines);
         }
 
     }

@@ -1,7 +1,6 @@
 package com.loopers.domain.payment.event;
 
 import com.loopers.domain.payment.Payment;
-import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentRepository;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.payment.attempt.AttemptCommand;
@@ -29,7 +28,7 @@ public class PaymentEventListener {
 
     @EventListener
     public void recordTransactionComplete(PaymentEvent.Complete event) {
-        paymentAttemptService.markCompleted(AttemptCommand.Complete.of(event.transactionKey(),event.paymentId(),event.orderNumber(),event.status()));
+        paymentAttemptService.markCompleted(AttemptCommand.Complete.of(event.transactionKey(), event.paymentId(), event.orderNumber(), event.status()));
         Payment payment = paymentRepository.findById(event.paymentId())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.execute(event.status());
@@ -37,7 +36,7 @@ public class PaymentEventListener {
 
     @EventListener
     public void recordTransactionFailure(PaymentEvent.Failure event) {
-        paymentAttemptService.markFailure(AttemptCommand.Failure.of(event.paymentId(),event.orderNumber(),event.status()));
+        paymentAttemptService.markFailure(AttemptCommand.Failure.of(event.paymentId(), event.orderNumber(), event.status()));
         Payment payment = paymentRepository.findById(event.paymentId())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.fail();
@@ -45,10 +44,10 @@ public class PaymentEventListener {
 
     @EventListener
     public void recordTransactionSuccess(PaymentEvent.Success event) {
-        paymentAttemptService.markSuccess(AttemptCommand.Success.of(event.paymentId(),event.orderNumber() , AttemptStatus.SUCCESS));
-        Payment payment = paymentRepository.findById(event.paymentId())
+        Payment payment = paymentRepository.findByOrderNumber(event.orderNumber())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.paid();
+        paymentAttemptService.markSuccess(AttemptCommand.Success.of(payment.getId(), event.orderNumber(), AttemptStatus.SUCCESS));
     }
 
 }

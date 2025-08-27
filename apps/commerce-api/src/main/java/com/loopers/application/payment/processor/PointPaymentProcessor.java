@@ -22,7 +22,6 @@ public class PointPaymentProcessor implements PaymentProcessor {
 
     private final PointService pointService;
     private final OrderService orderService;
-    private final PaymentService paymentService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override

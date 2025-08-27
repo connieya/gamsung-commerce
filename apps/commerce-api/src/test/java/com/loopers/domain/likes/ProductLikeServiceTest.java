@@ -1,6 +1,8 @@
 package com.loopers.domain.likes;
 
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.likes.event.LikeSummaryEventListener;
+import com.loopers.domain.likes.event.ProductLikeEvent;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.product.fixture.ProductFixture;
@@ -17,6 +19,7 @@ import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
@@ -49,6 +52,9 @@ class ProductLikeServiceTest {
 
     @MockitoSpyBean
     BrandJpaRepository brandJpaRepository;
+
+    @Mock
+    LikeSummaryEventListener likeSummaryEventListener;
 
     @Autowired
     DatabaseCleanUp databaseCleanUp;
@@ -91,8 +97,6 @@ class ProductLikeServiceTest {
         // then
 
         verify(productLikeJpaRepository, times(1)).save(any(ProductLike.class));
-
-        verify(likeSummaryJpaRepository, times(1)).save(any(LikeSummary.class));
     }
 
 

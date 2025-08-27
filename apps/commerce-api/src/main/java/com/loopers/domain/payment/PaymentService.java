@@ -27,29 +27,8 @@ import java.util.List;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
-    private final UserRepository userRepository;
-    private final OrderRepository orderRepository;
     private final PaymentAdapter paymentAdapter;
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    @Transactional
-    public Payment create(PaymentCommand.Create paymentCommand, PaymentStatus paymentStatus) {
-        User user = userRepository.findByUserId(paymentCommand.userId())
-                .orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
-
-        Order order = orderRepository.findById(paymentCommand.orderId())
-                .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
-
-        Payment payment = Payment.create(
-                paymentCommand.finalAmount()
-                , paymentCommand.orderId()
-                , order.getOrderNumber()
-                , user.getId()
-                , paymentCommand.paymentMethod()
-                , paymentStatus);
-
-        return paymentRepository.save(payment);
-    }
 
     @Transactional
     public void complete(PaymentCommand.Search paymentCommand) {
@@ -89,10 +68,10 @@ public class PaymentService {
     public void requestPayment(PaymentCommand.Transaction transaction) {
         try {
             PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
-            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), savedPayment.getId(), transaction.orderNumber(), requestTransaction.status()));
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), transaction.orderNumber(), requestTransaction.status()));
         } catch (CoreException e) {
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
-            applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(savedPayment.getId(), transaction.orderNumber(), attemptStatus));
+            applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));
 
         }
     }

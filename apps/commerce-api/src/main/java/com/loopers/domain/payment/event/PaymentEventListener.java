@@ -28,18 +28,18 @@ public class PaymentEventListener {
 
     @EventListener
     public void recordTransactionComplete(PaymentEvent.Complete event) {
-        paymentAttemptService.markCompleted(AttemptCommand.Complete.of(event.transactionKey(), event.paymentId(), event.orderNumber(), event.status()));
-        Payment payment = paymentRepository.findById(event.paymentId())
+        Payment payment = paymentRepository.findByOrderNumber(event.orderNumber())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.execute(event.status());
+        paymentAttemptService.markCompleted(AttemptCommand.Complete.of(event.transactionKey(), payment.getId(), event.orderNumber(), event.status()));
     }
 
     @EventListener
     public void recordTransactionFailure(PaymentEvent.Failure event) {
-        paymentAttemptService.markFailure(AttemptCommand.Failure.of(event.paymentId(), event.orderNumber(), event.status()));
-        Payment payment = paymentRepository.findById(event.paymentId())
+        Payment payment = paymentRepository.findByOrderNumber(event.orderNumber())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.fail();
+        paymentAttemptService.markFailure(AttemptCommand.Failure.of(payment.getId(), event.orderNumber(), event.status()));
     }
 
     @EventListener

@@ -16,15 +16,15 @@ public class PaymentEvent {
         }
     }
 
-    public record Complete(String transactionKey, Long paymentId, String orderNumber, TransactionStatus status) {
-        public static Complete of(String transactionKey, Long paymentId, String orderNumber, TransactionStatus status) {
-            return new Complete(transactionKey, paymentId, orderNumber, status);
+    public record Complete(String transactionKey, String orderNumber, TransactionStatus status) {
+        public static Complete of(String transactionKey, String orderNumber, TransactionStatus status) {
+            return new Complete(transactionKey, orderNumber, status);
         }
     }
 
-    public record Failure(Long paymentId, String orderNumber, AttemptStatus status) {
-        public static Failure of(Long paymentId, String orderNumber, AttemptStatus status) {
-            return new Failure(paymentId, orderNumber, status);
+    public record Failure(String orderNumber, AttemptStatus status) {
+        public static Failure of(String orderNumber, AttemptStatus status) {
+            return new Failure(orderNumber, status);
         }
     }
 

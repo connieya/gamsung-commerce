@@ -16,9 +16,9 @@ public class PaymentEvent {
         }
     }
 
-    public record Complete(String transactionKey, String orderNumber, TransactionStatus status) {
-        public static Complete of(String transactionKey, String orderNumber, TransactionStatus status) {
-            return new Complete(transactionKey, orderNumber, status);
+    public record Complete(String transactionKey, String orderNumber, TransactionStatus status ,Long couponId) {
+        public static Complete of(String transactionKey, String orderNumber, TransactionStatus status ,Long couponId) {
+            return new Complete(transactionKey, orderNumber, status ,couponId);
         }
     }
 
@@ -30,9 +30,9 @@ public class PaymentEvent {
 
     public record Success(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod,
                           Long finalAmount,
-                          List<OrderLine> orderLines) {
-        public static Success of(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines) {
-            return new Success(orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines);
+                          List<OrderLine> orderLines, Long couponId) {
+        public static Success of(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines ,Long couponId) {
+            return new Success(orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines ,couponId);
         }
 
     }

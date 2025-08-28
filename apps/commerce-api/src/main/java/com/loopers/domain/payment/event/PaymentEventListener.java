@@ -24,7 +24,6 @@ public class PaymentEventListener {
     private final PaymentRepository paymentRepository;
 
     @EventListener
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void recordTransactionRequest(PaymentEvent.Ready event) {
         Payment payment = Payment.create(event.totalAmount(), event.orderId(), event.orderNumber(), event.userId(), event.paymentMethod(), PaymentStatus.PENDING);
         Payment savedPayment = paymentRepository.save(payment);

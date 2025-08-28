@@ -2,6 +2,9 @@ package com.loopers.interfaces.api.payment;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.coupon.Coupon;
+import com.loopers.domain.coupon.CouponType;
+import com.loopers.domain.coupon.UserCoupon;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.payment.CardType;
@@ -91,6 +94,15 @@ public class PaymentV1ApiE2ETest {
 
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
+
+        Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(coupon));
+
+        UserCoupon userCoupon = UserCoupon.create(userEntity.getId(), coupon.getId());
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userCoupon));
+
+
+        Payment.create(10000L,order.getId(),order.getOrderNumber(),user.getId(),PaymentMethod.CARD , PaymentStatus.PAID);
 
         PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 

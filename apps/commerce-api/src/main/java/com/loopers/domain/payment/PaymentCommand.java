@@ -17,9 +17,9 @@ public class PaymentCommand {
     }
 
     public record Transaction(Long orderId, String orderNumber, CardType cardType, String cardNumber,
-                              Long amount, Long userId) {
-        public static Transaction of(Long orderId, String orderNumber, CardType cardType, String cardNumber, Long amount, Long userId) {
-            return new Transaction(orderId, orderNumber, cardType, cardNumber, amount, userId);
+                              Long amount, Long userId, Long couponId) {
+        public static Transaction of(Long orderId, String orderNumber, CardType cardType, String cardNumber, Long amount, Long userId, Long couponId) {
+            return new Transaction(orderId, orderNumber, cardType, cardNumber, amount, userId, couponId);
         }
     }
 

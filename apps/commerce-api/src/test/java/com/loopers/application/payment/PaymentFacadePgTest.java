@@ -3,6 +3,7 @@ package com.loopers.application.payment;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
@@ -64,6 +65,12 @@ class PaymentFacadePgTest {
     PaymentRepository paymentRepository;
 
     @Autowired
+    CouponRepository couponRepository;
+
+    @Autowired
+    UserCouponRepository userCouponRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @BeforeEach
@@ -111,7 +118,14 @@ class PaymentFacadePgTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+
+        Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
+        Coupon savedCoupon = couponRepository.save(coupon);
+
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        userCouponRepository.save(userCoupon);
+
 
         String body = """
                 {
@@ -178,7 +192,7 @@ class PaymentFacadePgTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
         // when
         mockServer.stubFor(post("/api/v1/payments")
                 .willReturn(aResponse()

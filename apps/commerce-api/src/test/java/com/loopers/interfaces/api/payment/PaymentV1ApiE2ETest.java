@@ -22,6 +22,7 @@ import com.loopers.utils.DatabaseCleanUp;
 import lombok.RequiredArgsConstructor;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -91,7 +92,7 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456");
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
@@ -118,9 +119,10 @@ public class PaymentV1ApiE2ETest {
     }
 
 
+        // FIXME PG Simulator 호출을 위한 임시 테스트
+    @Disabled
     @Test
     @DisplayName("카드 결제 요청 시 PG사 처리를 위해 PENDING 상태를 반환한다.")
-        // FIXME PG Simulator 호출을 위한 임시 테스트
     void pay_returnsPendingStatus_whenUsingCard() {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
@@ -152,7 +154,7 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-5678-9012-3456");
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");

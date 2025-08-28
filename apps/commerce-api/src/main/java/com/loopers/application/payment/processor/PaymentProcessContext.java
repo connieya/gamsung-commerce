@@ -12,13 +12,15 @@ public class PaymentProcessContext {
     private String userId;
     private String cardNumber;
     private CardType cardType;
+    private Long couponId;
 
     @Builder
-    private PaymentProcessContext(Long orderId, String userId, String cardNumber, CardType cardType) {
+    private PaymentProcessContext(Long orderId, String userId, String cardNumber, CardType cardType ,Long couponId) {
         this.orderId = orderId;
         this.userId = userId;
         this.cardNumber = cardNumber;
         this.cardType = cardType;
+        this.couponId = couponId;
     }
 
     public static PaymentProcessContext of(PaymentCriteria.Pay payCriteria) {
@@ -27,6 +29,7 @@ public class PaymentProcessContext {
                 .userId(payCriteria.userId())
                 .cardNumber(payCriteria.cardNumber())
                 .cardType(payCriteria.cardType())
+                .couponId(payCriteria.couponId())
                 .build();
 
     }

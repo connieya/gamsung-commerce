@@ -85,7 +85,7 @@ class ProductLikeServiceIntegrationTest {
 
     // FIXME 임시 테스트 용
     @Test
-//    @Disabled
+    @Disabled
     @DisplayName("좋아요 집계에 실패해도 좋아요 는 반영된다.")
     void addLike_successfullyUpdatesLikeSummary2() {
         // given

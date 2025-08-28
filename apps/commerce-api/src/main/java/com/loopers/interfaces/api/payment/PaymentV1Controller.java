@@ -22,7 +22,8 @@ public class PaymentV1Controller {
                 request.orderId(),
                 request.paymentMethod(),
                 request.cardType(),
-                request.cardNumber()
+                request.cardNumber(),
+                request.couponId()
         );
         paymentFacade.pay(criteria);
         return ApiResponse.success(null);

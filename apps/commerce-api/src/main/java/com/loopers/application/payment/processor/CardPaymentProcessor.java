@@ -21,7 +21,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
         Order order = orderService.getOrder(paymentProcessContext.getOrderId());
 
         applicationEventPublisher.publishEvent(PaymentEvent.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(),order.getFinalAmount(),PaymentMethod.CARD));
-        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getId() ,order.getOrderNumber(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount(), order.getUserId());
+        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getId() ,order.getOrderNumber(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount(), order.getUserId(), paymentProcessContext.getCouponId());
 
         paymentService.requestPayment(transaction);
 

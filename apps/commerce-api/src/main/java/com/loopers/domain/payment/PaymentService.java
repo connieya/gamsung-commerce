@@ -68,7 +68,7 @@ public class PaymentService {
     public void requestPayment(PaymentCommand.Transaction transaction) {
         try {
             PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
-            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), transaction.orderNumber(), requestTransaction.status()));
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), transaction.orderNumber(), requestTransaction.status(), transaction.couponId()));
         } catch (CoreException e) {
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
             applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));

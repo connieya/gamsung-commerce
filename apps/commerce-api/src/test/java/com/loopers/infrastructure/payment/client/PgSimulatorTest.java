@@ -52,7 +52,7 @@ class PgSimulatorTest {
                         .withFixedDelay(4000)
                 ));
 
-        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(1L,"12345",  CardType.HYUNDAI, "1234-5678-9012-3456", 1000L, 1L);
+        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(1L, "12345", CardType.HYUNDAI, "1234-5678-9012-3456", 1000L, 1L, 1L);
 
 
         for (int i = 0; i < REQUIRED_FAILURES_TO_OPEN_CIRCUIT; i++) {

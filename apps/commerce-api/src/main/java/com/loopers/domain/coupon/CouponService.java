@@ -14,7 +14,7 @@ public class CouponService {
     private final UserCouponRepository userCouponRepository;
 
     @Transactional(readOnly = true)
-    public Long getDiscountAmount(Long couponId , Long orderAmount) {
+    public Long calculateDiscountAmount(Long couponId , Long orderAmount) {
         return couponRepository.findById(couponId)
                 .map(coupon -> {
                     UserCoupon userCoupon = userCouponRepository.findByCouponId(couponId)
@@ -23,9 +23,6 @@ public class CouponService {
                     if (!userCoupon.canUse()) {
                         throw new CouponException.UserCouponAlreadyUsedException(ErrorType.USER_COUPON_ALREADY_USED);
                     }
-
-                    userCoupon.use();
-                    userCouponRepository.save(userCoupon);
                     return coupon.calculateDiscountAmount(orderAmount);
                 })
                 .orElse(0L); // coupon 이 없으면 할인 없음

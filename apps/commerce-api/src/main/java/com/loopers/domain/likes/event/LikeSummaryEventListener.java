@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class LikeSummaryEventListener {
     private final ProductLikeRepository productLikeRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = REQUIRES_NEW)
     public void add(ProductLikeEvent.Add event) {
         Long likeCount = productLikeRepository.getLikeCount(event.productId());
 
@@ -40,6 +43,7 @@ public class LikeSummaryEventListener {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = REQUIRES_NEW)
     public void remove(ProductLikeEvent.Remove event) {
         LikeSummary likeSummary = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(event.productId(), event.likeTargetType()))
                 .orElseThrow(() -> new LikeException.LikeSummaryNotFoundException(ErrorType.LIKE_SUMMARY_NOT_FOUND));

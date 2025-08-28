@@ -3,6 +3,7 @@ package com.loopers.domain.likes.event;
 import com.loopers.domain.likes.LikeSummary;
 import com.loopers.domain.likes.LikeSummaryRepository;
 import com.loopers.domain.likes.LikeTarget;
+import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.likes.exception.LikeException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -20,23 +21,22 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class LikeSummaryEventListener {
 
     private final LikeSummaryRepository likeSummaryRepository;
+    private final ProductLikeRepository productLikeRepository;
 
-//    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void add(ProductLikeEvent.Add event) {
+        Long likeCount = productLikeRepository.getLikeCount(event.productId());
+
         likeSummaryRepository.findByTargetUpdate(
                 LikeTarget.create(event.productId(), event.likeTargetType())
         ).ifPresentOrElse(
-                LikeSummary::increase, // 존재하면 increase 실행
+                likeSummary -> likeSummary.updateCount(likeCount),
                 () -> {
                     LikeSummary likeSummary = LikeSummary.create(event.productId(), event.likeTargetType());
-                    likeSummary.increase();
+                    likeSummary.updateCount(likeCount);
                     likeSummaryRepository.save(likeSummary);
                 }
         );
-        throw new IllegalArgumentException("dd");
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

@@ -8,13 +8,14 @@ import com.loopers.domain.payment.attempt.AttemptStatus;
 import com.loopers.domain.payment.attempt.PaymentAttemptService;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.support.error.ErrorType;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
+
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
+import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class PaymentEventListener {
     private final PaymentRepository paymentRepository;
 
     @EventListener
+    @Transactional(propagation = REQUIRES_NEW)
     public void recordTransactionRequest(PaymentEvent.Ready event) {
         Payment payment = Payment.create(event.totalAmount(), event.orderId(), event.orderNumber(), event.userId(), event.paymentMethod(), PaymentStatus.PENDING);
         Payment savedPayment = paymentRepository.save(payment);
@@ -46,7 +48,7 @@ public class PaymentEventListener {
         paymentAttemptService.markFailure(AttemptCommand.Failure.of(payment.getId(), event.orderNumber(), event.status()));
     }
 
-    @EventListener
+    @TransactionalEventListener(phase = AFTER_COMMIT)
     public void recordTransactionSuccess(PaymentEvent.Success event) {
         Payment payment = paymentRepository.findByOrderNumber(event.orderNumber())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));

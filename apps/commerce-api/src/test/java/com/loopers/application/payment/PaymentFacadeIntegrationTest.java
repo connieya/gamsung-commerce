@@ -145,7 +145,7 @@ class PaymentFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("재고가 존재하지 않거나 부족할 경우 주문은 실패해야 한다.")
+    @DisplayName("재고가 존재하지 않거나 부족할 경우 결제는 실패해야 한다.")
     void pay_throwsException_whenStockIsInsufficient() {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();

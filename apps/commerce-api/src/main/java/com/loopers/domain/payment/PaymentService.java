@@ -3,8 +3,10 @@ package com.loopers.domain.payment;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.exception.OrderException;
+import com.loopers.domain.payment.attempt.AttemptCommand;
 import com.loopers.domain.payment.attempt.AttemptStatus;
 import com.loopers.domain.payment.attempt.PaymentAttempt;
+import com.loopers.domain.payment.attempt.PaymentAttemptRepository;
 import com.loopers.domain.payment.event.PaymentEvent;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.domain.payment.exception.PaymentFailure;
@@ -27,6 +29,7 @@ import java.util.List;
 public class PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final PaymentAttemptRepository paymentAttemptRepository;
     private final PaymentAdapter paymentAdapter;
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -74,5 +77,13 @@ public class PaymentService {
             applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));
 
         }
+    }
+
+    @Transactional
+    public void ready(PaymentCommand.Ready ready) {
+        Payment payment = Payment.create(ready.totalAmount(), ready.orderId(), ready.orderNumber(), ready.userId(), ready.paymentMethod(), PaymentStatus.PENDING);
+        Payment savedPayment = paymentRepository.save(payment);
+        PaymentAttempt paymentAttempt = PaymentAttempt.create(savedPayment.getId(), ready.orderNumber(), AttemptStatus.REQUESTED);
+        paymentAttemptRepository.save(paymentAttempt);
     }
 }

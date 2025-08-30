@@ -24,6 +24,8 @@ public class PaymentFacade {
         Order order = orderService.getOrder(criteria.orderId());
         order.validatePay();
 
+        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod()));
+
         PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
         paymentProcessor.pay(PaymentProcessContext.of(criteria));
     }

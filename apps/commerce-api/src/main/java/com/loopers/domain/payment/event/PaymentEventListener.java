@@ -1,8 +1,6 @@
 package com.loopers.domain.payment.event;
 
-import com.loopers.domain.payment.Payment;
-import com.loopers.domain.payment.PaymentRepository;
-import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.*;
 import com.loopers.domain.payment.attempt.AttemptCommand;
 import com.loopers.domain.payment.attempt.AttemptStatus;
 import com.loopers.domain.payment.attempt.PaymentAttemptService;
@@ -11,10 +9,8 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
 @Component
@@ -23,14 +19,6 @@ public class PaymentEventListener {
 
     private final PaymentAttemptService paymentAttemptService;
     private final PaymentRepository paymentRepository;
-
-    @EventListener
-    @Transactional(propagation = REQUIRES_NEW)
-    public void recordTransactionRequest(PaymentEvent.Ready event) {
-        Payment payment = Payment.create(event.totalAmount(), event.orderId(), event.orderNumber(), event.userId(), event.paymentMethod(), PaymentStatus.PENDING);
-        Payment savedPayment = paymentRepository.save(payment);
-        paymentAttemptService.markRequested(AttemptCommand.Request.of(savedPayment.getId(), event.orderNumber()));
-    }
 
     @EventListener
     public void recordTransactionComplete(PaymentEvent.Complete event) {

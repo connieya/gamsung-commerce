@@ -9,16 +9,9 @@ import java.util.List;
 
 public class PaymentEvent {
 
-    public record Ready(Long orderId, String orderNumber, Long userId, Long totalAmount,
-                        PaymentMethod paymentMethod) {
-        public static Ready of(Long orderId, String orderNumber, Long userId, Long totalAmount, PaymentMethod paymentMethod) {
-            return new Ready(orderId, orderNumber, userId, totalAmount, paymentMethod);
-        }
-    }
-
-    public record Complete(String transactionKey, String orderNumber, TransactionStatus status ,Long couponId) {
-        public static Complete of(String transactionKey, String orderNumber, TransactionStatus status ,Long couponId) {
-            return new Complete(transactionKey, orderNumber, status ,couponId);
+    public record Complete(String transactionKey, String orderNumber, TransactionStatus status, Long couponId) {
+        public static Complete of(String transactionKey, String orderNumber, TransactionStatus status, Long couponId) {
+            return new Complete(transactionKey, orderNumber, status, couponId);
         }
     }
 
@@ -31,8 +24,8 @@ public class PaymentEvent {
     public record Success(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod,
                           Long finalAmount,
                           List<OrderLine> orderLines, Long couponId) {
-        public static Success of(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines ,Long couponId) {
-            return new Success(orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines ,couponId);
+        public static Success of(Long orderId, String orderNumber, String userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines, Long couponId) {
+            return new Success(orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines, couponId);
         }
 
     }

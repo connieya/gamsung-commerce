@@ -23,16 +23,12 @@ public class PaymentCommand {
         }
     }
 
-    public record Execute(
-            String transactionKey,
-            TransactionStatus transactionStatus,
-            Long paymentId
-    ) {
-        public static Execute of(String transactionKey, TransactionStatus transactionStatus, Long paymentId) {
-            return new Execute(transactionKey, transactionStatus, paymentId);
+    public record Ready(Long orderId, String orderNumber, Long userId, Long totalAmount,
+                        PaymentMethod paymentMethod) {
+        public static PaymentCommand.Ready of(Long orderId, String orderNumber, Long userId, Long totalAmount, PaymentMethod paymentMethod) {
+            return new PaymentCommand.Ready(orderId, orderNumber, userId, totalAmount, paymentMethod);
         }
     }
-
 
     public record Search(
             String transactionKey,

@@ -21,10 +21,11 @@ public class PgSimulator implements PaymentAdapter {
 
 
     @Override
+    @Retry(name = "pgRetry")
     @CircuitBreaker(name = "pgCircuit", fallbackMethod = "requestFallback")
     public PgSimulatorResponse.RequestTransaction request(PaymentCommand.Transaction paymentCommand) {
         PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(
-                paymentCommand.orderId(), paymentCommand.cardNumber(), paymentCommand.amount(), CALLBACK_URL, paymentCommand.cardType());
+                paymentCommand.orderNumber(), paymentCommand.cardNumber(), paymentCommand.amount(), CALLBACK_URL, paymentCommand.cardType());
 
         ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
         return response.data();
@@ -32,8 +33,7 @@ public class PgSimulator implements PaymentAdapter {
     }
 
 
-    public void requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
-        System.out.println("throwable = " + throwable);
+    public PgSimulatorResponse.RequestTransaction requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
         if (throwable instanceof feign.RetryableException) {
             throw new PaymentException.PgTimeoutException(ErrorType.PAYMENT_PG_TIMEOUT);
         }

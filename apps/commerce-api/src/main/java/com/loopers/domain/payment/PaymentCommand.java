@@ -16,22 +16,19 @@ public class PaymentCommand {
         }
     }
 
-    public record Transaction(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
-        public static Transaction of(String orderId, Long paymentId, CardType cardType, String cardNumber, Long amount) {
-            return new Transaction(orderId, paymentId, cardType, cardNumber, amount);
+    public record Transaction(Long orderId, String orderNumber, CardType cardType, String cardNumber,
+                              Long amount, Long userId, Long couponId) {
+        public static Transaction of(Long orderId, String orderNumber, CardType cardType, String cardNumber, Long amount, Long userId, Long couponId) {
+            return new Transaction(orderId, orderNumber, cardType, cardNumber, amount, userId, couponId);
         }
     }
 
-    public record Execute(
-            String transactionKey,
-            TransactionStatus transactionStatus,
-            Long paymentId
-    ) {
-        public static Execute of(String transactionKey, TransactionStatus transactionStatus, Long paymentId) {
-            return new Execute(transactionKey, transactionStatus, paymentId);
+    public record Ready(Long orderId, String orderNumber, Long userId, Long totalAmount,
+                        PaymentMethod paymentMethod) {
+        public static PaymentCommand.Ready of(Long orderId, String orderNumber, Long userId, Long totalAmount, PaymentMethod paymentMethod) {
+            return new PaymentCommand.Ready(orderId, orderNumber, userId, totalAmount, paymentMethod);
         }
     }
-
 
     public record Search(
             String transactionKey,

@@ -8,7 +8,7 @@ import com.loopers.domain.payment.PaymentStatus;
 public class PaymentV1Dto {
 
     public static class Request {
-        public record Pay(Long orderId, PaymentMethod paymentMethod, CardType cardType , String cardNumber) {
+        public record Pay(Long orderId, PaymentMethod paymentMethod, CardType cardType , String cardNumber ,Long couponId) {
 
         }
 

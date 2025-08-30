@@ -28,7 +28,7 @@ public class  OrderFacade {
 
         List<Product> products = productService.findAllById(orderCriteria.getProductIds());
 
-        Long discountAmount = couponService.getDiscountAmount(orderCriteria.getCouponId(), orderCriteria.getTotalAmount(products));
+        Long discountAmount = couponService.calculateDiscountAmount(orderCriteria.getCouponId(), orderCriteria.getTotalAmount(products));
 
         OrderCommand command = OrderCommandMapper.map(user.getId(), orderCriteria, products, discountAmount);
         return OrderResult.Create.from(orderService.place(command));

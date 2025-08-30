@@ -5,9 +5,7 @@ import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.order.OrderStatus;
-import com.loopers.domain.payment.CardType;
-import com.loopers.domain.payment.PaymentMethod;
-import com.loopers.domain.payment.PaymentStatus;
+import com.loopers.domain.payment.*;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
 import com.loopers.domain.point.exception.PointException;
@@ -71,6 +69,9 @@ class PaymentFacadeIntegrationTest {
     UserCouponRepository userCouponRepository;
 
     @Autowired
+    PaymentRepository paymentRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
 
@@ -104,6 +105,12 @@ class PaymentFacadeIntegrationTest {
         Stock savedStock = stockRepository.save(stock1);
         stockRepository.save(stock2);
 
+        Coupon coupon = Coupon.create("쿠폰1", CouponType.FIXED_AMOUNT, 10000L);
+        Coupon savedCoupon = couponRepository.save(coupon);
+
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        userCouponRepository.save(userCoupon);
+
         OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
                 .productId(savedProduct1.getId())
                 .price(1000L)
@@ -119,10 +126,10 @@ class PaymentFacadeIntegrationTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234" ,1L);
 
         // when
-        PaymentResult paymentResult = paymentFacade.pay(criteria);
+        paymentFacade.pay(criteria);
 
 
         Point updatedPoint = pointRepository.findByUserId("gunny").get();
@@ -131,7 +138,6 @@ class PaymentFacadeIntegrationTest {
 
         // then
         assertAll(
-                () -> assertThat(paymentResult.getPaymentStatus()).isEqualTo(PaymentStatus.PAID),
                 () -> assertThat(updatedPoint.getValue()).isEqualTo(5000L),
                 () -> assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.PAID),
                 () -> assertThat(updatedStock.getQuantity()).isEqualTo(4L)
@@ -139,7 +145,7 @@ class PaymentFacadeIntegrationTest {
     }
 
     @Test
-    @DisplayName("재고가 존재하지 않거나 부족할 경우 주문은 실패해야 한다.")
+    @DisplayName("재고가 존재하지 않거나 부족할 경우 결제는 실패해야 한다.")
     void pay_throwsException_whenStockIsInsufficient() {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
@@ -178,7 +184,13 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+        Coupon coupon = Coupon.create("쿠폰1", CouponType.FIXED_AMOUNT, 10000L);
+        Coupon savedCoupon = couponRepository.save(coupon);
+
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        userCouponRepository.save(userCoupon);
+
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
 
         // when &  then
         assertThatThrownBy(
@@ -229,7 +241,7 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
 
         // when &  then
         assertThatThrownBy(
@@ -237,6 +249,13 @@ class PaymentFacadeIntegrationTest {
                     paymentFacade.pay(criteria);
                 }
         ).isInstanceOf(PointException.PointInsufficientException.class);
+
+        Order updatedOrder = orderRepository.findById(savedOrder.getId()).get();
+        Payment updatedPayment = paymentRepository.findByOrderNumber(savedOrder.getOrderNumber()).get();
+
+
+        assertThat(updatedOrder.getOrderStatus()).isEqualTo(OrderStatus.INIT);
+        assertThat(updatedPayment.getPaymentStatus()).isEqualTo(PaymentStatus.PENDING);
 
     }
 
@@ -300,7 +319,7 @@ class PaymentFacadeIntegrationTest {
                     // 각 스레드가 서로 다른 주문을 처리
                     Order orderToPay = orders.get(index);
                     User userPaying = users.get(index);
-                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
                     paymentFacade.pay(criteria);
                 } finally {
                     latch.countDown();
@@ -360,8 +379,8 @@ class PaymentFacadeIntegrationTest {
 
 
         // when
-        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
-        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
 
         int threadCount = 2;
 

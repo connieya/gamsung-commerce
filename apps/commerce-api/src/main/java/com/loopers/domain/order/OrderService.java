@@ -39,7 +39,7 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 
-        order.complete();
+        order.paid();
         orderRepository.save(order);
     }
 }

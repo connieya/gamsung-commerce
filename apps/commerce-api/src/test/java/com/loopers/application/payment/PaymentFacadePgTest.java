@@ -3,6 +3,7 @@ package com.loopers.application.payment;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
@@ -64,6 +65,12 @@ class PaymentFacadePgTest {
     PaymentRepository paymentRepository;
 
     @Autowired
+    CouponRepository couponRepository;
+
+    @Autowired
+    UserCouponRepository userCouponRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @BeforeEach
@@ -74,6 +81,7 @@ class PaymentFacadePgTest {
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
+        mockServer.stop();
     }
 
     @Test
@@ -110,20 +118,38 @@ class PaymentFacadePgTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+
+        Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
+        Coupon savedCoupon = couponRepository.save(coupon);
+
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        userCouponRepository.save(userCoupon);
+
+
+        String body = """
+                {
+                  "data": {
+                    "transactionKey": "tx_2025_0001",
+                    "status": "SUCCESS",
+                    "reason": null
+                  }
+                }
+                """;
+
 
         mockServer.stubFor(post("/api/v1/payments")
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
-                        .withBody("{\"meta\": {\"result\": \"SUCCESS\"}}")
+                        .withBody(body)
                         .withFixedDelay(1000)
                 ));
 
 
         // when
-        PaymentResult paymentResult = paymentFacade.pay(criteria);
-        Payment payment = paymentRepository.findById(paymentResult.getPaymentId()).get();
+        paymentFacade.pay(criteria);
+        Payment payment = paymentRepository.findByOrderNumber(savedOrder.getOrderNumber()).get();
 
         // then
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.PAID);
@@ -166,7 +192,7 @@ class PaymentFacadePgTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234");
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
         // when
         mockServer.stubFor(post("/api/v1/payments")
                 .willReturn(aResponse()
@@ -178,8 +204,7 @@ class PaymentFacadePgTest {
 
 
         // then
-        assertThatThrownBy(() -> paymentFacade.pay(criteria))
-                .isInstanceOf(PaymentException.PgTimeoutException.class);
+        paymentFacade.pay(criteria);
         Payment payment = paymentRepository.findByOrderNumber(savedOrder.getOrderNumber()).get();
 
         assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.FAILED);

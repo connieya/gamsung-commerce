@@ -2,9 +2,13 @@ package com.loopers.interfaces.api.payment;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.coupon.Coupon;
+import com.loopers.domain.coupon.CouponType;
+import com.loopers.domain.coupon.UserCoupon;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -21,6 +25,7 @@ import com.loopers.utils.DatabaseCleanUp;
 import lombok.RequiredArgsConstructor;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
@@ -90,27 +95,46 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456");
+        Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(coupon));
+
+        UserCoupon userCoupon = UserCoupon.create(userEntity.getId(), coupon.getId());
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userCoupon));
+
+
+        Payment.create(10000L,order.getId(),order.getOrderNumber(),user.getId(),PaymentMethod.CARD , PaymentStatus.PAID);
+
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
 
         // when
-        ResponseEntity<ApiResponse<PaymentV1Dto.Response.Pay>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
+        ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
         });
+
 
         // then
         assertAll(
-                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(),
-                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo(PaymentStatus.PAID)
+                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue()
         );
+
+        transactionTemplate.executeWithoutResult(status -> {
+            Payment payment = testEntityManager.getEntityManager()
+                    .createQuery("select p from Payment p where p.orderNumber = :orderNumber", Payment.class)
+                    .setParameter("orderNumber", order.getOrderNumber())
+                    .getSingleResult();
+            assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.PAID);
+
+        });
 
     }
 
 
+        // FIXME PG Simulator 호출을 위한 임시 테스트
+    @Disabled
     @Test
     @DisplayName("카드 결제 요청 시 PG사 처리를 위해 PENDING 상태를 반환한다.")
-        // FIXME PG Simulator 호출을 위한 임시 테스트
     void pay_returnsPendingStatus_whenUsingCard() {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
@@ -142,7 +166,7 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-5678-9012-3456");
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
@@ -153,11 +177,9 @@ public class PaymentV1ApiE2ETest {
 
         // then
         assertAll(
-                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(),
-                () -> assertThat(response.getBody().data().paymentStatus()).isEqualTo(PaymentStatus.PENDING)
+                () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue()
         );
 
     }
-
 
 }

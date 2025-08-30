@@ -41,7 +41,7 @@ public class Order extends BaseEntity {
 
 
     @Builder
-    private Order(Long totalAmount, Long userId, List<OrderLine> orderLines, Long discountAmount) {
+    private Order(Long totalAmount, Long userId, List<OrderLine> orderLines, Long discountAmount ,String orderNumber) {
         if (totalAmount == null || totalAmount < 0) {
             throw new CoreException(ErrorType.BAD_REQUEST, "총 가격은 0 이상이어야 합니다.");
         }
@@ -62,7 +62,7 @@ public class Order extends BaseEntity {
         this.orderLines = orderLines;
         this.discountAmount = discountAmount;
         this.orderStatus = OrderStatus.INIT;
-        this.orderNumber = generateOrderNumber();
+        this.orderNumber = orderNumber;
     }
 
     public static Order create(OrderCommand orderCommand) {
@@ -77,6 +77,7 @@ public class Order extends BaseEntity {
                 .totalAmount(calculateTotalAmount(orderCommand.getOrderItems()))
                 .discountAmount(orderCommand.getDiscountAmount())
                 .orderLines(orderLines)
+                .orderNumber(generateOrderNumber())
                 .build();
 
         orderLines.forEach(orderLine -> orderLine.setOrder(order));
@@ -85,7 +86,7 @@ public class Order extends BaseEntity {
     }
 
 
-    public void complete() {
+    public void paid() {
         this.orderStatus = OrderStatus.PAID;
     }
 
@@ -109,7 +110,7 @@ public class Order extends BaseEntity {
         }
     }
 
-    private String generateOrderNumber() {
+    private static String generateOrderNumber() {
         return "ORD-" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
                 + "-" + UUID.randomUUID().toString().substring(0, 8);
     }

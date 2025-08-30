@@ -1,5 +1,6 @@
 package com.loopers.domain.likes;
 
+import com.loopers.domain.likes.event.ProductLikeEvent;
 import com.loopers.domain.likes.exception.LikeException;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.exception.ProductException;
@@ -7,6 +8,7 @@ import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.exception.UserException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +19,9 @@ import java.util.Optional;
 public class ProductLikeService {
 
     private final ProductLikeRepository productLikeRepository;
-    private final LikeSummaryRepository likeSummaryRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void add(Long userId, Long productId) {
@@ -31,12 +33,7 @@ public class ProductLikeService {
             return;
         }
         productLikeRepository.save(userId, productId);
-        likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT))
-                .ifPresentOrElse(
-                        LikeSummary::increase,
-                        () -> likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT))
-                );
-
+        applicationEventPublisher.publishEvent(ProductLikeEvent.Add.of(productId,LikeTargetType.PRODUCT));
     }
 
     @Transactional
@@ -47,9 +44,7 @@ public class ProductLikeService {
         boolean existed = productLikeRepository.existsByUserIdAndProductId(userId, productId);
         if (existed) {
             productLikeRepository.delete(userId, productId);
-            LikeSummary likeSummary = likeSummaryRepository.findByTargetUpdate(LikeTarget.create(productId, LikeTargetType.PRODUCT))
-                    .orElseThrow(() -> new LikeException.LikeSummaryNotFoundException(ErrorType.LIKE_SUMMARY_NOT_FOUND));
-            likeSummary.decrease();
+            applicationEventPublisher.publishEvent(ProductLikeEvent.Remove.of(productId,LikeTargetType.PRODUCT));
         }
     }
 }

@@ -6,6 +6,7 @@ include(
     ":modules:jpa",
     ":modules:redis",
     ":modules:feign",
+    ":modules:kafka",
     ":supports:jackson",
     ":supports:logging",
     ":supports:monitoring",

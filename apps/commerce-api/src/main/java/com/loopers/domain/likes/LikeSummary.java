@@ -46,6 +46,10 @@ public class LikeSummary extends BaseEntity {
         this.likeCount++;
     }
 
+    public void updateCount(Long count) {
+        this.likeCount = count;
+    }
+
     public void decrease() {
         if (this.likeCount <= MIN_LIKE_COUNT) {
             throw new LikeException.LikeCountCannotBeNegativeException(ErrorType.LIKE_COUNT_CANNOT_BE_NEGATIVE);

@@ -4,7 +4,6 @@ import com.loopers.application.payment.processor.PaymentProcessContext;
 import com.loopers.domain.order.OrderService;
 import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
-import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -21,19 +20,19 @@ public class PaymentFacade {
     private final Map<String, PaymentProcessor> paymentProcessorMap;
     private final PaymentService paymentService;
 
-    public PaymentResult pay(PaymentCriteria.Pay criteria) {
+    public void pay(PaymentCriteria.Pay criteria) {
         Order order = orderService.getOrder(criteria.orderId());
         order.validatePay();
 
-        PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
-        Payment payment = paymentProcessor.pay(PaymentProcessContext.of(criteria));
+        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod()));
 
-        return PaymentResult.from(payment);
+        PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
+        paymentProcessor.pay(PaymentProcessContext.of(criteria));
     }
 
     @Transactional
     public void complete(PaymentCriteria.Complete complete) {
-        PaymentCommand.Search search = PaymentCommand.Search.of(complete.transactionKey() , complete.orderNumber());
+        PaymentCommand.Search search = PaymentCommand.Search.of(complete.transactionKey(), complete.orderNumber());
         paymentService.complete(search);
     }
 }

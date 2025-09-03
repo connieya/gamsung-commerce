@@ -19,7 +19,7 @@ public class Payment extends BaseEntity {
     @Column(name = "ref_order_id ", nullable = false)
     private Long orderId;
 
-    @Column(name = "order_number", nullable = false)
+    @Column(name = "order_number", nullable = false , unique = true)
     private String orderNumber;
 
     @Column(name = "ref_user_id", nullable = false)

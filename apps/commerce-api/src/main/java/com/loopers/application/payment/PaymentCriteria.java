@@ -11,10 +11,11 @@ public class PaymentCriteria {
             Long orderId,
             PaymentMethod paymentMethod,
             CardType cardType,
-            String cardNumber
+            String cardNumber,
+            Long couponId
     ) {
-        public static Pay of(String userId, Long orderId, PaymentMethod paymentMethod, CardType cardType, String cardNumber) {
-            return new Pay(userId, orderId, paymentMethod, cardType, cardNumber);
+        public static Pay of(String userId, Long orderId, PaymentMethod paymentMethod, CardType cardType, String cardNumber ,Long couponId) {
+            return new Pay(userId, orderId, paymentMethod, cardType, cardNumber , couponId);
         }
     }
 

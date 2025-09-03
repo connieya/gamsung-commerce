@@ -33,7 +33,14 @@ spring:
 logging:
   level:
     io.github.resilience4j.retry: DEBUG
+    # Tx 경계/합류/롤백/서스펜드
+    org.springframework.transaction.interceptor: TRACE
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG   # NESTED 쓸 때
 
+    # SQL + 바인딩 값 (Hibernate 6)
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
 
 springdoc:
   use-fqn: true

@@ -23,6 +23,7 @@ spring:
       - logging.yml
       - redis.yml
       - feign.yml
+      - kafka.yml
       - monitoring.yml
   datasource:
     hikari:

@@ -24,7 +24,7 @@ public class LikeSummaryEventListener {
 
     private final LikeSummaryRepository likeSummaryRepository;
     private final ProductLikeRepository productLikeRepository;
-    private final KafkaTemplate<String, ProductLikeEvent.Update> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private static final String TOPIC_NAME = "like-update-topic-v1";
 

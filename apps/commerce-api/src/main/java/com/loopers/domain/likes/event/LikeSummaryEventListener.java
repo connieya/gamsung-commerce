@@ -24,35 +24,19 @@ public class LikeSummaryEventListener {
 
     private final LikeSummaryRepository likeSummaryRepository;
     private final ProductLikeRepository productLikeRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, ProductLikeEvent.Update> kafkaTemplate;
 
     private static final String TOPIC_NAME = "like-update-topic-v1";
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = REQUIRES_NEW)
     public void add(ProductLikeEvent.Add event) {
-        Long likeCount = productLikeRepository.getLikeCount(event.productId());
-
-        System.out.println("likeCount = " + likeCount);
-
-        likeSummaryRepository.findByTargetUpdate(
-                LikeTarget.create(event.productId(), event.likeTargetType())
-        ).ifPresentOrElse(
-                likeSummary -> likeSummary.updateCount(likeCount),
-                () -> {
-                    LikeSummary likeSummary = LikeSummary.create(event.productId(), event.likeTargetType());
-                    likeSummary.updateCount(likeCount);
-                    likeSummaryRepository.save(likeSummary);
-                }
-        );
-
         ProductLikeEvent.Update update = new ProductLikeEvent.Update(event.productId(), ProductLikeEvent.Update.UpdateType.INCREMENT);
-
         try {
             // kafkaTemplate.send(토픽이름, 메시지Key, 메시지Value)
             // 메시지 Key(event.productId().toString())를 사용하면, 동일한 productId를 가진 메시지는
             // 항상 같은 파티션으로 전송되는 것을 보장할 수 있습니다. (메시지 순서 보장에 유리)
-            kafkaTemplate.send(TOPIC_NAME, update);
+            kafkaTemplate.send(TOPIC_NAME, event.productId().toString(), update);
             log.info("Successfully sent message to Kafka topic: {}", TOPIC_NAME);
         } catch (Exception e) {
             // 카프카 전송 실패 시 로그 (운영에서는 에러 모니터링 또는 별도 처리 필요)

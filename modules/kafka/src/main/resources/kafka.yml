@@ -4,12 +4,12 @@ spring:
     client-id: ${spring.application.name}
     properties:
       spring.json.add.type.headers: false # json serialize off
-      request.timeout.ms: 20000
-      retry.backoff.ms: 500
+      request.timeout.ms: 20000 # 프로듀서 요청 타임아웃
+      retry.backoff.ms: 500 # 재시도 간격
       auto:
         create.topics.enable: false
         register.schemas: false
-        offset.reset: latest
+        offset.reset: latest # 컨슈머 그룹이 처음 구독하거나 기존 오프셋이 없을 때, 가장 최신 메시지부터 읽습니다.
       use.latest.version: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer

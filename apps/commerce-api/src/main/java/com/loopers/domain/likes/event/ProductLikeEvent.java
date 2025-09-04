@@ -15,4 +15,11 @@ public class ProductLikeEvent {
             return new Remove(productId, likeTargetType);
         }
     }
+
+    public record Update(
+            Long productId,
+            UpdateType updateType // "INCREMENT" or "DECREMENT"
+    ) {
+        public enum UpdateType { INCREMENT, DECREMENT }
+    }
 }

@@ -1,6 +1,7 @@
 package com.loopers.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.converter.BatchMessagingMessageConverter;
@@ -74,6 +76,14 @@ public class KafkaConfig {
         factory.setConcurrency(3);
         factory.setBatchListener(true);
         return factory;
+    }
+
+    @Bean
+    public NewTopic likeUpdateTopic() {
+        return TopicBuilder.name("like-update-topic-v1")
+                .partitions(3)
+                .replicas(1) // 로컬에서는 1, 운영 프로필에서는 3으로 설정하는 로직 추가 가능
+                .build();
     }
 
 }

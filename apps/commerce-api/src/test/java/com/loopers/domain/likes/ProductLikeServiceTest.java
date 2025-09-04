@@ -1,8 +1,7 @@
 package com.loopers.domain.likes;
 
 import com.loopers.domain.brand.Brand;
-import com.loopers.domain.likes.event.LikeSummaryEventListener;
-import com.loopers.domain.likes.event.ProductLikeEvent;
+import com.loopers.domain.likes.event.LikeEventListener;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.product.fixture.ProductFixture;
@@ -54,7 +53,7 @@ class ProductLikeServiceTest {
     BrandJpaRepository brandJpaRepository;
 
     @Mock
-    LikeSummaryEventListener likeSummaryEventListener;
+    LikeEventListener likeEventListener;
 
     @Autowired
     DatabaseCleanUp databaseCleanUp;

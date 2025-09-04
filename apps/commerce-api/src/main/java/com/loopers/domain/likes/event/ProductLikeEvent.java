@@ -21,5 +21,7 @@ public class ProductLikeEvent {
             UpdateType updateType // "INCREMENT" or "DECREMENT"
     ) {
         public enum UpdateType { INCREMENT, DECREMENT }
+
+        public static Update of(Long productId, UpdateType updateType) {}
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,29 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDetailInfo getProduct(Long productId) {
+        Optional<ProductDetailInfo> productDetailById = productCacheRepository.findProductDetailById(productId);
+        if (productDetailById.isPresent()) {
+            return productDetailById.get();
+        }
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+        Long brandId = product.getBrandId();
+        Brand brand = brandCacheRepository.findById(brandId)
+                .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+
+        Long likeCount = productLikeRepository.getLikeCount(productId);
+
+
+        ProductDetailInfo productDetailInfo = ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
+        productCacheRepository.saveProductDetail(productId, productDetailInfo);
+
+        return productDetailInfo;
+
+    }
+
+
+    @Transactional(readOnly = true)
+    public ProductDetailInfo getProduct_Old(Long productId) { // 공부용으로 남겨둠
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
         Long brandId = product.getBrandId();
 

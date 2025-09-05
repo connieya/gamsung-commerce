@@ -1,4 +1,4 @@
-package com.loopers.infrastructure;
+package com.loopers.infrastructure.likes;
 
 import com.loopers.domain.likes.LikeSummaryRepository;
 import lombok.RequiredArgsConstructor;

@@ -4,7 +4,7 @@ public record DomainEvent() {
     public record Audit(
             String eventKey,
             String eventName,
-            Long userId
+            Long domainId
     ) {
     }
 }

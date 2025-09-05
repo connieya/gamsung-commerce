@@ -8,6 +8,7 @@ import com.loopers.domain.likes.exception.LikeException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
@@ -24,15 +25,17 @@ public class LikeEventListener {
     private final LikeEventPublisher likeEventPublisher;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = REQUIRES_NEW)
-    public void add(ProductLikeEvent.Update event) {
-       likeEventPublisher.publishEvent(event);
+    @Async
+    public void add(ProductLikeEvent.Add event) {
+        ProductLikeEvent.Update update = ProductLikeEvent.Update.of(event.productId(), ProductLikeEvent.Update.UpdateType.INCREMENT);
+        likeEventPublisher.publishEvent(update);
 
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = REQUIRES_NEW)
-    public void remove(ProductLikeEvent.Update event) {
-        likeEventPublisher.publishEvent(event);
+    @Async
+    public void remove(ProductLikeEvent.Remove event) {
+        ProductLikeEvent.Update update = ProductLikeEvent.Update.of(event.productId(), ProductLikeEvent.Update.UpdateType.DECREMENT);
+        likeEventPublisher.publishEvent(update);
     }
 }

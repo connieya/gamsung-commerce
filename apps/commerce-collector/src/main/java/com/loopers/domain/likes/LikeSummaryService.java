@@ -2,6 +2,7 @@ package com.loopers.domain.likes;
 
 import com.loopers.interfaces.consumer.likes.LikeUpdatedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 public class LikeSummaryService {
 
     private final LikeSummaryRepository likeSummaryRepository;
-
+    private final RedisTemplate<String, Object> objectRedisTemplate;
 
     @Transactional
     public void update(List<LikeUpdatedEvent> events) {
@@ -26,8 +27,10 @@ public class LikeSummaryService {
 
         for (Long productId : countChanges.keySet()) {
             Long likeChanged = countChanges.get(productId);
+            String key = "product:detail"+productId;
 
             likeSummaryRepository.updateLikeCountBy(productId,likeChanged);
+            objectRedisTemplate.opsForHash().increment(key,"likeCount", likeChanged);
 
         }
     }

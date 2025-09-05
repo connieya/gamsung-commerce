@@ -15,7 +15,7 @@ public class LikeEventPublisherImpl implements LikeEventPublisher {
 
     @Override
     public void publishEvent(ProductLikeEvent.Update event) {
-        ProductLikeEvent.Update update = new ProductLikeEvent.Update(event.productId(), event.updateType());
+        ProductLikeEvent.Update update = ProductLikeEvent.Update.of(event.productId(), event.updateType());
 
         kafkaTemplate.send(TOPIC_NAME, event.productId().toString(), update);
 

@@ -1,0 +1,47 @@
+spring:
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    client-id: ${spring.application.name}
+    properties:
+      spring.json.add.type.headers: false # json serialize off
+      request.timeout.ms: 20000 # 프로듀서 요청 타임아웃
+      retry.backoff.ms: 500 # 재시도 간격
+      auto:
+        create.topics.enable: false
+        register.schemas: false
+        offset.reset: latest # 컨슈머 그룹이 처음 구독하거나 기존 오프셋이 없을 때, 가장 최신 메시지부터 읽습니다.
+      use.latest.version: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 3
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: loopers-default-consumer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      properties:
+        enable-auto-commit: false
+    listener:
+      ack-mode: manual
+
+---
+spring.config.activate.on-profile: local, test
+
+spring:
+  kafka:
+    bootstrap-servers: localhost:19092
+    admin:
+      properties:
+        bootstrap.servers: kafka:9092
+
+---
+spring.config.activate.on-profile: dev
+
+---
+spring.config.activate.on-profile: qa
+
+---
+spring.config.activate.on-profile: prd

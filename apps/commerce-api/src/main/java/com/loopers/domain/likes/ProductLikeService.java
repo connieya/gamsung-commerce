@@ -33,7 +33,7 @@ public class ProductLikeService {
             return;
         }
         productLikeRepository.save(userId, productId);
-        applicationEventPublisher.publishEvent(ProductLikeEvent.Add.of(productId,LikeTargetType.PRODUCT));
+        applicationEventPublisher.publishEvent(ProductLikeEvent.Add.of(productId, LikeTargetType.PRODUCT));
     }
 
     @Transactional
@@ -44,7 +44,7 @@ public class ProductLikeService {
         boolean existed = productLikeRepository.existsByUserIdAndProductId(userId, productId);
         if (existed) {
             productLikeRepository.delete(userId, productId);
-            applicationEventPublisher.publishEvent(ProductLikeEvent.Remove.of(productId,LikeTargetType.PRODUCT));
+            applicationEventPublisher.publishEvent(ProductLikeEvent.Remove.of(productId, LikeTargetType.PRODUCT));
         }
     }
 }

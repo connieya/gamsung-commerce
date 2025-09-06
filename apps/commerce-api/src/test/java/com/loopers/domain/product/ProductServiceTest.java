@@ -81,7 +81,7 @@ class ProductServiceTest {
         when(productLikeRepository.getLikeCount(productId)).thenReturn(20L);
 
         // when
-        ProductDetailInfo productDetailInfo = productService.getProduct(productId);
+        ProductDetailInfo productDetailInfo = productService.getProduct_Old(productId);
 
         // then
         assertThat(productDetailInfo.getBrandName()).isEqualTo("아디다스");
@@ -107,7 +107,7 @@ class ProductServiceTest {
         when(productLikeRepository.getLikeCount(productId)).thenReturn(10L);
 
         // when
-        ProductDetailInfo productDetailInfo = productService.getProduct(productId);
+        ProductDetailInfo productDetailInfo = productService.getProduct_Old(productId);
 
         // then
         // 1. 반환된 브랜드 이름이 캐시 데이터와 일치하는지 확인
@@ -133,7 +133,7 @@ class ProductServiceTest {
         when(productLikeRepository.getLikeCount(1L)).thenReturn(10L);
 
         // when
-        ProductDetailInfo productDetailInfo = productService.getProduct(1L);
+        ProductDetailInfo productDetailInfo = productService.getProduct_Old(1L);
 
         // then
         assertAll(

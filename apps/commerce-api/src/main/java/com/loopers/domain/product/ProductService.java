@@ -1,5 +1,6 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.activity.event.ActivityEvent;
 import com.loopers.domain.brand.BrandCacheRepository;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.exception.ProductException;
@@ -8,6 +9,7 @@ import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.brand.Brand;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +29,7 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final BrandCacheRepository brandCacheRepository;
     private final ProductCacheRepository productCacheRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void register(ProductCommand.Register register) {
@@ -56,6 +59,8 @@ public class ProductService {
 
         ProductDetailInfo productDetailInfo = ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
         productCacheRepository.saveProductDetail(productId, productDetailInfo);
+
+        applicationEventPublisher.publishEvent(ActivityEvent.View.from(productId));
 
         return productDetailInfo;
 

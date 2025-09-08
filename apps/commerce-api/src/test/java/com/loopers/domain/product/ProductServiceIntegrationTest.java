@@ -1,6 +1,7 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.likes.ProductLike;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.brand.Brand;
@@ -46,7 +47,6 @@ class ProductServiceIntegrationTest {
     }
 
 
-
     @Nested
     @DisplayName("상품 등록")
     class Register {
@@ -72,6 +72,43 @@ class ProductServiceIntegrationTest {
                     );
 
         }
+    }
+
+
+    @Nested
+    @DisplayName("상품 상세 조회")
+    class GetProduct {
+
+        @Test
+        @DisplayName("상품 상세 조회")
+        void getProductDetail() {
+            User user = UserFixture.complete()
+                    .set(Select.field(User::getUserId), "gunny").create();
+            User savedUser = userRepository.save(user);
+
+
+            Brand brand = BrandFixture.complete()
+                    .set(Select.field(Brand::getName), "nike").create();
+            Brand savedBrand = brandRepository.save(brand);
+
+            Product product = ProductFixture.complete()
+                    .set(Select.field(Product::getName), "foo1")
+                    .set(Select.field(Product::getPrice), 10000L)
+                    .create();
+
+            Product savedProduct = productRepository.save(product, savedBrand.getId());
+
+            productLikeRepository.save(savedUser.getId(),savedProduct.getId());
+
+            ProductDetailInfo productDetailInfo = productService.getProduct(savedProduct.getId());
+
+            assertThat(productDetailInfo.getProductName()).isEqualTo("foo1");
+            assertThat(productDetailInfo.getProductPrice()).isEqualTo(10000L);
+            assertThat(productDetailInfo.getLikeCount()).isEqualTo(1L);
+            assertThat(productDetailInfo.getBrandName()).isEqualTo("nike");
+        }
+
+
     }
 
     @Nested

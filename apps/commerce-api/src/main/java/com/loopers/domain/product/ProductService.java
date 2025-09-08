@@ -42,7 +42,7 @@ public class ProductService {
         productRepository.save(product, register.getBrandId());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ProductDetailInfo getProduct(Long productId) {
         applicationEventPublisher.publishEvent(ActivityEvent.View.from(productId));
 
@@ -54,7 +54,12 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
         Long brandId = product.getBrandId();
         Brand brand = brandCacheRepository.findById(brandId)
-                .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+                .orElseGet(() -> {
+                    Brand brandFromDb = brandRepository.findBrand(brandId)
+                            .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+                    brandCacheRepository.save(brandFromDb);
+                    return brandFromDb;
+                });
 
         Long likeCount = productLikeRepository.getLikeCount(productId);
 

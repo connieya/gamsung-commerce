@@ -44,6 +44,8 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public ProductDetailInfo getProduct(Long productId) {
+        applicationEventPublisher.publishEvent(ActivityEvent.View.from(productId));
+
         Optional<ProductDetailInfo> productDetailById = productCacheRepository.findProductDetailById(productId);
         if (productDetailById.isPresent()) {
             return productDetailById.get();
@@ -59,8 +61,6 @@ public class ProductService {
 
         ProductDetailInfo productDetailInfo = ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
         productCacheRepository.saveProductDetail(productId, productDetailInfo);
-
-        applicationEventPublisher.publishEvent(ActivityEvent.View.from(productId));
 
         return productDetailInfo;
 

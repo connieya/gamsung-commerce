@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.activity.event;
 
+import com.loopers.domain.KafkaMessage;
 import com.loopers.domain.activity.event.ActivityEvent;
 import com.loopers.domain.activity.event.ActivityEventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class ActivityEventPublisherImpl implements ActivityEventPublisher {
 
     @Override
     public void publishEvent(ActivityEvent.View event) {
-        kafkaTemplate.send(TOPIC_NAME , event.getProductId().toString(),event);
+        KafkaMessage<ActivityEvent.View> kafkaMessage = KafkaMessage.of(event);
+        kafkaTemplate.send(TOPIC_NAME, event.getProductId().toString(), kafkaMessage);
     }
 }

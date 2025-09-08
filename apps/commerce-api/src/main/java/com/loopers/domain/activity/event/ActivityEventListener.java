@@ -12,11 +12,13 @@ import org.springframework.stereotype.Component;
 public class ActivityEventListener {
 
     private final ActivityService activityService;
+    private final ActivityEventPublisher activityEventPublisher;
 
     @Async
     @EventListener
     public void view(ActivityEvent.View event) {
         activityService.view(ActivityCommand.View.from(event.getProductId()));
+        activityEventPublisher.publishEvent(event);
     }
 
 }

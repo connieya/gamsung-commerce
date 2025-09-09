@@ -1,11 +1,11 @@
 package com.loopers.interfaces.consumer.likes;
 
 
+import com.loopers.domain.likes.LikeUpdateType;
 
 public record LikeUpdatedEvent(
         Long productId,
-        UpdateType updateType // "INCREMENT" or "DECREMENT"
+        LikeUpdateType updateType // "INCREMENT" or "DECREMENT"
 ) {
-    public enum UpdateType { INCREMENT, DECREMENT }
 }
 

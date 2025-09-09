@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.likes.event;
 
+import com.loopers.domain.KafkaMessage;
 import com.loopers.domain.likes.event.LikeEventPublisher;
 import com.loopers.domain.likes.event.ProductLikeEvent;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,8 @@ public class LikeEventPublisherImpl implements LikeEventPublisher {
     @Override
     public void publishEvent(ProductLikeEvent.Update event) {
         ProductLikeEvent.Update update = ProductLikeEvent.Update.of(event.productId(), event.updateType());
-
-        kafkaTemplate.send(TOPIC_NAME, event.productId().toString(), update);
+        KafkaMessage<ProductLikeEvent.Update> kafkaMessage = KafkaMessage.of(update);
+        kafkaTemplate.send(TOPIC_NAME, event.productId().toString(), kafkaMessage);
 
     }
 }

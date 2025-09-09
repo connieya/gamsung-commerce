@@ -18,11 +18,12 @@ public class LikeSummaryService {
     private final RedisTemplate<String, Object> objectRedisTemplate;
 
     @Transactional
-    public void update(List<LikeUpdatedEvent> events) {
-        Map<Long, Long> countChanges = events.stream()
+    public void update(LikeCommand.Update command) {
+        List<LikeCommand.Update.Item> items = command.items();
+        Map<Long, Long> countChanges = items.stream()
                 .collect(Collectors.groupingBy(
-                        LikeUpdatedEvent::productId,
-                        Collectors.summingLong(event -> event.updateType() == LikeUpdatedEvent.UpdateType.INCREMENT ? 1L : -1L)
+                        LikeCommand.Update.Item::productId,
+                        Collectors.summingLong(item -> item.updateType()  == LikeUpdateType.INCREMENT ? 1L : -1L)
                 ));
 
         for (Long productId : countChanges.keySet()) {

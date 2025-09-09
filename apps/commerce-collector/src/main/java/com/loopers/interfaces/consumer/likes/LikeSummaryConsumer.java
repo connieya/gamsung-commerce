@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.config.KafkaConfig;
+import com.loopers.domain.KafkaMessage;
+import com.loopers.domain.likes.LikeCommand;
 import com.loopers.domain.likes.LikeSummaryService;
+import com.loopers.domain.likes.LikeUpdateType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -38,11 +41,13 @@ public class LikeSummaryConsumer {
         log.info("[KAFKA-CONSUME] Group: '{}', Received a batch of {} records.",
                 LIKE_SUMMARY_GROUP_ID, records.size());
 
-        List<LikeUpdatedEvent> likeUpdatedEvents = records.stream()
+        List<KafkaMessage<LikeUpdatedEvent>> likeUpdatedEvents = records.stream()
                 .map(ConsumerRecord::value)                       // String
                 .map(s -> {
                     try {
-                        return objectMapper.readValue(s, LikeUpdatedEvent.class);
+                        return objectMapper.readValue(s, new TypeReference<KafkaMessage<LikeUpdatedEvent>>() {
+
+                        });
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -50,9 +55,17 @@ public class LikeSummaryConsumer {
                 })
                 .toList();
 
-        try {
 
-            likeSummaryService.update(likeUpdatedEvents);
+        List<LikeCommand.Update.Item> items = new ArrayList<>();
+        for (KafkaMessage<LikeUpdatedEvent> likeUpdatedEvent : likeUpdatedEvents) {
+            LikeUpdateType likeUpdateType = likeUpdatedEvent.getPayload().updateType();
+            Long productId = likeUpdatedEvent.getPayload().productId();
+            String eventId = likeUpdatedEvent.getEventId();
+            items.add(LikeCommand.Update.Item.of(eventId, productId, likeUpdateType));
+        }
+
+        try {
+            likeSummaryService.update(new LikeCommand.Update(items));
             ack.acknowledge();
             log.info("[KAFKA-CONSUME] Group: '{}', Batch processing successful. Acknowledged {} records.",
                     LIKE_SUMMARY_GROUP_ID, records.size());

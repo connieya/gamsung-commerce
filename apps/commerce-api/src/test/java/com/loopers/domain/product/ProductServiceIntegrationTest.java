@@ -41,10 +41,10 @@ class ProductServiceIntegrationTest {
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
-    @AfterEach
-    void tearDown() {
-        databaseCleanUp.truncateAllTables();
-    }
+//    @AfterEach
+//    void tearDown() {
+//        databaseCleanUp.truncateAllTables();
+//    }
 
 
     @Nested

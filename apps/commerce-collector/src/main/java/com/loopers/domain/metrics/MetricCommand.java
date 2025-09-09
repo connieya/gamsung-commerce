@@ -21,6 +21,12 @@ public record MetricCommand() {
             public static Item ofViewCount(String eventId, LocalDate date, Long productId, Long viewCount) {
                 return new Item(eventId, date, productId, 0L, 0L, viewCount);
             }
+
+            public static Item ofLikeCount(String eventId, LocalDate date, Long productId, Long likeCount) {
+                return new Item(eventId, date, productId, likeCount, 0L, 0L);
+            }
+
+
         }
     }
 }

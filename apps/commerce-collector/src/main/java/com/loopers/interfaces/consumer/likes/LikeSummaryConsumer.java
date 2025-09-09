@@ -8,6 +8,8 @@ import com.loopers.domain.KafkaMessage;
 import com.loopers.domain.likes.LikeCommand;
 import com.loopers.domain.likes.LikeSummaryService;
 import com.loopers.domain.likes.LikeUpdateType;
+import com.loopers.domain.metrics.MetricCommand;
+import com.loopers.domain.metrics.MetricService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -16,6 +18,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +31,11 @@ public class LikeSummaryConsumer {
 
     private static final String LIKE_UPDATE_TOPIC = "like-update-topic-v1";
     private static final String LIKE_SUMMARY_GROUP_ID = "like-summary-aggregator-group";
+    private static final String METRIC_GROUP_ID = "metric-aggregator-group";
 
     private final LikeSummaryService likeSummaryService;
     private final ObjectMapper objectMapper;
+    private final MetricService metricService;
 
     @KafkaListener(
             topics = LIKE_UPDATE_TOPIC,
@@ -75,5 +80,28 @@ public class LikeSummaryConsumer {
             log.error("[KAFKA-CONSUME] Group: '{}', Failed to process batch. Offset will not be committed.",
                     LIKE_SUMMARY_GROUP_ID, e);
         }
+    }
+
+    @KafkaListener(
+            topics = LIKE_UPDATE_TOPIC,
+            groupId = METRIC_GROUP_ID,
+            containerFactory = KafkaConfig.BATCH_LISTENER // KafkaConfig에 정의한 배치 리스너
+    )
+    public void onMetrics(List<KafkaMessage<LikeUpdatedEvent>> messages, Acknowledgment ack) {
+        log.info("[kafka consume !!] Group: '{}', Received a batch of {} messages.",
+                METRIC_GROUP_ID, messages.size());
+
+        List<MetricCommand.Aggregate.Item> items = new ArrayList<>();
+
+        for (KafkaMessage<LikeUpdatedEvent> message : messages) {
+            String eventId = message.getEventId();
+            LocalDate date = message.getPublishedAt().toLocalDate();
+            Long productId = message.getPayload().productId();
+            LikeUpdateType likeUpdateType = message.getPayload().updateType();
+            items.add(MetricCommand.Aggregate.Item.ofLikeCount(eventId, date, productId ,likeUpdateType == LikeUpdateType.INCREMENT ? 1L : -1L));
+        }
+        metricService.aggregate(new MetricCommand.Aggregate(items));
+        ack.acknowledge();
+
     }
 }

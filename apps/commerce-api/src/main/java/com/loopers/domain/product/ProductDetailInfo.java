@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductDetailInfo {
 
+    public static final ProductDetailInfo EMPTY = ProductDetailInfo.builder().build();
+
     private Long productId;
     private String productName;
     private Long productPrice;

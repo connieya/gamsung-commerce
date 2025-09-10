@@ -75,6 +75,8 @@ class ProductLikeServiceIntegrationTest {
         Product product = ProductFixture.complete().create();
         Product savedProduct = productRepository.save(product ,savedBrand.getId());
 
+        likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(),LikeTargetType.PRODUCT));
+
         // when
         productLikeService.add(savedUser.getId(), savedProduct.getId());
 

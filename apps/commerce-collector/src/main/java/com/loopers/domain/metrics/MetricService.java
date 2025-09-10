@@ -52,7 +52,7 @@ public class MetricService {
 
             for (ProductMetrics target : metricsOfDate) {
                 double score = target.calculateRankingScore();
-                z.add(String.valueOf(target.getProductId()), score);
+                z.incrementScore(String.valueOf(target.getProductId()), score);
                 metricRepository.upsert(target);
             }
 

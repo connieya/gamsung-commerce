@@ -30,7 +30,7 @@ public class LikeSummaryService {
         log.info("countChanges = {}", countChanges);
         for (Long productId : countChanges.keySet()) {
             Long likeChanged = countChanges.get(productId);
-            String key = "product:detail" + productId;
+            String key = "product-like:" + productId;
             log.info("productId = {} , likeChanged = {} ", productId, likeChanged);
             likeSummaryRepository.updateLikeCountBy(productId, likeChanged);
             objectRedisTemplate.opsForHash().increment(key, "likeCount", likeChanged);

@@ -18,6 +18,6 @@ public class RankingCoreRepository implements RankingRepository {
     @Override
     public Set<String> getRankingInfo(LocalDate date, int page, int size) {
         long startIndex = (long) (page - 1) * size;
-        return redisTemplate.opsForZSet().reverseRange(RedisKeyManager.keyFor(date), startIndex, startIndex + size - 1);
+        return redisTemplate.opsForZSet().reverseRange(RedisKeyManager.RankingKeyFor(date), startIndex, startIndex + size - 1);
     }
 }

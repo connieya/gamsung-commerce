@@ -1,6 +1,5 @@
 package com.loopers.domain.likes;
 
-import com.loopers.interfaces.consumer.likes.LikeUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

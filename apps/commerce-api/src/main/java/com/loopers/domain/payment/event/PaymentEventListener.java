@@ -19,6 +19,7 @@ public class PaymentEventListener {
 
     private final PaymentAttemptService paymentAttemptService;
     private final PaymentRepository paymentRepository;
+    private final PaymentEventPublisher paymentEventPublisher;
 
     @EventListener
     public void recordTransactionComplete(PaymentEvent.Complete event) {
@@ -42,6 +43,7 @@ public class PaymentEventListener {
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
         payment.paid();
         paymentAttemptService.markSuccess(AttemptCommand.Success.of(payment.getId(), event.orderNumber(), AttemptStatus.SUCCESS));
+        paymentEventPublisher.publishEvent(event);
     }
 
 }

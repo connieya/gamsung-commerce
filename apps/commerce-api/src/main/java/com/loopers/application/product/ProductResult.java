@@ -1,16 +1,10 @@
-package com.loopers.domain.product;
+package com.loopers.application.product;
 
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ProductDetailInfo {
-
-    public static final ProductDetailInfo EMPTY = ProductDetailInfo.builder().build();
-
+public class ProductResult {
     private Long productId;
     private String productName;
     private Long productPrice;
@@ -19,7 +13,7 @@ public class ProductDetailInfo {
     private Long likeCount;
 
     @Builder
-    public ProductDetailInfo(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
+    private ProductResult(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
         this.productId = productId;
         this.productName = productName;
         this.productPrice = productPrice;
@@ -28,15 +22,15 @@ public class ProductDetailInfo {
         this.likeCount = likeCount;
     }
 
-    public static ProductDetailInfo create(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
-        return ProductDetailInfo
+    public static ProductResult of(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
+        return ProductResult
                 .builder()
                 .productId(productId)
                 .productName(productName)
                 .productPrice(productPrice)
                 .brandName(brandName)
-                .likeCount(likeCount)
                 .brandId(brandId)
+                .likeCount(likeCount)
                 .build();
     }
 }

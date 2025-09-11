@@ -65,7 +65,7 @@ class OrderFacadeIntegrationTest {
     @DisplayName("사용 불가능하거나 존재하지 않는 쿠폰일 경우 주문은 실패해야 한다.")
     void placeOrder_throwsException_whenUserCouponIsInvalid() {
         // given
-        User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+        User user = UserFixture.complete().set(Select.field(User::getUserId), "gh").create();
         userRepository.save(user);
 
         Product product1 = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
@@ -93,7 +93,7 @@ class OrderFacadeIntegrationTest {
 
         Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId());
+        OrderCriteria orderCriteria = new OrderCriteria("gh", List.of(orderItem1, orderItem2), savedCoupon.getId());
 
 
         // when & then

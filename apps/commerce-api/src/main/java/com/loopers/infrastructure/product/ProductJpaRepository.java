@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.product;
 
+import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.brand.Brand;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long> {
 
@@ -88,4 +90,16 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
     )
     List<ProductInfo> findRankByIds(@Param("rankingInfo") List<Long> rankingInfo);
 
+    @Query("SELECT new com.loopers.domain.product.ProductDetailInfo(" +
+            "p.id," +
+            "p.name," +
+            "p.price," +
+            "b.name," +
+            "b.id, " +
+            "l.likeCount" + // 좋아요 수
+            ") from ProductEntity p " +
+            "left join p.brand b " +
+            "left join LikeSummary l on p.id = l.target.id"
+    )
+    Optional<ProductDetailInfo> findProductDetail(Long productId);
 }

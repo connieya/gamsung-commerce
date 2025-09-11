@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.product;
 
+import com.loopers.application.product.ProductResult;
 import com.loopers.domain.common.PageInfo;
-import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductsInfo;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -21,13 +21,13 @@ public class ProductV1Dto {
             String brandName,
             Long likeCount
     ) {
-        public static DetailResponse from(ProductDetailInfo productDetailInfo) {
+        public static DetailResponse from(ProductResult productResult) {
             return new DetailResponse(
-                    productDetailInfo.getProductId()
-                    , productDetailInfo.getProductName()
-                    , productDetailInfo.getProductPrice()
-                    , productDetailInfo.getBrandName()
-                    , productDetailInfo.getLikeCount()
+                    productResult.getProductId()
+                    , productResult.getProductName()
+                    , productResult.getProductPrice()
+                    , productResult.getBrandName()
+                    , productResult.getLikeCount()
             );
         }
     }

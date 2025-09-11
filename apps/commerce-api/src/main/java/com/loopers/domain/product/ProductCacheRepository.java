@@ -13,5 +13,5 @@ public interface ProductCacheRepository {
 
     Optional<ProductDetailInfo> findProductDetailById(Long productId);
 
-    void saveProductDetail(Long productId, ProductDetailInfo productDetailInfo);
+    void saveProductDetail(ProductDetailInfo productDetailInfo);
 }

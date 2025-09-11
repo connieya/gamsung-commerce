@@ -1,8 +1,7 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.brand.BrandRepository;
-import com.loopers.domain.likes.ProductLike;
-import com.loopers.domain.likes.ProductLikeRepository;
+import com.loopers.domain.likes.*;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.product.fixture.ProductFixture;
@@ -33,6 +32,9 @@ class ProductServiceIntegrationTest {
     ProductRepository productRepository;
 
     @Autowired
+    LikeSummaryRepository likeSummaryRepository;
+
+    @Autowired
     ProductLikeRepository productLikeRepository;
 
     @Autowired
@@ -41,10 +43,10 @@ class ProductServiceIntegrationTest {
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
-//    @AfterEach
-//    void tearDown() {
-//        databaseCleanUp.truncateAllTables();
-//    }
+    @AfterEach
+    void tearDown() {
+        databaseCleanUp.truncateAllTables();
+    }
 
 
     @Nested
@@ -98,9 +100,11 @@ class ProductServiceIntegrationTest {
 
             Product savedProduct = productRepository.save(product, savedBrand.getId());
 
-            productLikeRepository.save(savedUser.getId(),savedProduct.getId());
+            LikeSummary likeSummary = LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT);
+            likeSummary.increase();
+            likeSummaryRepository.save(likeSummary);
 
-            ProductDetailInfo productDetailInfo = productService.getProduct(savedProduct.getId());
+            ProductDetailInfo productDetailInfo = productService.getProductDetail(savedProduct.getId());
 
             assertThat(productDetailInfo.getProductName()).isEqualTo("foo1");
             assertThat(productDetailInfo.getProductPrice()).isEqualTo(10000L);

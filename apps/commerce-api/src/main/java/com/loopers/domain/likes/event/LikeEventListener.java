@@ -1,9 +1,6 @@
 package com.loopers.domain.likes.event;
 
-import com.loopers.domain.likes.LikeSummary;
-import com.loopers.domain.likes.LikeSummaryRepository;
-import com.loopers.domain.likes.LikeTarget;
-import com.loopers.domain.likes.ProductLikeRepository;
+import com.loopers.domain.likes.*;
 import com.loopers.domain.likes.exception.LikeException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +20,14 @@ import static org.springframework.transaction.annotation.Propagation.REQUIRES_NE
 public class LikeEventListener {
 
     private final LikeEventPublisher likeEventPublisher;
+    private final LikeSummaryRepository likeSummaryRepository;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-//    @Async
+    @Async
+    @Transactional(propagation = REQUIRES_NEW)
     public void add(ProductLikeEvent.Add event) {
+        // 임시로 like summary 에 save
+        likeSummaryRepository.updateLikeCountBy(event.productId(), LikeTargetType.PRODUCT, 1L);
         ProductLikeEvent.Update update = ProductLikeEvent.Update.of(event.productId(), ProductLikeEvent.Update.UpdateType.INCREMENT);
         likeEventPublisher.publishEvent(update);
 

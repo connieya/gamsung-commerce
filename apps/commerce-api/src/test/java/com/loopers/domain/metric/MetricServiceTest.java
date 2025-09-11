@@ -11,6 +11,8 @@ import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.utils.DatabaseCleanUp;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +34,14 @@ public class MetricServiceTest {
 
     @Autowired
     ProductService productService;
+
+    @Autowired
+    DatabaseCleanUp databaseCleanUp;
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanUp.truncateAllTables();
+    }
 
     @Test
     void method() {
@@ -56,6 +66,6 @@ public class MetricServiceTest {
 //        productLikeService.add(savedUser.getId(), savedProduct2.getId());
         productLikeService.add(savedUser.getId(), savedProduct3.getId());
 
-        productService.getProduct(savedProduct3.getId());
+        productService.getProductDetail(savedProduct3.getId());
     }
 }

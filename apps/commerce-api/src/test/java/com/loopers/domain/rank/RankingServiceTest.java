@@ -2,6 +2,8 @@ package com.loopers.domain.rank;
 
 import com.loopers.application.payment.PaymentCriteria;
 import com.loopers.application.payment.PaymentFacade;
+import com.loopers.application.product.ProductCriteria;
+import com.loopers.application.product.ProductFacade;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.likes.ProductLikeService;
@@ -69,6 +71,9 @@ class RankingServiceTest {
     @Autowired
     private PaymentFacade paymentFacade;
 
+    @Autowired
+    private ProductFacade productFacade;
+
     @AfterEach
     void cleanUp() {
         databaseCleanUp.truncateAllTables();
@@ -97,7 +102,7 @@ class RankingServiceTest {
 
         // 상품 1 좋아요 & 조회
         productLikeService.add(savedUser.getId(), savedProduct1.getId());
-        productService.getProduct(savedProduct1.getId());
+        productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct1.getId()));
 
         //  상품 2 결제 완료 &  좋아요
         Product product2 = ProductFixture.complete()
@@ -132,7 +137,7 @@ class RankingServiceTest {
         Product savedProduct3 = productRepository.save(product3, savedBrand.getId());
 
         // 상품 3 조회
-        productService.getProduct(savedProduct3.getId());
+        productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct3.getId()));
 
 
         // 상품 4 결제 완료 & 조회
@@ -157,7 +162,7 @@ class RankingServiceTest {
         PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
 
         paymentFacade.pay(criteria2);
-        productService.getProduct(savedProduct4.getId());
+        productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct4.getId()));
 
         // 상품 5 좋아요
         Product product5 = ProductFixture.complete()

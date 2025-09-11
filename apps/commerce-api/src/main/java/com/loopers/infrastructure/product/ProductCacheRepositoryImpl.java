@@ -88,8 +88,8 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
     }
 
     @Override
-    public void saveProductDetail(Long productId, ProductDetailInfo productDetailInfo) {
-        String key = "product.detail:" + productId;
+    public void saveProductDetail(ProductDetailInfo productDetailInfo) {
+        String key = "product.detail:" + productDetailInfo.getProductId();
         Duration ttl = RedisCacheConfig.jitter(Duration.ofMinutes(3));
 
 

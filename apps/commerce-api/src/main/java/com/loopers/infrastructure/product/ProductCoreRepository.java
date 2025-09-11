@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.product;
 
+import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.Product;
@@ -66,6 +67,11 @@ public class ProductCoreRepository implements ProductRepository {
     @Override
     public List<ProductInfo> findRankByIds(List<Long> rankingInfo) {
         return productJpaRepository.findRankByIds(rankingInfo);
+    }
+
+    @Override
+    public Optional<ProductDetailInfo> findProductDetail(Long productId) {
+        return productJpaRepository.findProductDetail(productId);
     }
 
     @Override

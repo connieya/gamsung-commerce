@@ -1,7 +1,12 @@
 package com.loopers.domain.likes;
 
 
-public interface LikeSummaryRepository {
+import java.util.Optional;
 
-    void updateLikeCountBy(Long productId, Long likeChanged);
+public interface LikeSummaryRepository {
+    void updateLikeCountBy(Long productId, LikeTargetType likeTarget, Long likeChanged);
+
+    LikeSummary save(LikeSummary likeSummary);
+
+    Optional<LikeSummary> findByTarget(LikeTarget likeTarget);
 }

@@ -25,7 +25,7 @@ public class LikeEventListener {
     private final LikeEventPublisher likeEventPublisher;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Async
+//    @Async
     public void add(ProductLikeEvent.Add event) {
         ProductLikeEvent.Update update = ProductLikeEvent.Update.of(event.productId(), ProductLikeEvent.Update.UpdateType.INCREMENT);
         likeEventPublisher.publishEvent(update);

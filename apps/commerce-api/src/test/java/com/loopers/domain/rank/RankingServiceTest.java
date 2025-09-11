@@ -173,20 +173,20 @@ class RankingServiceTest {
         Thread.sleep(3000);
 
         // when
-        List<ProductInfo> firstPageProductRanking = rankingService.getProductRanking(LocalDate.now(), 1, 3);
-        List<ProductInfo> secondPageProductRanking = rankingService.getProductRanking(LocalDate.now(), 2, 3);
+        RankingInfo firstPageProductRanking = rankingService.getProductRanking(LocalDate.now(), 1, 3);
+        RankingInfo secondPageProductRanking = rankingService.getProductRanking(LocalDate.now(), 2, 3);
 
 
         // then
         assertAll(
-                () -> assertThat(firstPageProductRanking).hasSize(3)
+                () -> assertThat(firstPageProductRanking.getProductInfos()).hasSize(3)
                         .extracting("productName", "price", "likeCount")
                         .containsExactly(
                                 tuple("product2", 2000L, 1L),
                                 tuple("product4", 4000L, 0L),
                                 tuple("product1", 1000L, 1L)
                         ),
-                () -> assertThat(secondPageProductRanking).hasSize(2)
+                () -> assertThat(secondPageProductRanking.getProductInfos()).hasSize(2)
                         .extracting("productName", "price", "likeCount")
                         .containsExactly(
                                 tuple("product5", 5000L, 1L),

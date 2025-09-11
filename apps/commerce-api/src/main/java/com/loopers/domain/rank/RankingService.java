@@ -19,7 +19,7 @@ public class RankingService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<ProductInfo> getProductRanking(LocalDate date, int page, int size) {
+    public RankingInfo getProductRanking(LocalDate date, int page, int size) {
         List<Long> rankedProductIds = rankingRepository.getRankingInfo(date, page, size)
                 .stream()
                 .map(Long::parseLong)
@@ -29,9 +29,11 @@ public class RankingService {
         Map<Long, ProductInfo> productMap = productInfos.stream()
                 .collect(Collectors.toMap(ProductInfo::getProductId, productInfo -> productInfo));
 
-        return rankedProductIds.stream()
+        return RankingInfo.from(
+                rankedProductIds.stream()
                 .map(productMap::get)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+        );
 
     }
 

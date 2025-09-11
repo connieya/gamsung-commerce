@@ -22,4 +22,6 @@ public interface ProductRepository {
     Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable , Long brandId);
 
     Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable, Long id);
+
+    List<ProductInfo> findRankByIds(List<Long> rankingInfo);
 }

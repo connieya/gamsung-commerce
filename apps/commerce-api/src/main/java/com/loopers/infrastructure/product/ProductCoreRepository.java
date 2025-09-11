@@ -64,6 +64,11 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
+    public List<ProductInfo> findRankByIds(List<Long> rankingInfo) {
+        return productJpaRepository.findRankByIds(rankingInfo);
+    }
+
+    @Override
     public List<Product> findAllById(List<Long> productIds) {
         return productJpaRepository.findAllById(productIds)
                 .stream().map(ProductEntity::toDomain).collect(Collectors.toList());

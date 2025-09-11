@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -70,4 +71,21 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "WHERE s.target.type = 'PRODUCT'"
     )
     Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable);
+
+
+    @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
+            "p.id," +
+            "p.price," +
+            "p.name," +
+            "b.name," +
+            "cast(count(pl.id) as long) as likeCount," + // 좋아요 수
+            "p.releasedAt" +
+            ") from ProductEntity p " +
+            "left join p.brand b " +
+            "left join ProductLike  pl on p.id = pl.productId " +
+            "where p.id in :rankingInfo " +
+            "group by p.id, p.price, p.name, b.name, p.releasedAt"
+    )
+    List<ProductInfo> findRankByIds(@Param("rankingInfo") List<Long> rankingInfo);
+
 }

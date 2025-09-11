@@ -99,7 +99,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "l.likeCount" + // 좋아요 수
             ") from ProductEntity p " +
             "left join p.brand b " +
-            "left join LikeSummary l on p.id = l.target.id"
+            "left join LikeSummary l on p.id = l.target.id " +
+            "where p.id = :productId"
     )
     Optional<ProductDetailInfo> findProductDetail(Long productId);
 }

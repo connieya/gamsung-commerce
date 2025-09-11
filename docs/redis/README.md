@@ -17,3 +17,5 @@
   - 하위 20개 조회
 
 - DEL rank:product:all:20250911
+
+- ZREVRANK rank:product:all:20250911 1

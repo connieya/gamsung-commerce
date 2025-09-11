@@ -29,7 +29,6 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final BrandCacheRepository brandCacheRepository;
     private final ProductCacheRepository productCacheRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void register(ProductCommand.Register register) {
@@ -42,36 +41,19 @@ public class ProductService {
         productRepository.save(product, register.getBrandId());
     }
 
-    @Transactional
-    public ProductDetailInfo getProduct(Long productId) {
-        applicationEventPublisher.publishEvent(ActivityEvent.View.from(productId));
 
+    @Transactional
+    public ProductDetailInfo getProductDetail(Long productId) {
         Optional<ProductDetailInfo> productDetailById = productCacheRepository.findProductDetailById(productId);
         if (productDetailById.isPresent()) {
             return productDetailById.get();
         }
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-        Long brandId = product.getBrandId();
-        Brand brand = brandCacheRepository.findById(brandId)
-                .orElseGet(() -> {
-                    Brand brandFromDb = brandRepository.findBrand(brandId)
-                            .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-                    brandCacheRepository.save(brandFromDb);
-                    return brandFromDb;
-                });
-
-        Long likeCount = productLikeRepository.getLikeCount(productId);
-
-
-        ProductDetailInfo productDetailInfo = ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
-        productCacheRepository.saveProductDetail(productId, productDetailInfo);
-
+        ProductDetailInfo productDetailInfo = productRepository.findProductDetail(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+        productCacheRepository.saveProductDetail(productDetailInfo);
         return productDetailInfo;
-
     }
 
-
+    
     @Transactional(readOnly = true)
     public ProductDetailInfo getProduct_Old(Long productId) { // 공부용으로 남겨둠
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
@@ -86,7 +68,7 @@ public class ProductService {
                 });
         Long likeCount = productLikeRepository.getLikeCount(productId);
 
-        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
+        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(),brandId, likeCount);
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )

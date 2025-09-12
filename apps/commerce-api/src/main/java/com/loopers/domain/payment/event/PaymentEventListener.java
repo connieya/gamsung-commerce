@@ -9,6 +9,8 @@ import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
@@ -38,6 +40,7 @@ public class PaymentEventListener {
     }
 
     @TransactionalEventListener(phase = AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recordTransactionSuccess(PaymentEvent.Success event) {
         Payment payment = paymentRepository.findByOrderNumber(event.orderNumber())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));

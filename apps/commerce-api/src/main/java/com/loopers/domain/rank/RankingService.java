@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,8 +18,8 @@ public class RankingService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public RankingInfo getProductRanking(LocalDate date, int page, int size) {
-        List<Long> rankedProductIds = rankingRepository.getRankingInfo(date, page, size)
+    public RankingInfo getProductRanking(RankingCommand.GetProducts command) {
+        List<Long> rankedProductIds = rankingRepository.findProductRanking(command.getDate(), command.getPage(), command.getSize())
                 .stream()
                 .map(Long::parseLong)
                 .toList();
@@ -35,6 +34,12 @@ public class RankingService {
                 .collect(Collectors.toList())
         );
 
+    }
+
+    @Transactional(readOnly = true)
+    public Long getRankOfProduct(RankingCommand.GetProduct command) {
+        Long productRank = rankingRepository.findProductRank(command.getDate(), command.getProductId());
+        return productRank == null ? null : productRank+ 1;
     }
 
 }

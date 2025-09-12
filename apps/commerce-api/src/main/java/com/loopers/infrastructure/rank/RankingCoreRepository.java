@@ -23,6 +23,6 @@ public class RankingCoreRepository implements RankingRepository {
 
     @Override
     public Long findProductRank(LocalDate date, Long productId) {
-        return redisTemplate.opsForZSet().reverseRank(RedisKeyManager.RankingKeyFor(date), productId);
+        return redisTemplate.opsForZSet().reverseRank(RedisKeyManager.RankingKeyFor(date), productId.toString());
     }
 }

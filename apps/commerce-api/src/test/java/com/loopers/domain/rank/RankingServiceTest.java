@@ -178,8 +178,8 @@ class RankingServiceTest {
         Thread.sleep(3000);
 
         // when
-        RankingInfo firstPageProductRanking = rankingService.getProductRanking(LocalDate.now(), 1, 3);
-        RankingInfo secondPageProductRanking = rankingService.getProductRanking(LocalDate.now(), 2, 3);
+        RankingInfo firstPageProductRanking = rankingService.getProductRanking(RankingCommand.GetProducts.of(LocalDate.now(), 1, 3));
+        RankingInfo secondPageProductRanking = rankingService.getProductRanking(RankingCommand.GetProducts.of(LocalDate.now(), 2, 3));
 
 
         // then
@@ -201,6 +201,77 @@ class RankingServiceTest {
         );
 
 
+    }
+
+    @Test
+    @DisplayName("해당 상품의 랭킹 순위를 조회한다.")
+    void getRankOfProduct() throws InterruptedException {
+        // given
+        User user = UserFixture.complete().set(Select.field(User::getUserId), "pgh").create();
+        User savedUser = userRepository.save(user);
+
+        pointRepository.save(Point.create(savedUser.getUserId(), 1000_0000L));
+
+        Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "nike").create();
+        Brand savedBrand = brandRepository.save(brand);
+
+        Product product1 = ProductFixture.complete()
+                .set(Select.field(Product::getName), "product1")
+                .set(Select.field(Product::getPrice), 1000L)
+                .create();
+
+
+        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
+
+        // 상품 1 좋아요 & 조회
+        productLikeService.add(savedUser.getId(), savedProduct1.getId());
+        productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct1.getId()));
+
+        //  상품 2 결제 완료 &  좋아요
+        Product product2 = ProductFixture.complete()
+                .set(Select.field(Product::getName), "product2")
+                .set(Select.field(Product::getPrice), 2000L)
+                .create();
+
+        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+
+        OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
+                .productId(savedProduct2.getId())
+                .price(1000L)
+                .quantity(1L)
+                .build();
+
+        OrderCommand orderCommand = OrderCommand.of(savedUser.getId(), List.of(orderItem1), 0L);
+        Order initialOrder = Order.create(orderCommand);
+        Order savedOrder = orderRepository.save(initialOrder);
+
+
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
+
+        paymentFacade.pay(criteria);
+        productLikeService.add(savedUser.getId(), savedProduct2.getId());
+
+
+        Product product3 = ProductFixture.complete()
+                .set(Select.field(Product::getName), "product3")
+                .set(Select.field(Product::getPrice), 3000L)
+                .create();
+
+        Product savedProduct3 = productRepository.save(product3, savedBrand.getId());
+
+        // 상품 3 조회
+        productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct3.getId()));
+
+        Thread.sleep(2000);
+
+        // when
+        Long rankOfProduct = rankingService.getRankOfProduct(RankingCommand.GetProduct.of(LocalDate.now(), savedProduct1.getId()));
+
+        // then
+        assertAll(
+                ()-> assertThat(rankOfProduct).isNotNull(),
+                ()-> assertThat(rankOfProduct).isEqualTo(2L)
+        );
     }
 
 }

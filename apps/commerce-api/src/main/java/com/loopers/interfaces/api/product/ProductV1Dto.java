@@ -12,14 +12,14 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 
-
 public class ProductV1Dto {
     public record DetailResponse(
             Long productId,
             String productName,
             Long price,
             String brandName,
-            Long likeCount
+            Long likeCount,
+            Long rank
     ) {
         public static DetailResponse from(ProductResult productResult) {
             return new DetailResponse(
@@ -27,7 +27,8 @@ public class ProductV1Dto {
                     , productResult.getProductName()
                     , productResult.getProductPrice()
                     , productResult.getBrandName()
-                    , productResult.getLikeCount()
+                    , productResult.getLikeCount(),
+                    productResult.getRank()
             );
         }
     }

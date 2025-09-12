@@ -3,6 +3,9 @@ package com.loopers.domain.product;
 import com.loopers.domain.activity.event.ActivityEvent;
 import com.loopers.domain.brand.BrandCacheRepository;
 import com.loopers.domain.brand.exception.BrandException;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.BrandRepository;
@@ -29,16 +32,20 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final BrandCacheRepository brandCacheRepository;
     private final ProductCacheRepository productCacheRepository;
+    private final LikeSummaryRepository likeSummaryRepository;
 
     @Transactional
-    public void register(ProductCommand.Register register) {
+    public Product register(ProductCommand.Register register) {
         Product product = Product.create(
                 register.getName()
                 , register.getPrice()
                 , register.getBrandId()
                 , ZonedDateTime.now()
         );
-        productRepository.save(product, register.getBrandId());
+        Product save = productRepository.save(product, register.getBrandId());
+        likeSummaryRepository.save(LikeSummary.create(save.getId(), LikeTargetType.PRODUCT));
+        return save;
+
     }
 
 
@@ -49,6 +56,8 @@ public class ProductService {
             return productDetailById.get();
         }
         ProductDetailInfo productDetailInfo = productRepository.findProductDetail(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+        System.out.println("productDetailInfo.getLikeCount() = " + productDetailInfo.getLikeCount());
+        System.out.println("productDetailInfo.getProductName() = " + productDetailInfo.getProductName());
         productCacheRepository.saveProductDetail(productDetailInfo);
         return productDetailInfo;
     }

@@ -5,5 +5,7 @@ import java.util.Set;
 
 public interface RankingRepository {
 
-    Set<String> getRankingInfo(LocalDate date, int page, int size);
+    Set<String> findProductRanking(LocalDate date, int page, int size);
+
+    Long findProductRank(LocalDate date, Long productId);
 }

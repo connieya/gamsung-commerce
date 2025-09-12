@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api.rank;
 
+import com.loopers.domain.rank.RankingCommand;
 import com.loopers.domain.rank.RankingInfo;
 import com.loopers.domain.rank.RankingService;
 import com.loopers.interfaces.api.ApiResponse;
@@ -25,7 +26,7 @@ public class RankingV1Controller {
             @RequestParam LocalDate date
     ) {
 
-        RankingInfo rankingInfo = rankingService.getProductRanking(date, page, size);
+        RankingInfo rankingInfo = rankingService.getProductRanking(RankingCommand.GetProducts.of(date,page,size));
         return ApiResponse.success(RankingV1Dto.SummaryResponse.from(rankingInfo));
     }
 }

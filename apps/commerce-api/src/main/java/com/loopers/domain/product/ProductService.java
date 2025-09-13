@@ -3,6 +3,9 @@ package com.loopers.domain.product;
 import com.loopers.domain.activity.event.ActivityEvent;
 import com.loopers.domain.brand.BrandCacheRepository;
 import com.loopers.domain.brand.exception.BrandException;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.BrandRepository;
@@ -29,49 +32,37 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final BrandCacheRepository brandCacheRepository;
     private final ProductCacheRepository productCacheRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final LikeSummaryRepository likeSummaryRepository;
 
     @Transactional
-    public void register(ProductCommand.Register register) {
+    public Product register(ProductCommand.Register register) {
         Product product = Product.create(
                 register.getName()
                 , register.getPrice()
                 , register.getBrandId()
                 , ZonedDateTime.now()
         );
-        productRepository.save(product, register.getBrandId());
+        Product save = productRepository.save(product, register.getBrandId());
+        likeSummaryRepository.save(LikeSummary.create(save.getId(), LikeTargetType.PRODUCT));
+        return save;
+
     }
 
-    @Transactional
-    public ProductDetailInfo getProduct(Long productId) {
-        applicationEventPublisher.publishEvent(ActivityEvent.View.from(productId));
 
+    @Transactional
+    public ProductDetailInfo getProductDetail(Long productId) {
         Optional<ProductDetailInfo> productDetailById = productCacheRepository.findProductDetailById(productId);
         if (productDetailById.isPresent()) {
             return productDetailById.get();
         }
-
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-        Long brandId = product.getBrandId();
-        Brand brand = brandCacheRepository.findById(brandId)
-                .orElseGet(() -> {
-                    Brand brandFromDb = brandRepository.findBrand(brandId)
-                            .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-                    brandCacheRepository.save(brandFromDb);
-                    return brandFromDb;
-                });
-
-        Long likeCount = productLikeRepository.getLikeCount(productId);
-
-
-        ProductDetailInfo productDetailInfo = ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
-        productCacheRepository.saveProductDetail(productId, productDetailInfo);
-
+        ProductDetailInfo productDetailInfo = productRepository.findProductDetail(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
+        System.out.println("productDetailInfo.getLikeCount() = " + productDetailInfo.getLikeCount());
+        System.out.println("productDetailInfo.getProductName() = " + productDetailInfo.getProductName());
+        productCacheRepository.saveProductDetail(productDetailInfo);
         return productDetailInfo;
-
     }
 
-
+    
     @Transactional(readOnly = true)
     public ProductDetailInfo getProduct_Old(Long productId) { // 공부용으로 남겨둠
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
@@ -86,7 +77,7 @@ public class ProductService {
                 });
         Long likeCount = productLikeRepository.getLikeCount(productId);
 
-        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
+        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(),brandId, likeCount);
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )

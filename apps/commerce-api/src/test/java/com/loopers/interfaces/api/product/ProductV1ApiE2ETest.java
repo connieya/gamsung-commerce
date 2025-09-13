@@ -1,6 +1,8 @@
 package com.loopers.interfaces.api.product;
 
 import com.loopers.annotation.SprintE2ETest;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.ProductSort;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.ProductFixture;
@@ -311,12 +313,11 @@ class ProductV1ApiE2ETest {
                     userEntity1, userEntity2).forEach(testEntityManager::persist)
             );
 
-            List<ProductLike> productLikeEntities = List.of(
-                    ProductLike.create(userEntity1.getId(), productEntity.getId())
-                    , ProductLike.create(userEntity2.getId(), productEntity.getId())
-            );
+            LikeSummary likeSummary = LikeSummary.create(productEntity.getId(), LikeTargetType.PRODUCT);
+            likeSummary.increase();
+            likeSummary.increase();
 
-            transactionTemplate.executeWithoutResult(status -> productLikeEntities.forEach(testEntityManager::persist));
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(likeSummary));
 
             // when
             String url = UriComponentsBuilder.fromPath(REQUEST_URL)

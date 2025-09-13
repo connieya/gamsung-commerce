@@ -1,5 +1,8 @@
 package com.loopers.interfaces.api.product;
 
+import com.loopers.application.product.ProductCriteria;
+import com.loopers.application.product.ProductFacade;
+import com.loopers.application.product.ProductResult;
 import com.loopers.domain.product.*;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProductV1Controller implements ProductV1ApiSpec {
 
     private final ProductService productService;
+    private final ProductFacade productFacade;
 
     @GetMapping
     @Override
@@ -53,7 +57,7 @@ public class ProductV1Controller implements ProductV1ApiSpec {
     @GetMapping("/{productId}")
     @Override
     public ApiResponse<ProductV1Dto.DetailResponse> getProduct(@PathVariable Long productId) {
-        ProductDetailInfo productDetailInfo = productService.getProduct(productId);
-        return ApiResponse.success(ProductV1Dto.DetailResponse.from(productDetailInfo));
+        ProductResult productResult = productFacade.getProductDetail(new ProductCriteria.GetDetail(productId));
+        return ApiResponse.success(ProductV1Dto.DetailResponse.from(productResult));
     }
 }

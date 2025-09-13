@@ -3,6 +3,7 @@ package com.loopers.infrastructure.likes;
 import com.loopers.domain.likes.LikeSummary;
 import com.loopers.domain.likes.LikeSummaryRepository;
 import com.loopers.domain.likes.LikeTarget;
+import com.loopers.domain.likes.LikeTargetType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -27,5 +28,10 @@ public class LikeSummaryCoreRepository implements LikeSummaryRepository {
     @Override
     public Optional<LikeSummary> findByTargetUpdate(LikeTarget likeTarget) {
         return likeSummaryJpaRepository.findByTargetForUpdate(likeTarget);
+    }
+
+    @Override
+    public void updateLikeCountBy(Long productId, LikeTargetType likeTargetType , Long likeChanged) {
+        likeSummaryJpaRepository.updateLikeCountBy(productId,likeTargetType ,likeChanged);
     }
 }

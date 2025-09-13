@@ -14,7 +14,13 @@ public class BrandService {
     private final BrandCacheRepository brandCacheRepository;
 
     public BrandInfo getBrandInfo(Long brandId) {
-        Brand brand = brandRepository.findBrand(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+        Brand brand = brandCacheRepository.findById(brandId)
+                .orElseGet(() -> {
+                    Brand brandFromDb = brandRepository.findBrand(brandId)
+                            .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+                    brandCacheRepository.save(brandFromDb);
+                    return brandFromDb;
+                });
         return BrandInfo.from(brand);
     }
 

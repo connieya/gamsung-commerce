@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.config.RedisCacheConfig;
+import com.loopers.config.RedisKeyManager;
+import com.loopers.domain.likes.LikeUpdateType;
 import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductInfo;
@@ -30,7 +32,6 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
 
-    private static final String PREFIX = "product:list:";
     private static final Duration TTL = Duration.ofSeconds(30);
 
     @Override
@@ -39,7 +40,7 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
             return Page.empty(pageable);
         }
 
-        String key = PREFIX + ":sort" + pageable.getSort() + ":page" + pageable.getPageNumber() + ":size" + pageable.getPageSize() + ":brandId" + (brandId != null ? brandId : "ALL");
+        String key = RedisKeyManager.PRODUCT_LIST_KET_PREFIX + ":sort" + pageable.getSort() + ":page" + pageable.getPageNumber() + ":size" + pageable.getPageSize() + ":brandId" + (brandId != null ? brandId : "ALL");
         String json = stringRedisTemplate.opsForValue().get(key);
         if (!StringUtils.hasText(json)) {
             return Page.empty(pageable);
@@ -57,7 +58,7 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
     public void save(Long brandId, Page<ProductInfo> page) {
         if (page.getNumber() > 2 || page.isEmpty()) return;
 
-        String key = PREFIX + ":sort" + page.getSort() + ":page" + page.getNumber() + ":size" + page.getSize() + ":brandId" + (brandId != null ? brandId : "ALL");
+        String key = RedisKeyManager.PRODUCT_LIST_KET_PREFIX + ":sort" + page.getSort() + ":page" + page.getNumber() + ":size" + page.getSize() + ":brandId" + (brandId != null ? brandId : "ALL");
 
         String json;
         try {
@@ -71,7 +72,7 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
 
     @Override
     public Optional<ProductDetailInfo> findProductDetailById(Long productId) {
-        String key = "product.detail:" +productId;
+        String key = RedisKeyManager.PRODUCT_DETAIL_KEY +productId;
         Map<String, Object> cache = objectRedisTemplate.<String, Object>opsForHash().entries(key);
 
         if (CollectionUtils.isEmpty(cache)) {
@@ -82,15 +83,14 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
         if (cache.containsKey("__null__")) {
             return Optional.of(ProductDetailInfo.EMPTY);
         }
-        ProductDetailInfo productDetailInfo = objectMapper.convertValue(cache, new TypeReference<>() {
-        });
+        ProductDetailInfo productDetailInfo = objectMapper.convertValue(cache, ProductDetailInfo.class);
         return Optional.of(productDetailInfo);
     }
 
     @Override
-    public void saveProductDetail(Long productId, ProductDetailInfo productDetailInfo) {
-        String key = "product.detail:" + productId;
-        Duration ttl = RedisCacheConfig.jitter(Duration.ofMinutes(3));
+    public void saveProductDetail(ProductDetailInfo productDetailInfo) {
+        String key = RedisKeyManager.PRODUCT_DETAIL_KEY + productDetailInfo.getProductId();
+        Duration ttl = RedisCacheConfig.jitter(Duration.ofHours(2));
 
 
         // 캐시 관통을 방지한다.
@@ -105,6 +105,12 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
         });
         objectRedisTemplate.opsForHash().putAll(key, cache);
         objectRedisTemplate.expire(key, ttl);
+    }
+
+    @Override
+    public void updateLikeCount(Long productId , LikeUpdateType updateType) {
+        System.out.println("productId = " + productId);
+        objectRedisTemplate.opsForHash().increment(RedisKeyManager.PRODUCT_DETAIL_KEY+productId, "likeCount" ,updateType ==  LikeUpdateType.INCREMENT ? 1 : -1);
     }
 
 

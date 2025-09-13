@@ -1,5 +1,6 @@
 package com.loopers.domain.order;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.loopers.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -18,6 +19,7 @@ public class OrderLine extends BaseEntity {
     private Long orderPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
     @JoinColumn(name = "order_id")
     private Order order;
 

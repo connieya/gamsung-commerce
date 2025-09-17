@@ -38,4 +38,7 @@ public class LikeSummary extends BaseEntity {
                 .build();
     }
 
+    public void increase() {
+        likeCount++;
+    }
 }

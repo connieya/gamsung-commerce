@@ -9,4 +9,6 @@ public interface LikeSummaryRepository {
     Optional<LikeSummary> findByTarget(LikeTarget likeTarget);
 
     Optional<LikeSummary> findByTargetUpdate(LikeTarget likeTarget);
+
+    void updateLikeCountBy(Long productId, LikeTargetType likeTargetType, Long likeChanged);
 }

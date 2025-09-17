@@ -11,7 +11,9 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,14 @@ class ProductRepositoryTest {
 
     @Autowired
     LikeSummaryRepository likeSummaryRepository;
+
+    @Autowired
+    DatabaseCleanUp databaseCleanUp;
+
+    @AfterEach
+    void tearDown() {
+        databaseCleanUp.truncateAllTables();
+    }
 
     @Test
     @DisplayName("상품 목록 조회시 브랜드 정보와 좋아요 개수를 함께 조회한다.")

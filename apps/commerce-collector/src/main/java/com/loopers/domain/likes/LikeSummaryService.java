@@ -1,6 +1,5 @@
 package com.loopers.domain.likes;
 
-import com.loopers.interfaces.consumer.likes.LikeUpdatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,9 +29,9 @@ public class LikeSummaryService {
         log.info("countChanges = {}", countChanges);
         for (Long productId : countChanges.keySet()) {
             Long likeChanged = countChanges.get(productId);
-            String key = "product:detail" + productId;
+            String key = "product-like:" + productId;
             log.info("productId = {} , likeChanged = {} ", productId, likeChanged);
-            likeSummaryRepository.updateLikeCountBy(productId, likeChanged);
+            likeSummaryRepository.updateLikeCountBy(productId, LikeTargetType.PRODUCT, likeChanged);
             objectRedisTemplate.opsForHash().increment(key, "likeCount", likeChanged);
 
         }

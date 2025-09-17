@@ -15,18 +15,20 @@ public class ProductDetailInfo {
     private String productName;
     private Long productPrice;
     private String brandName;
+    private Long brandId;
     private Long likeCount;
 
     @Builder
-    private ProductDetailInfo(Long productId , String productName, Long productPrice, String brandName, Long likeCount) {
+    public ProductDetailInfo(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
         this.productId = productId;
         this.productName = productName;
         this.productPrice = productPrice;
         this.brandName = brandName;
+        this.brandId = brandId;
         this.likeCount = likeCount;
     }
 
-    public static ProductDetailInfo create(Long productId , String productName , Long productPrice , String brandName , Long likeCount) {
+    public static ProductDetailInfo create(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
         return ProductDetailInfo
                 .builder()
                 .productId(productId)
@@ -34,6 +36,7 @@ public class ProductDetailInfo {
                 .productPrice(productPrice)
                 .brandName(brandName)
                 .likeCount(likeCount)
+                .brandId(brandId)
                 .build();
     }
 }

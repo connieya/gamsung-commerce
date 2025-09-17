@@ -60,7 +60,7 @@ public class PaymentV1ApiE2ETest {
 
     @Test
     @DisplayName("포인트 결제 요청 시 결제에 성공하고, PAID 상태를 반환한다.")
-    void pay_returnsPaidStatus_whenUsingPoint() {
+    void pay_returnsPaidStatus_whenUsingPoint() throws InterruptedException {
         // given
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         UserEntity userEntity = UserEntity.fromDomain(user);
@@ -113,6 +113,8 @@ public class PaymentV1ApiE2ETest {
         ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
         });
 
+
+        Thread.sleep(2000);
 
         // then
         assertAll(

@@ -1,5 +1,6 @@
 package com.loopers.domain.order;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.loopers.domain.BaseEntity;
 import com.loopers.domain.order.exception.OrderException;
 import com.loopers.support.error.CoreException;
@@ -32,6 +33,7 @@ public class Order extends BaseEntity {
     private Long userId;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<OrderLine> orderLines = new ArrayList<>();
 
     private Long discountAmount;

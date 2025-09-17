@@ -172,7 +172,6 @@ class ProductLikeServiceTest {
 
         // then
         verify(productLikeJpaRepository, times(1)).deleteByUserIdAndProductId(savedUser.getId(), savedProduct.getId());
-        verify(likeSummaryJpaRepository, times(1)).findByTargetForUpdate(target);
     }
 
 

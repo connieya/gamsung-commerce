@@ -64,7 +64,7 @@ class ProductLikeServiceIntegrationTest {
 
     @Test
     @DisplayName("좋아요 등록 성공 시 집계가 잘 반영된다.")
-    void addLike_successfullyUpdatesLikeSummary() {
+    void addLike_successfullyUpdatesLikeSummary() throws InterruptedException {
         // given
         User user = UserFixture.complete().create();
         User savedUser = userRepository.save(user);
@@ -75,10 +75,10 @@ class ProductLikeServiceIntegrationTest {
         Product product = ProductFixture.complete().create();
         Product savedProduct = productRepository.save(product ,savedBrand.getId());
 
-        likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(),LikeTargetType.PRODUCT));
-
         // when
         productLikeService.add(savedUser.getId(), savedProduct.getId());
+
+        Thread.sleep(2000);
 
         LikeSummary likeSummary = likeSummaryRepository.findByTarget(LikeTarget.create(savedProduct.getId(), LikeTargetType.PRODUCT)).get();
 
@@ -217,6 +217,8 @@ class ProductLikeServiceIntegrationTest {
         startLatch.countDown(); // 모든 스레드에게 시작 신호를 보냄
         endLatch.await();       // 모든 스레드가 작업을 마칠 때까지 대기
         executorService.shutdown(); // 스레드풀 종료
+
+        Thread.sleep(2000);
 
         // then
         LikeSummary likeSummary  = likeSummaryRepository.findByTarget(LikeTarget.create(savedProduct.getId(),LikeTargetType.PRODUCT)).get();

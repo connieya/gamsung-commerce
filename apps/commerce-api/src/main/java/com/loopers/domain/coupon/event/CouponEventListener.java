@@ -1,5 +1,7 @@
 package com.loopers.domain.coupon.event;
 
+import com.loopers.domain.coupon.Coupon;
+import com.loopers.domain.coupon.CouponRepository;
 import com.loopers.domain.coupon.UserCoupon;
 import com.loopers.domain.coupon.UserCouponRepository;
 import com.loopers.domain.coupon.exception.CouponException;
@@ -10,14 +12,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 public class CouponEventListener {
 
     private final UserCouponRepository userCouponRepository;
+    private final CouponRepository couponRepository;
 
     @EventListener
     public void handle(PaymentEvent.Success event) {
+        Optional<Coupon> byId = couponRepository.findById(event.couponId());
+        if (byId.isEmpty()) return;
         UserCoupon userCoupon = userCouponRepository.findByCouponId(event.couponId())
                 .orElseThrow(() -> new CouponException.UserCouponNotFoundException(ErrorType.USER_COUPON_NOT_FOUND));
         if (!userCoupon.canUse()) {

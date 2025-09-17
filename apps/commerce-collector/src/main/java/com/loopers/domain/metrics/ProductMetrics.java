@@ -44,4 +44,11 @@ public class ProductMetrics extends BaseEntity {
         this.viewCount = viewCount;
     }
 
+
+    public double calculateRankingScore() {
+        return viewCount * RankingWeight.VIEW.getWeight()
+                + likeCount * RankingWeight.LIKE.getWeight()
+                + saleQuantity * RankingWeight.SALE.getWeight();
+    }
+
 }

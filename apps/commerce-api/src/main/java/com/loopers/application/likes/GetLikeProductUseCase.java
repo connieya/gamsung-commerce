@@ -43,7 +43,7 @@ public class GetLikeProductUseCase {
                 .map(product -> {
                     Brand brand = brandMap.get(product.getBrandId());
                     Long likeCount = productLikeRepository.getLikeCount(product.getId());
-                    return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), likeCount);
+                    return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), brand.getId(), likeCount);
                 }).toList();
 
         return GetLikeProductResult.create(productDetailInfos);

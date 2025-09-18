@@ -6,7 +6,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,7 @@ public class MetricService {
     public void aggregate(MetricCommand.Aggregate command) {
         List<MetricCommand.Aggregate.Item> items = command.items();
 
-        List<ProductMetrics> productMetrics = items.stream()
+        List<ProductMetrics> productMetricsList = items.stream()
                 .map(item ->
                         ProductMetrics
                                 .builder()
@@ -38,14 +40,24 @@ public class MetricService {
                 ).toList();
 
         // 날짜별로 묶어서 처리 (키/만료 1회)
-        Map<LocalDate, List<ProductMetrics>> byDate = productMetrics.stream()
+        Map<LocalDate, List<ProductMetrics>> byDate = productMetricsList.stream()
                 .collect(Collectors.groupingBy(ProductMetrics::getDate));
 
         byDate.forEach((date, metricsOfDate) -> {
-            for (ProductMetrics target : metricsOfDate) {
-                double score = target.calculateRankingScore();
-                redisTemplate.opsForZSet().incrementScore(RedisKeyManager.RankingKeyFor(date), String.valueOf(target.getProductId()), score);
-                metricRepository.upsert(target);
+            for (ProductMetrics productMetrics : metricsOfDate) {
+                double score = productMetrics.calculateRankingScore();
+                redisTemplate.opsForZSet().incrementScore(RedisKeyManager.RankingKeyFor(date), String.valueOf(productMetrics.getProductId()), score);
+                metricRepository.upsert(productMetrics);
+                metricRepository.findByProductIdAndWeekStart(productMetrics.getProductId(), productMetrics.getDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
+                        .ifPresentOrElse(
+                                weekly -> weekly.aggregate(productMetrics), // 존재하면 누적
+                                () -> metricRepository.save(ProductMetricsWeekly.fromDaily(productMetrics)) // 없으면 생성
+                        );
+                metricRepository.findByProductIdAndMonthStart(productMetrics.getProductId() , productMetrics.getDate().with(TemporalAdjusters.firstDayOfMonth()))
+                        .ifPresentOrElse(
+                                monthly -> monthly.aggregate(productMetrics),
+                                () -> metricRepository.save(ProductMetricsMonth.fromDaily(productMetrics))
+                        );
             }
 
             // 날짜별로 한 번만 만료 설정 (3일 뒤 KST 자정)

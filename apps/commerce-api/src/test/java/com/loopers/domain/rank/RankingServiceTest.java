@@ -24,6 +24,7 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.utils.DatabaseCleanUp;
+import com.loopers.utils.RedisCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -74,9 +75,13 @@ class RankingServiceTest {
     @Autowired
     private ProductFacade productFacade;
 
+    @Autowired
+    private RedisCleanUp redisCleanUp;
+
     @AfterEach
     void cleanUp() {
         databaseCleanUp.truncateAllTables();
+        redisCleanUp.truncateAll();
     }
 
 

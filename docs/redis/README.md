@@ -6,6 +6,8 @@
 
 - TYPE rank:product:all:20250911
 
+## ZSet
+
 - zscore rank:product:all:20250911 1
 
 - ZRANGE rank:product:all:20250911 0 -1 WITHSCORES
@@ -19,3 +21,13 @@
 - DEL rank:product:all:20250911
 
 - ZREVRANK rank:product:all:20250911 1
+
+
+## Hash
+
+- HGETALL product-like:1
+
+
+- hget product:detail:1 productName 
+
+- hmget product:detail:1 productName brandName 

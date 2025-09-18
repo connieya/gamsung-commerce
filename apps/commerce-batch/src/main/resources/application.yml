@@ -1,0 +1,16 @@
+server:
+  port: 8086
+  shutdown: graceful
+spring:
+  application:
+    name: commerce-batch
+  profiles:
+    active: local
+  config:
+    import:
+      - jpa.yml
+  batch:
+    jdbc:
+      initialize-schema: always   # 로컬/테스트용; 운영은 이관 도구 권장
+    job:
+      enabled: false              # 앱 부팅 시 자동 실행 방지(원하면 true)

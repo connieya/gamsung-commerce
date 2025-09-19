@@ -1,9 +1,6 @@
 package com.loopers.job;
 
-import com.loopers.domain.MetricRepository;
-import com.loopers.domain.MvProductRankWeekly;
-import com.loopers.domain.MvProductRankRepository;
-import com.loopers.domain.WeeklyScoreRow;
+import com.loopers.domain.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
@@ -25,19 +22,18 @@ public class WeeklyRankSnapShotTasklet implements Tasklet {
     private final MetricRepository metricRepository;
     private final MvProductRankRepository mvProductRankRepository;
 
-    @Value("${rank.weight.like:1.0}")  private BigDecimal wLike;
-    @Value("${rank.weight.order:5.0}") private BigDecimal wOrder;
-    @Value("${rank.weight.view:0.1}")  private BigDecimal wView;
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+        System.out.println("tasklet execute !!");
+
         var params = chunkContext.getStepContext().getJobParameters();
         LocalDate asOf = LocalDate.parse((String) params.get("asOfDate"));
         LocalDate weekStart = asOf.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
         // 1) DB에서 점수/랭크까지 계산해 TOP100 가져오기
         List<WeeklyScoreRow> rows =
-                metricRepository.findTop100ByWeekStartWithRank(weekStart, wLike, wOrder, wView);
+                metricRepository.findTop100ByWeekStartWithRank(weekStart, RankingWeight.LIKE.getWeight(), RankingWeight.SALE.getWeight(), RankingWeight.VIEW.getWeight());
 
         // 2) 기존 주차 MV 삭제
         mvProductRankRepository.deleteByWeekStart(weekStart);

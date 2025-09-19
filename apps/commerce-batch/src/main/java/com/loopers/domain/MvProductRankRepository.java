@@ -6,5 +6,10 @@ import java.util.List;
 public interface MvProductRankRepository {
     void deleteByWeekStart(LocalDate weekStart);
 
-    void saveAll(List<MvProductRankWeekly> mvProductRankWeeklies);
+    void saveProductRankWeeklyAll(List<MvProductRankWeekly> mvProductRankWeeklyList);
+
+    void deleteByMonthStart(LocalDate monthStart);
+
+    void saveProductRankMonthlyAll(List<MvProductRankMonthly> mvProductRankMonthlyList);
+
 }

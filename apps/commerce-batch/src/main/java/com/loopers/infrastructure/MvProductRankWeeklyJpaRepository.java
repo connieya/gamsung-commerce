@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 
-public interface MvProductRankJpaRepository extends JpaRepository<MvProductRankWeekly ,Long> {
+public interface MvProductRankWeeklyJpaRepository extends JpaRepository<MvProductRankWeekly ,Long> {
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM MvProductRankWeekly m WHERE m.weekStart = :weekStart")

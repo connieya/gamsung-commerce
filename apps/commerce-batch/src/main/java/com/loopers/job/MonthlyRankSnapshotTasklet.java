@@ -6,11 +6,9 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -18,31 +16,30 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class WeeklyRankSnapShotTasklet implements Tasklet {
+public class MonthlyRankSnapshotTasklet implements Tasklet {
     private final MetricRepository metricRepository;
     private final MvProductRankRepository mvProductRankRepository;
 
-
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-
         var params = chunkContext.getStepContext().getJobParameters();
         LocalDate asOf = LocalDate.parse((String) params.get("asOfDate"));
-        LocalDate weekStart = asOf.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate monthStart = asOf.with(TemporalAdjusters.firstDayOfMonth());
 
-        // 1) DB에서 점수/랭크까지 계산해 TOP100 가져오기
-        List<WeeklyScoreRow> rows =
-                metricRepository.findTop100ByWeekStartWithRank(weekStart, RankingWeight.LIKE.getWeight(), RankingWeight.SALE.getWeight(), RankingWeight.VIEW.getWeight());
+        BigDecimal wView  = RankingWeight.VIEW.getWeight();
+        BigDecimal wLike  = RankingWeight.LIKE.getWeight();
+        BigDecimal wOrder = RankingWeight.SALE.getWeight();
 
-        // 2) 기존 주차 MV 삭제
-        mvProductRankRepository.deleteByWeekStart(weekStart);
+        List<MonthlyScoreRow> rows =
+                metricRepository.findTop100ByMonthStartWithRank(monthStart, wLike, wOrder, wView);
 
-        // 3) INSERT (TOP100, 랭크는 DB에서 계산된 rnk 사용)
+        mvProductRankRepository.deleteByMonthStart(monthStart);
+
         int rank = 0;
-        List<MvProductRankWeekly> mvProductRankWeeklies = new ArrayList<>(rows.size());
-        for (WeeklyScoreRow r : rows) {
-            mvProductRankWeeklies.add(MvProductRankWeekly.builder()
-                    .weekStart(weekStart)
+        List<MvProductRankMonthly> insert = new ArrayList<>(rows.size());
+        for (MonthlyScoreRow r : rows) {
+            insert.add(MvProductRankMonthly.builder()
+                    .monthStart(monthStart)
                     .productId(r.getProductId())
                     .likeSum(r.getLikeSum())
                     .orderSum(r.getOrderSum())
@@ -51,9 +48,9 @@ public class WeeklyRankSnapShotTasklet implements Tasklet {
                     .rank(++rank)
                     .build());
         }
-        mvProductRankRepository.saveProductRankWeeklyAll(mvProductRankWeeklies);
+        mvProductRankRepository.saveProductRankMonthlyAll(insert);
 
-        contribution.incrementWriteCount(mvProductRankWeeklies.size());
+        contribution.incrementWriteCount(insert.size());
         return RepeatStatus.FINISHED;
     }
 }

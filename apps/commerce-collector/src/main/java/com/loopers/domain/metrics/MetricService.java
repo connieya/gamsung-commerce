@@ -1,6 +1,7 @@
 package com.loopers.domain.metrics;
 
 import com.loopers.config.RedisKeyManager;
+import com.loopers.infrastructure.rank.RankingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public class MetricService {
 
     private final MetricRepository metricRepository;
+    private final RankingRepository rankingRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final int RETENTION_DAYS = 3;
@@ -45,8 +47,7 @@ public class MetricService {
 
         byDate.forEach((date, metricsOfDate) -> {
             for (ProductMetrics productMetrics : metricsOfDate) {
-                double score = productMetrics.calculateRankingScore();
-                redisTemplate.opsForZSet().incrementScore(RedisKeyManager.RankingKeyFor(date), String.valueOf(productMetrics.getProductId()), score);
+                rankingRepository.add(date,productMetrics);
                 metricRepository.upsert(productMetrics);
                 metricRepository.findByProductIdAndWeekStart(productMetrics.getProductId(), productMetrics.getDate().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
                         .ifPresentOrElse(

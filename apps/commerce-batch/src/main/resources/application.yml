@@ -1,4 +1,6 @@
 server:
+  main:
+    web-application-type: servlet
   port: 8086
   shutdown: graceful
 spring:

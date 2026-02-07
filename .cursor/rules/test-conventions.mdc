@@ -1,0 +1,61 @@
+---
+description: 테스트 코드 작성 가이드 (단위 우선, Mock 활용)
+globs: "**/*Test*.java"
+alwaysApply: false
+---
+
+# 테스트 코드 작성 가이드
+
+## 1. 원칙: 단위 테스트 우선
+
+- **통합 테스트**는 Spring 컨텍스트·DB를 사용하므로 속도가 느리다.
+- **Mock으로 검증 가능한 것은 단위 테스트로 작성한다.** 굳이 @SpringBootTest를 쓰지 않는다.
+- 예: Service·Facade는 의존성을 @Mock으로 두고 @ExtendWith(MockitoExtension.class)로 단위 테스트.
+
+## 2. 단위 테스트 (Spring 미사용)
+
+- **확장:** `@ExtendWith(MockitoExtension.class)` (Spring 미로드).
+- **의존성:** `@Mock`으로 대체, `@InjectMocks`로 테스트 대상(SUT) 주입.
+- **Repository 등 구현체가 필요할 때:** `spy(구현체)`로 감싸고, `doReturn(...).when(spy).메서드(...)` 로 스텁.
+- **검증:** AssertJ (`assertThat`, `assertThatThrownBy`), `verify( mock, times(n) ).메서드(...)`.
+- **구조:** given-when-then 주석, `@DisplayName`, `@Nested`로 시나리오 그룹화.
+- **네이밍:** `*Test` (예: UserServiceTest, OrderFacadeTest).
+
+## 3. 통합 테스트 (Spring 사용)
+
+- **사용 시점:** DB·다수 빈 연동이 꼭 필요할 때만 (Repository 실제 동작, 트랜잭션, 여러 서비스 협업 등).
+- **확장:** `@SpringBootTest`.
+- **격리:** `@AfterEach`에서 DB 정리 (예: DatabaseCleanUp.truncateAllTables()).
+- **일부만 스텁:** `@MockitoSpyBean`으로 특정 빈만 스텁.
+- **네이밍:** `*IntegrationTest` (예: UserServiceIntegrationTest).
+
+## 4. E2E 테스트
+
+- **사용 시점:** API 계약·HTTP 요청/응답을 끝까지 검증할 때.
+- **방식:** `@SpringBootTest(webEnvironment = RANDOM_PORT)` 또는 `@SprintE2ETest` 같은 메타 애노테이션, TestRestTemplate.
+- **격리:** 각 테스트 후 DB 정리.
+- **네이밍:** `*V1ApiE2ETest` (예: ProductV1ApiE2ETest).
+
+## 5. 도메인 모델 단위 테스트
+
+- **엔티티·값 객체 생성·검증:** Mock 없이 JUnit만 사용 (예: ProductTest, OrderTest).
+- **@ParameterizedTest**, `@NullSource`, `@ValueSource` 등으로 경계값·예외 케이스 검증.
+
+## 6. Fixture
+
+- **위치:** `domain.{feature}.fixture`. 클래스명 `*Fixture` / `*CommandFixture`.
+- **패턴:** `Fixture.complete().create()` 로 테스트 데이터 생성. Instancio 사용 시 상세는 **fixture-conventions.mdc** 참고.
+
+## 7. Infrastructure·JPA 테스트
+
+- **테스트하지 않는다:** Spring Data JPA **derived query** (`findByXxx`, `existsByXxx` 등). JPA·Hibernate가 이미 검증한 기본 동작이므로 우리가 다시 테스트할 필요가 없다.
+- **테스트한다:** **복잡한 JPQL**, **QueryDSL**, **네이티브 쿼리** (@Query native 등). 우리가 직접 작성한 쿼리이므로 버그 가능성이 있으니 통합 테스트 또는 Repository 테스트로 검증한다.
+
+## 8. 체크리스트
+
+- [ ] Mock으로 충분하면 단위 테스트만 작성 (Spring 미사용).
+- [ ] 단위: @ExtendWith(MockitoExtension.class), @Mock, @InjectMocks.
+- [ ] 통합: @SpringBootTest는 꼭 필요할 때만, *IntegrationTest 네이밍.
+- [ ] JPA: derived query는 테스트 안 함, 복잡한 JPQL/QueryDSL/네이티브 쿼리는 테스트함.
+- [ ] given-when-then, @DisplayName, @Nested로 가독성 유지.
+- [ ] Fixture: fixture-conventions.mdc 참고하여 일원화.

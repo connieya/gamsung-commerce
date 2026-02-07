@@ -12,5 +12,7 @@
 | `commit-conventions.mdc` | Git 커밋 메시지 (Conventional Commits, scope 포함) |
 | `clean-architecture-conventions.mdc` | 패키지 구조, 의존성·DIP, 레이어 역할, 체크리스트 |
 | `layer-naming-conventions.mdc` | 레이어별 네이밍 (Criteria, Result, Command, xxInfo) |
+| `test-conventions.mdc` | 테스트 작성 가이드 (단위 우선, Mock 활용) |
+| `fixture-conventions.mdc` | Fixture 작성 가이드 (Instancio, domain.{feature}.fixture) |
 
-복사 후 Cursor에서 해당 프로젝트를 열면, Java 파일 작업 시 위 규칙이 적용된다.
+복사 후 Cursor에서 해당 프로젝트를 열면, Java·테스트·Fixture 파일 작업 시 위 규칙이 적용된다.

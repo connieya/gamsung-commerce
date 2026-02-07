@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class GetLikeProductUseCase {
+public class LikeProductFacade {
 
     private final UserService userService;
     private final ProductLikeRepository productLikeRepository;

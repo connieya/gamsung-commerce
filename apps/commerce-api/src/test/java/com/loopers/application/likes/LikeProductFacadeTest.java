@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 @SpringBootTest
-class GetLikeProductUseCaseTest {
+class LikeProductFacadeTest {
 
     @Autowired
-    GetLikeProductUseCase getLikeProductUseCase;
+    LikeProductFacade likeProductFacade;
 
     @Autowired
     UserRepository userRepository;
@@ -84,7 +84,7 @@ class GetLikeProductUseCaseTest {
         // when
         String userId = "gunny";
 
-        GetLikeProductResult likedProducts = getLikeProductUseCase.getLikedProducts(userId);
+        GetLikeProductResult likedProducts = likeProductFacade.getLikedProducts(userId);
 
         // then
 

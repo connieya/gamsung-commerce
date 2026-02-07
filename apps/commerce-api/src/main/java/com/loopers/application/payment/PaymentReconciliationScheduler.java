@@ -1,7 +1,6 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.payment.*;
-import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +15,7 @@ import java.util.List;
 public class PaymentReconciliationScheduler {
 
     private final PaymentService paymentService;
-    private final PaymentAdapter paymentAdapter;
+    private final PaymentClient paymentClient;
 
     @Scheduled(initialDelay = 300_000, fixedDelay = 600_000)
     public void reconcilePendingPayments() {
@@ -28,7 +27,7 @@ public class PaymentReconciliationScheduler {
 
         for (Payment payment : payments) {
             PaymentCommand.Search search = PaymentCommand.Search.of(payment.getOrderNumber(), payment.getOrderNumber());
-            PgSimulatorResponse.TransactionDetail transactionDetail = paymentAdapter.getTransactionDetail(search);
+            PaymentTransactionDetail transactionDetail = paymentClient.getTransactionDetail(search);
             if (transactionDetail.transactionStatus() == TransactionStatus.SUCCESS) {
                 paymentService.paid(payment.getId());
             }else if (transactionDetail.transactionStatus() == TransactionStatus.FAILED) {

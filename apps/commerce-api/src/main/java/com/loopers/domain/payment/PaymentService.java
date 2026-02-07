@@ -13,7 +13,6 @@ import com.loopers.domain.payment.exception.PaymentFailure;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.exception.UserException;
-import com.loopers.infrastructure.payment.client.PgSimulatorResponse;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +29,12 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final PaymentAttemptRepository paymentAttemptRepository;
-    private final PaymentAdapter paymentAdapter;
+    private final PaymentClient paymentClient;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void complete(PaymentCommand.Search paymentCommand) {
-        PgSimulatorResponse.TransactionDetail transactionDetail = paymentAdapter.getTransactionDetail(paymentCommand);
+        PaymentTransactionDetail transactionDetail = paymentClient.getTransactionDetail(paymentCommand);
 
         Payment payment = paymentRepository.findByOrderNumber(paymentCommand.orderNumber())
                 .orElseThrow(() -> new PaymentException.PaymentNotFoundException(ErrorType.PAYMENT_NOT_FOUND));
@@ -70,8 +69,8 @@ public class PaymentService {
     @Transactional
     public void requestPayment(PaymentCommand.Transaction transaction) {
         try {
-            PgSimulatorResponse.RequestTransaction requestTransaction = paymentAdapter.request(transaction);
-            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestTransaction.transactionKey(), transaction.orderNumber(), requestTransaction.status(), transaction.couponId()));
+            PaymentRequestResult requestResult = paymentClient.request(transaction);
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId()));
         } catch (CoreException e) {
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
             applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));

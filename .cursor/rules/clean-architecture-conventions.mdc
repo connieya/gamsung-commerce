@@ -1,0 +1,76 @@
+---
+description: 클린 아키텍처 패키지·레이어·네이밍 컨벤션 (실무 통용)
+globs: "**/*.java"
+alwaysApply: false
+---
+
+# 클린 아키텍처 컨벤션
+
+## 1. 패키지 구조 (5계층)
+
+일반적으로 통용되도록 아래 순서와 이름을 사용한다.
+
+```
+{base}.presentation   → 외부 요청 진입 (HTTP, 메시지, 배치 등)
+{base}.application   → 유스케이스 조합·진입 서비스
+{base}.domain         → 비즈니스 로직, 저장소·도메인 인터페이스
+{base}.infrastructure → 저장소·외부 연동 구현체
+{base}.support        → 공통 예외·에러·유틸
+```
+
+- **presentation**: 레이어드/클린 아키텍처에서 널리 쓰는 이름. (대안: `interfaces` — 진입점 전반을 강조할 때)
+- **support**: 공통/크로스커팅. (대안: `common` — 팀 컨벤션에 맞춰 선택)
+
+## 2. 의존성 방향 · DIP (Dependency Inversion Principle)
+
+- **안쪽 → 바깥쪽만** 허용: `domain` ← `application` ← `presentation`, `domain` ← `infrastructure`.
+- **domain**은 다른 계층에 의존하지 않는다 (순수 비즈니스).
+- **infrastructure**는 `domain` 인터페이스만 구현하고, presentation/application 타입을 직접 참조하지 않는다.
+
+**DIP**: 고수준(domain, application)은 저수준(infrastructure)에 의존하지 않고 **추상(인터페이스)**에만 의존한다. 저장소·외부 연동 등은 domain에 인터페이스를 두고, infrastructure에서 구현체를 둔다. 이렇게 해야 domain이 DB·HTTP·외부 라이브러리 변경에 흔들리지 않는다.
+
+## 3. 레이어별 역할 (원칙)
+
+요구사항에 맞게 구체적인 클래스 이름은 자유롭게 정한다. 아래는 **역할과 원칙**만 고정한다.
+
+### presentation (진입 계층)
+
+- **역할**: HTTP·메시지·배치 등 외부 요청을 받아 application/domain으로 넘긴다.
+- **포함**: 컨트롤러/핸들러, 요청·응답 DTO, 공통 응답 래퍼·헤더 상수.
+- **원칙**: 도메인/인프라 타입을 그대로 노출하지 않고, DTO 등으로 변환해 반환한다.
+
+### application (유스케이스)
+
+- **역할**: 하나의 유스케이스를 하나의 진입 서비스로 묶고, 필요한 도메인 서비스를 조합한다.
+- **포함**: 유스케이스 진입 클래스, 진입용 요청/반환 모델 (필요에 따라 생략 가능).
+- **원칙**: 트랜잭션·도메인 이벤트 발행은 도메인 서비스에 위임한다.
+
+### domain (비즈니스)
+
+- **역할**: 비즈니스 규칙과 도메인 모델, 저장소·외부 연동의 **인터페이스**만 둔다.
+- **포함**: 도메인 서비스, Repository 인터페이스, 도메인 모델, 도메인 예외·이벤트.
+- **원칙**: JPA·HTTP·외부 라이브러리에 의존하지 않는다. 저장소는 인터페이스만 두고 구현은 infrastructure에 둔다.
+
+### infrastructure (구현체)
+
+- **역할**: domain에 정의한 Repository·어댑터 등을 DB·캐시·외부 API로 구현한다.
+- **포함**: Repository 구현체, JPA 엔티티·Repository, 외부 API 클라이언트.
+- **원칙**: 도메인 인터페이스를 구현하고, 엔티티 ↔ 도메인 변환은 이 계층에서만 한다 (예: `toDomain()` / `fromDomain()`).
+
+### support (공통)
+
+- **역할**: 여러 계층에서 쓰는 예외·에러 코드·전역 예외 처리.
+- **포함**: 공통 예외 클래스, 에러 코드 enum, `@ControllerAdvice` 등 (필요할 때만 사용).
+
+## 4. 도메인 모델 원칙
+
+- 도메인 엔티티는 **프레임워크에 종속되지 않도록** (JPA 어노테이션은 infrastructure 엔티티에만).
+- 생성 방식은 팀/프로젝트에 맞게 (Builder, 정적 팩토리, record 등).
+- 비즈니스 검증은 도메인 내부에서 수행한다.
+
+## 5. 체크리스트 (리뷰 시)
+
+- [ ] 패키지: presentation, application, domain, infrastructure, support 유지
+- [ ] 의존성: domain은 다른 계층·프레임워크에 의존하지 않음 (DIP)
+- [ ] DIP: 저장소·외부 연동은 domain에 인터페이스, infrastructure에 구현체
+- [ ] 엔티티·외부 모델 변환: infrastructure에서만 수행

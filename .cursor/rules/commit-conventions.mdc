@@ -1,0 +1,47 @@
+---
+description: Git 커밋 메시지 컨벤션 (Conventional Commits)
+alwaysApply: true
+---
+
+# Git Commit 컨벤션
+
+## 형식
+
+```
+<type>(<scope>): <subject>
+
+[optional body]
+[optional footer]
+```
+
+- **type**: 변경 유형 (소문자)
+- **scope**: 영향 범위 (선택, 소문자, 예: product, order, payment)
+- **subject**: 한 줄 요약 (50자 내외, 명령형, 마침표 생략)
+
+## Type
+
+| type | 설명 |
+|------|------|
+| feat | 새로운 기능 |
+| fix | 버그 수정 |
+| docs | 문서만 변경 |
+| style | 코드 의미 변경 없음 (포맷, 세미콜론 등) |
+| refactor | 리팩터링 (기능/버그 수정 아님) |
+| test | 테스트 추가/수정 |
+| chore | 빌드, 설정, 의존성 등 |
+
+## 예시
+
+```
+feat(product): 상품 목록 좋아요 정렬 추가
+fix(payment): PG 타임아웃 시 재시도 로직 수정
+refactor(order): OrderCommand를 record로 변경
+test(likes): ProductLikeService 단위 테스트 추가
+chore: Redis 모듈 Resilience4j 의존성 추가
+```
+
+## 규칙
+
+- subject는 **현재 시제 명령형** (추가한다 → 추가, 수정한다 → 수정)
+- scope는 변경된 모듈/도메인 기준 (commerce-api 내부면 product, order 등)
+- 본문이 필요하면 빈 줄 뒤에 작성

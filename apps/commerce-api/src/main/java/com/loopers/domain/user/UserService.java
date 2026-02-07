@@ -8,12 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserUseCase {
+public class UserService {
 
     private final UserRepository userRepository;
 
-
-    @Override
     @Transactional
     public UserRegisterResult register(UserRegisterCommand command) {
         userRepository.findByUserId(command.getUserId())
@@ -26,7 +24,6 @@ public class UserService implements UserUseCase {
         return UserRegisterResult.of(user.getUserId(), user.getBirthDate().getBirthDate(), user.getEmail());
     }
 
-    @Override
     @Transactional(readOnly = true)
     public UserInfoResult getUser(String userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
@@ -34,7 +31,6 @@ public class UserService implements UserUseCase {
         return UserInfoResult.of(user.getUserId(), user.getEmail(), user.getBirthDate().getBirthDate(), user.getGender());
     }
 
-    @Override
     public User findByUserId(String userId) {
         return userRepository.findByUserId(userId).orElseThrow(() -> new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
     }

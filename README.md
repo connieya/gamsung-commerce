@@ -9,8 +9,10 @@
 `local` 프로필로 동작할 수 있도록, 필요 인프라를 `docker-compose`로 제공합니다.
 
 ```shell
-docker-compose -f ./docker/infra-compose.yml up
+docker-compose -f ./docker/infra-compose.yml up -d
 ```
+
+> **Docker 사용법 상세** (기동·종료·MySQL 접속, 다른 PC 실행 시 참고): [docs/docker.md](docs/docker.md)
 
 ### Monitoring
 
@@ -26,6 +28,13 @@ docker-compose -f ./docker/monitoring-compose.yml up
 - **빌드**: `./gradlew build`
 - **실행**: 각 앱별로 `./gradlew :apps:<app-name>:bootRun` (예: `./gradlew :apps:commerce-api:bootRun`)
 - **API 테스트**: `http/` 디렉터리의 `.http` 파일과 `http-client.env.json`을 사용합니다.
+
+### 시드 데이터 (local)
+
+`commerce-api`를 **local** 프로필로 실행하면 **서버 기동 시 자동으로** 무신사 스타일 시드 데이터(브랜드, 유저, 상품, 좋아요)가 DB에 삽입됩니다. 별도 수동 작업 없이 API/웹에서 바로 목록을 확인할 수 있습니다.
+
+- 시드 스크립트: `apps/commerce-api/src/main/resources/data-local.sql`
+- local 프로필에서는 `ddl-auto: create`로 테이블이 매 기동 시 재생성된 뒤, 위 SQL이 실행됩니다.
 
 ## Architecture
 

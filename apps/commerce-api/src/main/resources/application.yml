@@ -52,6 +52,17 @@ springdoc:
 spring:
   config:
     activate:
+      on-profile: local
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data-local.sql
+      defer-datasource-initialization: true
+
+---
+spring:
+  config:
+    activate:
       on-profile: local, test
 
 ---

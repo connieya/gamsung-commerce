@@ -42,6 +42,7 @@ chore: Redis 모듈 Resilience4j 의존성 추가
 
 ## 규칙
 
+- **언어**: subject와 본문은 **한글**로 작성한다. (type, scope는 영문 소문자 유지)
 - subject는 **현재 시제 명령형** (추가한다 → 추가, 수정한다 → 수정)
 - scope는 변경된 모듈/도메인 기준 (commerce-api 내부면 product, order 등)
 - 본문이 필요하면 빈 줄 뒤에 작성

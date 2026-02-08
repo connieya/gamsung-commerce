@@ -49,16 +49,8 @@ springdoc:
     path: /swagger-ui.html
 
 ---
-spring:
-  config:
-    activate:
-      on-profile: local
-  sql:
-    init:
-      mode: always
-      data-locations: classpath:data-local.sql
-      defer-datasource-initialization: true
-
+# local + ddl-auto: none 시 데이터 유지. 시드는 한 번만 수동 실행 (docs/docker.md 참고)
+# spring.sql.init 으로 data-local.sql 자동 실행 제거 (중복 INSERT 방지)
 ---
 spring:
   config:

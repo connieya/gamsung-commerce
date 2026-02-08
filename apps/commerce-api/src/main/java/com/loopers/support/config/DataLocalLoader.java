@@ -12,9 +12,8 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 
 /**
- * local 프로필 기동 시 data-local.sql을 실행하여 시드 데이터를 삽입한다.
- * 커스텀 DataSource(datasource.mysql-jpa.main) 사용 시 Spring Boot 기본 DataSource 초기화가
- * 동작하지 않으므로, Hibernate 스키마 생성 이후 CommandLineRunner로 직접 실행한다.
+ * local 프로필 기동 시 시드 대상 테이블을 비운 뒤 data-local.sql로 시드를 삽입한다.
+ * ddl-auto 변경 없이, 재기동만으로 "데이터 전부 날리고 시드만 넣기"가 가능하다.
  */
 @Component
 @Profile("local")
@@ -31,14 +30,19 @@ public class DataLocalLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        var resource = new ClassPathResource("data-local.sql");
+        runIfExists("data-local-clean.sql", "Seed tables cleaned.");
+        runIfExists("data-local.sql", "Seed data loaded.");
+    }
+
+    private void runIfExists(String scriptName, String successMessage) {
+        var resource = new ClassPathResource(scriptName);
         if (!resource.exists()) {
-            log.debug("data-local.sql not found, skipping seed data.");
+            log.debug("{} not found, skipping.", scriptName);
             return;
         }
         var populator = new ResourceDatabasePopulator();
         populator.addScript(resource);
         populator.execute(dataSource);
-        log.info("Executed data-local.sql: seed data loaded.");
+        log.info("Executed {}: {}", scriptName, successMessage);
     }
 }

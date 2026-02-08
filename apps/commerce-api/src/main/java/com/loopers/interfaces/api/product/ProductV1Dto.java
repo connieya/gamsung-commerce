@@ -22,12 +22,13 @@ public class ProductV1Dto {
             Long rank
     ) {
         public static DetailResponse from(ProductResult productResult) {
+            Long likeCount = productResult.getLikeCount() != null ? productResult.getLikeCount() : 0L;
             return new DetailResponse(
-                    productResult.getProductId()
-                    , productResult.getProductName()
-                    , productResult.getProductPrice()
-                    , productResult.getBrandName()
-                    , productResult.getLikeCount(),
+                    productResult.getProductId(),
+                    productResult.getProductName(),
+                    productResult.getProductPrice(),
+                    productResult.getBrandName(),
+                    likeCount,
                     productResult.getRank()
             );
         }

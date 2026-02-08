@@ -56,8 +56,6 @@ public class ProductService {
             return productDetailById.get();
         }
         ProductDetailInfo productDetailInfo = productRepository.findProductDetail(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-        System.out.println("productDetailInfo.getLikeCount() = " + productDetailInfo.getLikeCount());
-        System.out.println("productDetailInfo.getProductName() = " + productDetailInfo.getProductName());
         productCacheRepository.saveProductDetail(productDetailInfo);
         return productDetailInfo;
     }

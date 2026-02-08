@@ -1,5 +1,5 @@
 -- local 프로필 기동 시 자동 실행: 무신사 스타일 시드 데이터 (클라이언트 웹 확인용)
--- 실행 순서: brand → users → product → product_like (FK 순서)
+-- 실행 순서: brand → users → product → product_like → like_summary (FK·정합성 순서)
 
 -- 1. 브랜드
 INSERT INTO brand (name, description, created_at, updated_at, deleted_at) VALUES
@@ -48,3 +48,16 @@ INSERT INTO product_like (ref_user_id, ref_product_id, created_at, updated_at, d
 (3, 3, NOW(), NOW(), NULL),
 (3, 9, NOW(), NOW(), NULL),
 (3, 16, NOW(), NOW(), NULL);
+
+-- 5. like_summary (비정규화 테이블, product_like 건수와 정합성 유지)
+-- 상품별 좋아요 수: product 1,2,3,7,8,9,11,15,16 각 1건
+INSERT INTO like_summary (like_count, target_id, target_type, created_at, updated_at, deleted_at) VALUES
+(1, 1, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 2, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 3, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 7, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 8, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 9, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 11, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 15, 'PRODUCT', NOW(), NOW(), NULL),
+(1, 16, 'PRODUCT', NOW(), NOW(), NULL);

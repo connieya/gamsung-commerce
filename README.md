@@ -36,6 +36,10 @@ docker-compose -f ./docker/monitoring-compose.yml up
 - 시드 스크립트: `apps/commerce-api/src/main/resources/data-local.sql`
 - local 프로필에서는 `ddl-auto: create`로 테이블이 매 기동 시 재생성된 뒤, 위 SQL이 실행됩니다.
 
+### 트러블슈팅
+
+- **[E2E 테스트 개별 실행 실패 및 test 프로필·Redis·DDL 설정 정리](https://github.com/connieya/gamsung-commerce/issues/30)** — 테스트 격리성, Redis NPE, Table doesn't exist 등
+
 ## Architecture
 
 앱 모듈(commerce-api, commerce-collector 등)은 **클린 아키텍처**를 따릅니다.

@@ -1,0 +1,74 @@
+---
+description: 개발·테스트 과정에서 발생한 이슈 정리 (공부·참고용)
+alwaysApply: false
+---
+
+# 개발·테스트 이슈 로그
+
+개발·테스트 중 발생한 이슈와 해결 방법을 정리한다. 공부 및 재발 방지 참고용이다.
+
+---
+
+## 이슈 기록 템플릿
+
+새 이슈를 추가할 때 아래 형식을 따른다.
+
+```markdown
+### [날짜] 이슈 제목 (한 줄)
+
+- **상황**: 어떤 작업 중 / 어떤 환경에서 발생했는지
+- **증상**: 에러 메시지, 예상과 다른 동작 등
+- **원인**: 왜 발생했는지 (가능한 범위에서)
+- **해결**: 적용한 수정·설정·회피 방법
+- **참고**: 관련 문서, 링크, 추가로 알아둘 점
+```
+
+---
+
+## 이슈 목록
+
+### [2025-02-14] E2E 전체 실행 시 통과·개별 실행 시 실패 (테스트 격리성)
+
+- **상황**: `ProductLikeV1ApiE2ETest` 등을 **전체 테스트**로 돌리면 통과, **단일 메서드/클래스만** 실행하면 실패
+- **증상**: `ParameterResolutionException` → `Failed to load ApplicationContext` → `ScriptStatementFailedException: TRUNCATE TABLE product_like` → **Table 'loopers.product_like' doesn't exist**
+- **원인**:
+  - 기본 `spring.profiles.active`가 `local`이라 E2E만 돌릴 때도 `local`로 기동됨.
+  - `DataLocalLoader`(`@Profile("local")`)가 기동 시 `data-local-clean.sql` 실행 → TRUNCATE 시도.
+  - `local` 프로필은 `ddl-auto: none`이라 Hibernate가 테이블을 만들지 않음 → TRUNCATE 시점에 테이블 없음.
+  - 전체 실행 시에는 다른 테스트/컨텍스트 캐시로 `test` 프로필이 적용된 컨텍스트가 먼저 만들어져 테이블이 이미 존재하는 경우가 있음.
+- **해결**: `src/test/resources/application.yml`에 `spring.profiles.active: test` 설정 → 테스트 전역에서 `test` 프로필로 기동되도록 함. (`@ActiveProfiles("test")`를 각 클래스에 두지 않아도 됨.)
+- **참고**: 테스트 **격리성**·**환경 일관성** 원칙 위배 사례. 실행 순서/범위에 의존하지 않도록 프로필을 명시하는 것이 좋음.
+
+---
+
+### [2025-02-14] 테스트 기동 시 RedisConfig NPE (RedisProperties.master() is null)
+
+- **상황**: `spring.profiles.active: test` 적용 후 E2E 테스트 실행
+- **증상**: `BeanInstantiationException` in `LettuceConnectionFactory` → **Cannot invoke "RedisNodeInfo.host()" because the return value of "RedisProperties.master()" is null** (`RedisConfig.java` 80번 근처)
+- **원인**: `redis.yml`의 `on-profile: local, test` 블록이 설정 로딩 순서/병합 타이밍 때문에 테스트 시 적용되지 않거나, 기본 블록만 적용되어 `${REDIS_MASTER_HOST}` 등 미설정 시 `master`가 바인딩되지 않음.
+- **해결**: `src/test/resources/application.yml`에 `datasource.redis`를 명시. `master`(host/port), `replicas`, `databse`(record 필드명 오타 유지) 지정. 테스트 시 Redis 주소를 로컬(localhost:6379, 6380) 등으로 고정.
+- **참고**: 테스트에서는 프로필 블록에만 의존하지 말고, 필요한 연결 정보를 테스트 리소스에서 직접 넣어 두는 편이 안전함.
+
+---
+
+### [2025-02-14] 테스트 실행 시 Table 'loopers.users' / 'order_line' doesn't exist
+
+- **상황**: Redis NPE 해결 후 E2E 테스트 실행 시 INSERT·TRUNCATE 단계에서 실패
+- **증상**: `SQLGrammarException: could not execute statement [Table 'loopers.users' doesn't exist]`, Suppressed로 `Table 'loopers.order_line' doesn't exist` (TRUNCATE 실패)
+- **원인**: `test` 프로필에서 `jpa.yml`의 `ddl-auto: create`가 실제로 적용되지 않거나, 테스트용 DB 연결(jdbc-url 등)이 없어 Hibernate가 스키마를 생성하지 못함. 테스트 시 테이블이 생성되지 않은 상태에서 INSERT/TRUNCATE가 실행됨.
+- **해결**: `src/test/resources/application.yml`에 (1) **`spring.jpa.hibernate.ddl-auto: create`** 로 테스트 시 테이블 자동 생성, (2) **`datasource.mysql-jpa.main`** 에 `jdbc-url`, `username`, `password` 명시(예: `localhost:3306/loopers`, application/application). 테스트 전용 설정에서 DDL과 연결 정보를 모두 지정.
+- **참고**: `jpa.yml`의 test 블록에는 pool 크기만 있고 jdbc-url이 없어, 환경변수에 의존함. 테스트 리소스에서 URL을 명시하면 로컬/Testcontainers 등 실행 환경과 무관하게 동작을 고정할 수 있음.
+
+---
+
+### [2025-02-14] E2E 테스트에서 DB 상태 공유로 인한 불안정 (예시)
+
+- **상황**: E2E 테스트 실행 시, 순서에 따라 실패하는 경우 발생
+- **증상**: 격리되지 않은 DB/캐시로 인해 이전 테스트 데이터가 다음 테스트에 영향을 줌
+- **원인**: 테스트 간 DB/캐시 정리 부재 또는 트랜잭션 롤백 미적용
+- **해결**: `@Transactional` + 롤백 설정, 또는 `@DirtiesContext`, 테스트 전용 DB/스키마 분리, `DatabaseCleanUp` 등으로 격리
+- **참고**: Spring Test 트랜잭션 롤백 기본값 확인, E2E는 통합 격리 전략 문서화
+
+---
+
+<!-- 새 이슈는 위와 같은 형식으로 추가 -->

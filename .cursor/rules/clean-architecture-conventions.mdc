@@ -1,7 +1,5 @@
 ---
-description: 클린 아키텍처 패키지·레이어·네이밍 컨벤션 (실무 통용)
-globs: "**/*.java"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # 클린 아키텍처 컨벤션

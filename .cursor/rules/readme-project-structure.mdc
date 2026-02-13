@@ -1,7 +1,5 @@
 ---
-description: 프로젝트 구조·모듈·클래스 변경 시 README.md 동기화
-globs: "**/settings.gradle.kts"
-alwaysApply: false
+alwaysApply: true
 ---
 
 # README 프로젝트 구조 동기화

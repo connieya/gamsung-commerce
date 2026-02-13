@@ -153,7 +153,7 @@ class ProductLikeV1ApiE2ETest {
     @Nested
     class GetLikeProduct {
 
-        @DisplayName("좋아요 한 상품 목록을 조회할 수 있다.")
+        @DisplayName("좋아요 한 상품 목록을 조회할 수 있다. (목록 개수 및 각 항목 필드 포함)")
         @Test
         void getLikeProduct() {
             // given
@@ -162,7 +162,7 @@ class ProductLikeV1ApiE2ETest {
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userEntity));
 
             Integer initialLikeCount = Instancio.of(Integer.class)
-                    .generate(root(), gen -> gen.ints().range(0, 20))
+                    .generate(root(), gen -> gen.ints().range(1, 20))
                     .create();
 
             Brand brand = Brand.create("nike", "just do it!");
@@ -183,7 +183,6 @@ class ProductLikeV1ApiE2ETest {
                     productEntities.forEach(testEntityManager::persist)
             );
 
-
             transactionTemplate.executeWithoutResult(status ->
                     productEntities.forEach(productEntity -> {
                         ProductLike productLike = ProductLike.create(userEntity.getId(), productEntity.getId());
@@ -194,37 +193,6 @@ class ProductLikeV1ApiE2ETest {
             // when
             HttpHeaders headers = new HttpHeaders();
             headers.set(ApiHeaders.USER_ID, "gunny");
-
-            ResponseEntity<ApiResponse<ProductLikeV1Dto.LikedProductResponse>> response = testRestTemplate.exchange(ENDPOINT, HttpMethod.GET, new HttpEntity<>(headers), new ParameterizedTypeReference<>() {
-            });
-
-            // then
-            assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
-            assertThat(response.getBody().data().likedProducts()).hasSize(initialLikeCount);
-
-        }
-
-        @DisplayName("좋아요 목록 조회 시 각 상품 항목에 productId, productName, productPrice, brandName, likeCount가 포함된다 (API 응답 body 검증)")
-        @Test
-        void getMyLikes_responseBody_containsRequiredFields() {
-            // given: 유저, 브랜드, 상품, 좋아요 데이터
-            User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-            UserEntity userEntity = UserEntity.fromDomain(user);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userEntity));
-
-            Brand brand = Brand.create("nike", "just do it!");
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
-
-            Product product = ProductFixture.complete().set(Select.field(Product::getName), "나이키 에어맥스").create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
-
-            ProductLike productLike = ProductLike.create(userEntity.getId(), productEntity.getId());
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productLike));
-
-            // when: GET /api/v1/like/products
-            HttpHeaders headers = new HttpHeaders();
-            headers.set(ApiHeaders.USER_ID, "gunny");
             ResponseEntity<ApiResponse<LikedProductResponseBody>> response = testRestTemplate.exchange(
                     ENDPOINT,
                     HttpMethod.GET,
@@ -232,34 +200,38 @@ class ProductLikeV1ApiE2ETest {
                     new ParameterizedTypeReference<>() {}
             );
 
-            // then: status 200, data.likedProducts 크기 1
+            // then: status 200, 목록 개수
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().data()).isNotNull();
-            assertThat(response.getBody().data().likedProducts()).hasSize(1);
+            assertThat(response.getBody().data().likedProducts()).hasSize(initialLikeCount);
 
-            // then: 각 항목에 필수 필드가 존재하고 null이 아니다 (빈 객체 {} 응답 시 실패)
-            LikedProductItemBody item = response.getBody().data().likedProducts().get(0);
-            assertThat(item.productId())
-                    .as("likedProducts[].productId가 응답에 포함되어야 한다")
-                    .isNotNull();
-            assertThat(item.productName())
-                    .as("likedProducts[].productName이 응답에 포함되어야 한다")
-                    .isNotNull();
-            assertThat(item.productPrice())
-                    .as("likedProducts[].productPrice가 응답에 포함되어야 한다")
-                    .isNotNull();
-            assertThat(item.brandName())
-                    .as("likedProducts[].brandName이 응답에 포함되어야 한다")
-                    .isNotNull();
-            assertThat(item.likeCount())
-                    .as("likedProducts[].likeCount가 응답에 포함되어야 한다")
-                    .isNotNull();
+            // then: 각 항목에 필수 필드가 포함된다 (빈 객체 {} 응답 시 실패)
+            List<LikedProductItemBody> items = response.getBody().data().likedProducts();
+            for (int i = 0; i < items.size(); i++) {
+                LikedProductItemBody item = items.get(i);
+                assertThat(item.productId())
+                        .as("likedProducts[%d].productId가 응답에 포함되어야 한다", i)
+                        .isNotNull();
+                assertThat(item.productName())
+                        .as("likedProducts[%d].productName이 응답에 포함되어야 한다", i)
+                        .isNotNull();
+                assertThat(item.productPrice())
+                        .as("likedProducts[%d].productPrice가 응답에 포함되어야 한다", i)
+                        .isNotNull();
+                assertThat(item.brandName())
+                        .as("likedProducts[%d].brandName이 응답에 포함되어야 한다", i)
+                        .isNotNull();
+                assertThat(item.likeCount())
+                        .as("likedProducts[%d].likeCount가 응답에 포함되어야 한다", i)
+                        .isNotNull();
+            }
 
-            // then: 실제 저장한 값과 일치
-            assertThat(item.productId()).isEqualTo(productEntity.getId());
-            assertThat(item.productName()).isEqualTo("나이키 에어맥스");
-            assertThat(item.brandName()).isEqualTo("nike");
+            // then: 첫 번째 항목이 저장한 값과 일치
+            LikedProductItemBody first = items.get(0);
+            assertThat(first.productId()).isEqualTo(productEntities.get(0).getId());
+            assertThat(first.productName()).isEqualTo("product0");
+            assertThat(first.brandName()).isEqualTo("nike");
         }
     }
 

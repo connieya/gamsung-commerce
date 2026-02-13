@@ -1,3 +1,7 @@
+tasks.named("bootRun") {
+    dependsOn(rootProject.tasks.named("infraUp"))
+}
+
 dependencies {
     // add-ons
     implementation(project(":modules:jpa"))

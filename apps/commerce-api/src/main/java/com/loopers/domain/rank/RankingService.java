@@ -42,4 +42,9 @@ public class RankingService {
         return productRank == null ? null : productRank+ 1;
     }
 
+    public void getProductWeeklyRanking() {
+
+
+        
+    }
 }

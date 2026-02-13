@@ -14,26 +14,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Component
-public class PgSimulator implements PaymentAdapter {
+public class PgSimulator implements PaymentClient {
 
     private final static String CALLBACK_URL = "http://localhost:8080/api/v1/payments/callback";
     private final PgSimulatorClient client;
 
-
     @Override
     @Retry(name = "pgRetry")
     @CircuitBreaker(name = "pgCircuit", fallbackMethod = "requestFallback")
-    public PgSimulatorResponse.RequestTransaction request(PaymentCommand.Transaction paymentCommand) {
+    public PaymentRequestResult request(PaymentCommand.Transaction paymentCommand) {
         PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(
                 paymentCommand.orderNumber(), paymentCommand.cardNumber(), paymentCommand.amount(), CALLBACK_URL, paymentCommand.cardType());
 
         ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
-        return response.data();
-
+        PgSimulatorResponse.RequestTransaction data = response.data();
+        return new PaymentRequestResult(data.transactionKey(), data.status(), data.reason());
     }
 
-
-    public PgSimulatorResponse.RequestTransaction requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
+    public PaymentRequestResult requestFallback(PaymentCommand.Transaction paymentCommand, Throwable throwable) {
         if (throwable instanceof feign.RetryableException) {
             throw new PaymentException.PgTimeoutException(ErrorType.PAYMENT_PG_TIMEOUT);
         }
@@ -46,9 +44,16 @@ public class PgSimulator implements PaymentAdapter {
     }
 
     @Override
-    public PgSimulatorResponse.TransactionDetail getTransactionDetail(PaymentCommand.Search paymentCommand) {
+    public PaymentTransactionDetail getTransactionDetail(PaymentCommand.Search paymentCommand) {
         ApiResponse<PgSimulatorResponse.TransactionDetail> response = client.getTransaction("12345", paymentCommand.transactionKey());
-        return response.data();
-
+        PgSimulatorResponse.TransactionDetail data = response.data();
+        return new PaymentTransactionDetail(
+                data.transactionKey(),
+                data.orderNumber(),
+                data.cardType(),
+                data.cardNumber(),
+                data.amount(),
+                data.transactionStatus()
+        );
     }
 }

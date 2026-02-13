@@ -63,9 +63,10 @@ class UserV1ApiE2ETest {
             ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
                     testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, httpEntity, responseType);
 
-            //then
+            // then
             assertAll(
                     () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
+                    () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data().id()).isEqualTo("geonhee"),
                     () -> assertThat(response.getBody().data().email()).isEqualTo("geonhee@naver.com"),
                     () -> assertThat(response.getBody().data().birthDate()).isEqualTo("1994-09-26")
@@ -75,7 +76,7 @@ class UserV1ApiE2ETest {
 
         @DisplayName("회원 가입 시에 성별이 없을 경우, 400 Bad Request 응답을 반환한다.")
         @Test
-        void thorwsBadRequest_whenGenderIsNotProvided() {
+        void throwsBadRequest_whenGenderIsNotProvided() {
             // given
             HttpEntity<UserV1Dto.UserRequest> httpEntity = new HttpEntity<>(new UserV1Dto.UserRequest(
                     "geonhee",
@@ -119,6 +120,7 @@ class UserV1ApiE2ETest {
             // then
             assertAll(
                     () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
+                    () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data().id()).isEqualTo("geonhee"),
                     () -> assertThat(response.getBody().data().email()).isEqualTo("geonhee@naver.com"),
                     () -> assertThat(response.getBody().data().birthDate()).isEqualTo("1994-09-26")

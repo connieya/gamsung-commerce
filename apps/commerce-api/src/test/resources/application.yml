@@ -1,0 +1,26 @@
+# 테스트 전역: Spring 컨텍스트를 쓰는 모든 테스트가 test 프로필로 기동되도록 한다.
+# @ActiveProfiles("test")를 각 테스트 클래스에 두지 않아도 된다.
+spring:
+  profiles:
+    active: test
+  jpa:
+    hibernate:
+      ddl-auto: create  # 테스트 시 users 등 테이블 자동 생성 (Table doesn't exist 방지)
+
+# 테스트 DB 연결 (jpa.yml test 블록에는 url 미지정 → 여기서 명시)
+datasource:
+  mysql-jpa:
+    main:
+      jdbc-url: jdbc:mysql://localhost:3306/loopers
+      username: application
+      password: application
+
+  # 테스트에서 RedisProperties.master()가 null이 되지 않도록 명시 (RedisConfig NPE 방지)
+  redis:
+    databse: 0  # RedisProperties record 필드명과 동일 (오타 유지)
+    master:
+      host: localhost
+      port: 6379
+    replicas:
+      - host: localhost
+        port: 6380

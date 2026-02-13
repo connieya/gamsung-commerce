@@ -105,6 +105,13 @@ subprojects {
     }
 }
 
+/** --- infra (docker-compose) --- */
+tasks.register<Exec>("infraUp") {
+    workingDir = rootProject.projectDir
+    commandLine("bash", "scripts/infra-up.sh")
+    isIgnoreExitValue = false
+}
+
 // module-container 는 task 를 실행하지 않도록 한다.
 project("apps") { tasks.configureEach { enabled = false } }
 project("modules") { tasks.configureEach { enabled = false } }

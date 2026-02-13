@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -108,9 +107,26 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
     }
 
     @Override
-    public void updateLikeCount(Long productId , LikeUpdateType updateType) {
-        System.out.println("productId = " + productId);
-        objectRedisTemplate.opsForHash().increment(RedisKeyManager.PRODUCT_DETAIL_KEY+productId, "likeCount" ,updateType ==  LikeUpdateType.INCREMENT ? 1 : -1);
+    public void updateLikeCount(Long productId, LikeUpdateType updateType) {
+        Optional<ProductDetailInfo> cached = findProductDetailById(productId);
+        if (cached.isEmpty()) {
+            return;
+        }
+        ProductDetailInfo info = cached.get();
+        if (info == ProductDetailInfo.EMPTY || info.getProductId() == null) {
+            return;
+        }
+        long current = info.getLikeCount() != null ? info.getLikeCount() : 0L;
+        long next = updateType == LikeUpdateType.INCREMENT ? current + 1 : Math.max(0, current - 1);
+        ProductDetailInfo updated = ProductDetailInfo.builder()
+                .productId(info.getProductId())
+                .productName(info.getProductName())
+                .productPrice(info.getProductPrice())
+                .brandName(info.getBrandName())
+                .brandId(info.getBrandId())
+                .likeCount(next)
+                .build();
+        saveProductDetail(updated);
     }
 
 

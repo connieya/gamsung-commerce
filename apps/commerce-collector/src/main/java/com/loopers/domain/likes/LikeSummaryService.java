@@ -31,9 +31,13 @@ public class LikeSummaryService {
             Long likeChanged = countChanges.get(productId);
             String key = "product-like:" + productId;
             log.info("productId = {} , likeChanged = {} ", productId, likeChanged);
+
+            LikeTarget target = LikeTarget.create(productId, LikeTargetType.PRODUCT);
+            if (likeSummaryRepository.findByTarget(target).isEmpty()) {
+                likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT));
+            }
             likeSummaryRepository.updateLikeCountBy(productId, LikeTargetType.PRODUCT, likeChanged);
             objectRedisTemplate.opsForHash().increment(key, "likeCount", likeChanged);
-
         }
     }
 }

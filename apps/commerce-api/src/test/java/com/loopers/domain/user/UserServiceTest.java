@@ -76,6 +76,12 @@ class UserServiceTest {
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             // then
             verify(userRepositoryImpl, times(1)).save(userCaptor.capture());
+
+            User capturedUser = userCaptor.getValue();
+            assertThat(capturedUser.getUserId()).isEqualTo(command.getUserId());
+            assertThat(capturedUser.getEmail()).isEqualTo(command.getEmail());
+            assertThat(capturedUser.getBirthDate().getBirthDate()).isEqualTo(command.getBirthDate());
+            assertThat(capturedUser.getGender()).isEqualTo(command.getGender());
         }
     }
 

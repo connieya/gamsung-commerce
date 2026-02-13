@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.likes;
 
 import com.loopers.application.likes.GetLikeProductResult;
-import com.loopers.application.likes.GetLikeProductUseCase;
+import com.loopers.application.likes.LikeProductFacade;
 import com.loopers.domain.likes.ProductLikeService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
@@ -17,7 +17,7 @@ public class ProductLikeV1Controller implements ProductLikeV1ApiSpec {
 
     private final ProductLikeService productLikeService;
     private final UserService userService;
-    private final GetLikeProductUseCase getLikeProductUseCase;
+    private final LikeProductFacade likeProductFacade;
 
     @PostMapping("/{productId}")
     @Override
@@ -38,7 +38,7 @@ public class ProductLikeV1Controller implements ProductLikeV1ApiSpec {
     @GetMapping
     @Override
     public ApiResponse<ProductLikeV1Dto.LikedProductResponse> getMyLikes(@RequestHeader(ApiHeaders.USER_ID) String userId) {
-        GetLikeProductResult likedProducts = getLikeProductUseCase.getLikedProducts(userId);
+        GetLikeProductResult likedProducts = likeProductFacade.getLikedProducts(userId);
         return ApiResponse.success(ProductLikeV1Dto.LikedProductResponse.from(likedProducts));
     }
 }

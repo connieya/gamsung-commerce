@@ -1,0 +1,31 @@
+---
+alwaysApply: true
+---
+
+# 레이어별 네이밍 컨벤션
+
+## presentation (진입 계층)
+
+- **Request/Response DTO**: API 요청·응답용. 도메인/엔티티를 그대로 노출하지 않고 DTO로 변환해 반환한다.
+- 이름은 팀/프로젝트에 맞게 (예: `*Request`, `*Response`, `*Dto` 등).
+
+## application (유스케이스)
+
+| 용도            | 네이밍       | 설명                                                                        |
+| --------------- | ------------ | --------------------------------------------------------------------------- |
+| 조회 진입 입력  | **Criteria** | 유스케이스 진입 조건 (예: `GetDetail(Long id)`, `Search(page, size, sort)`) |
+| 유스케이스 출력 | **Result**   | Facade/유스케이스 반환 타입. `of()` 또는 Builder 등 정적 팩토리             |
+
+## domain (비즈니스)
+
+| 용도      | 네이밍      | 설명                                                                         |
+| --------- | ----------- | ---------------------------------------------------------------------------- |
+| 쓰기 입력 | **Command** | 쓰기 작업 파라미터 (예: `OrderCommand`, `PaymentCommand`). 내부에 `*Item` 등 |
+| 쓰기 반환 | **엔티티**  | 저장/수정된 도메인 엔티티를 그대로 반환                                      |
+| 조회 반환 | **xxInfo**  | 조회용 읽기 모델 (예: `ProductDetailInfo`, `ProductInfo`, `OrderInfo`)       |
+
+## 정리
+
+- **Application**: Criteria (조회 입력), Result (출력)
+- **Domain**: Command (쓰기 입력), 엔티티 (쓰기 반환), xxInfo (조회 반환)
+- **Presentation**: Request/Response DTO — 필수. 나머지 레이어 타입을 그대로 노출하지 않는다.

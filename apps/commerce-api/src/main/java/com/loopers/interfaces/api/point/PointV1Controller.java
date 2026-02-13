@@ -1,7 +1,7 @@
 package com.loopers.interfaces.api.point;
 
 import com.loopers.domain.point.PointInfoResult;
-import com.loopers.domain.point.PointUseCase;
+import com.loopers.domain.point.PointService;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/points")
 public class PointV1Controller implements PointV1ApiSpec {
 
-  private final PointUseCase pointUseCase;
+  private final PointService pointService;
 
   @Override
   @GetMapping
   public ApiResponse<PointV1Dto.PointResponse> getPoint(@RequestHeader(ApiHeaders.USER_ID) String userId) {
-    PointInfoResult pointInfoResult = pointUseCase.getPoint(userId);
+    PointInfoResult pointInfoResult = pointService.getPoint(userId);
 
     return ApiResponse.success(PointV1Dto.PointResponse.of(pointInfoResult.userId(), pointInfoResult.value()));
   }
@@ -26,7 +26,7 @@ public class PointV1Controller implements PointV1ApiSpec {
   @PostMapping("/charge")
   public ApiResponse<PointV1Dto.PointResponse> chargePoint(@RequestHeader(ApiHeaders.USER_ID) String userId,
       @RequestBody PointV1Dto.PointRequest request) {
-    PointInfoResult pointInfoResult = pointUseCase.charge(userId, request.value());
+    PointInfoResult pointInfoResult = pointService.charge(userId, request.value());
 
     return ApiResponse.success(PointV1Dto.PointResponse.of(pointInfoResult.userId(), pointInfoResult.value()));
   }

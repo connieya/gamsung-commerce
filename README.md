@@ -1,39 +1,80 @@
+# E-Commerce (Spring + Java)
 
-# Loopers Template (Spring + Java)
-Loopers 에서 제공하는 스프링 자바 템플릿 프로젝트입니다.
+이커머스 도메인의 멀티 모듈 스프링 프로젝트입니다.
 
 ## Getting Started
-현재 프로젝트 안정성 및 유지보수성 등을 위해 아래와 같은 장치를 운용하고 있습니다. 이에 아래 명령어를 통해 프로젝트의 기반을 설치해주세요.
-### Environment
-`local` 프로필로 동작할 수 있도록, 필요 인프라를 `docker-compose` 로 제공합니다.
-```shell
-docker-compose -f ./docker/infra-compose.yml up
-```
-### Monitoring
-`local` 환경에서 모니터링을 할 수 있도록, `docker-compose` 를 통해 `prometheus` 와 `grafana` 를 제공합니다.
 
-애플리케이션 실행 이후, **http://localhost:3000** 로 접속해, admin/admin 계정으로 로그인하여 확인하실 수 있습니다.
+### Environment
+
+`local` 프로필로 동작할 수 있도록, 필요 인프라를 `docker-compose`로 제공합니다.
+
+```shell
+docker-compose -f ./docker/infra-compose.yml up -d
+```
+
+> **Docker 사용법 상세** (기동·종료·MySQL 접속, 다른 PC 실행 시 참고): [docs/docker.md](docs/docker.md)
+
+### Monitoring
+
+`local` 환경에서 모니터링을 할 수 있도록, `docker-compose`로 Prometheus와 Grafana를 제공합니다.  
+애플리케이션 실행 후 **http://localhost:3000**에서 admin/admin 계정으로 로그인해 확인할 수 있습니다.
 
 ```shell
 docker-compose -f ./docker/monitoring-compose.yml up
 ```
 
-## About Multi-Module Project
-본 프로젝트는 멀티 모듈 프로젝트로 구성되어 있습니다. 각 모듈의 위계 및 역할을 분명히 하고, 아래와 같은 규칙을 적용합니다.
+## Development
 
-- apps : 각 모듈은 실행가능한 **SpringBootApplication** 을 의미합니다.
-- modules : 특정 구현이나 도메인에 의존적이지 않고, reusable 한 configuration 을 원칙으로 합니다.
-- supports : logging, monitoring 과 같이 부가적인 기능을 지원하는 add-on 모듈입니다.
+- **빌드**: `./gradlew build`
+- **실행**: 각 앱별로 `./gradlew :apps:<app-name>:bootRun` (예: `./gradlew :apps:commerce-api:bootRun`)
+- **API 테스트**: `http/` 디렉터리의 `.http` 파일과 `http-client.env.json`을 사용합니다.
+
+### 시드 데이터 (local)
+
+`commerce-api`를 **local** 프로필로 실행하면 **서버 기동 시 자동으로** 무신사 스타일 시드 데이터(브랜드, 유저, 상품, 좋아요)가 DB에 삽입됩니다. 별도 수동 작업 없이 API/웹에서 바로 목록을 확인할 수 있습니다.
+
+- 시드 스크립트: `apps/commerce-api/src/main/resources/data-local.sql`
+- local 프로필에서는 `ddl-auto: create`로 테이블이 매 기동 시 재생성된 뒤, 위 SQL이 실행됩니다.
+
+### 트러블슈팅
+
+- **[E2E 테스트 개별 실행 실패 및 test 프로필·Redis·DDL 설정 정리](https://github.com/connieya/gamsung-commerce/issues/30)** — 테스트 격리성, Redis NPE, Table doesn't exist 등
+
+## Architecture
+
+앱 모듈(commerce-api, commerce-collector 등)은 **클린 아키텍처**를 따릅니다.
+
+- **interfaces** → HTTP·메시지 진입 (컨트롤러, DTO)
+- **application** → 유스케이스 조합 (Facade, UseCase)
+- **domain** → 비즈니스 로직, Repository 인터페이스
+- **infrastructure** → JPA·캐시·외부 API 구현체
+- **support** → 공통 예외·에러 처리
+
+의존성은 domain ← application ← interfaces, domain ← infrastructure 방향만 허용합니다.  
+자세한 패키지·네이밍 규칙은 `.cursor/rules/clean-architecture-conventions.mdc`를 참고하세요.
+
+## Multi-Module 구조
+
+멀티 모듈로 위계와 역할을 나누어 적용합니다.
+
+- **apps**: 실행 가능한 Spring Boot 애플리케이션
+- **modules**: 도메인/구현에 무관한 재사용 가능한 설정 모듈
+- **supports**: 로깅·모니터링·직렬화 등 부가 기능
 
 ```
 Root
-├── apps ( spring-applications )
-│   └── 📦 commerce-api
-├── modules ( reusable-configurations )
-│   ├── 📦 feign
-│   ├── 📦 jpa
-│   └── 📦 redis
-└── supports ( add-ons )
-    ├── 📦 monitoring
-    └── 📦 logging
+├── apps ( Spring Boot 애플리케이션 )
+│   ├── commerce-api      # 메인 API (상품, 주문, 결제, 좋아요 등)
+│   ├── commerce-collector # 이벤트 수집·메트릭
+│   ├── commerce-batch    # 배치 작업
+│   └── pg-simulator      # PG 결제 시뮬레이터 (Kotlin)
+├── modules ( 재사용 설정 )
+│   ├── feign   # Feign + Resilience4j
+│   ├── jpa     # JPA, QueryDSL, DataSource
+│   ├── kafka   # Kafka 설정
+│   └── redis   # Redis 캐시/세션
+└── supports ( 부가 기능 )
+    ├── jackson   # JSON 직렬화 설정
+    ├── logging   # Logback (JSON/Plain, Slack)
+    └── monitoring # Actuator, Prometheus
 ```

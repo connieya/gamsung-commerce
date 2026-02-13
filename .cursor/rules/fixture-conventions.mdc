@@ -1,0 +1,69 @@
+---
+description: 테스트 Fixture 작성 가이드 (Instancio, domain.{feature}.fixture)
+globs: "**/fixture/**/*.java"
+alwaysApply: false
+---
+
+# Fixture 작성 가이드
+
+## 1. 위치·네이밍
+
+- **위치:** `domain.{feature}.fixture` (예: `domain.user.fixture`, `domain.product.fixture`).
+- **클래스명:** 도메인/엔티티용 `*Fixture`, Command/Request용 `*CommandFixture` 또는 `*Fixture`.
+- **메서드:** `complete()` — `InstancioApi<T>` 반환. 호출부에서 `.create()` 또는 `.set(Select.field(...), value).create()`.
+
+## 2. Instancio
+
+- **의존성:** `org.instancio:instancio-junit` (또는 `instancio-core`).
+- **기본 패턴:** `Instancio.of(Entity.class).generate(Select.field(Entity::getX), gen -> gen....)` 를 체이닝한 뒤 `complete()`에서는 return만 하고, 호출부에서 `.create()`.
+
+## 3. 필드 제약
+
+- **문자열:** `.generate(Select.field(Entity::getName), gen -> gen.string().length(2, 20))`, `.generate(Select.field(Entity::getUserId), gen -> gen.string().length(5, 10).alphaNumeric())`.
+- **숫자:** `.generate(Select.field(Entity::getPrice), gen -> gen.longs().range(1000L, 5_000_000L))`.
+- **날짜/시간:** `.generate(Select.field(Entity::getReleasedAt), gen -> gen.temporal().zonedDateTime().range(시작, 끝))`.
+- **이메일:** `.generate(Select.field(Entity::getEmail), gen -> gen.net().email())`.
+- **문자열 날짜 (yyyy-MM-dd):** `.generate(Select.field(Command::getBirthDate), gen -> gen.temporal().localDate().range(...).as(date -> date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))`.
+
+## 4. VO·커스텀 타입
+
+- **supply:** `.supply(Select.field(Entity::getBirthDate), () -> { LocalDate d = Instancio.of(LocalDate.class).generate(...).create(); return new BirthDate(d.format(...)); })`.
+- **as:** `.generate(...).as(date -> date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))` (문자열 필드일 때).
+
+## 5. 예시 (이 스타일로 작성)
+
+### 도메인 엔티티 Fixture
+
+```java
+public class ProductFixture {
+    public static InstancioApi<Product> complete() {
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+        ZonedDateTime thirtyDaysAgo = now.minusDays(30);
+        return Instancio.of(Product.class)
+                .generate(Select.field(Product::getName), gen -> gen.string().length(2, 20))
+                .generate(Select.field(Product::getPrice), gen -> gen.longs().range(1000L, 5_000_000L))
+                .generate(Select.field(Product::getReleasedAt), gen ->
+                        gen.temporal().zonedDateTime().range(thirtyDaysAgo, now));
+    }
+}
+```
+
+### Command Fixture
+
+```java
+public class UserRegisterCommandFixture {
+    public static InstancioApi<UserRegisterCommand> complete() {
+        return Instancio.of(UserRegisterCommand.class)
+                .generate(Select.field(UserRegisterCommand::getUserId), gen -> gen.string().length(5, 10).alphaNumeric())
+                .generate(Select.field(UserRegisterCommand::getEmail), gen -> gen.net().email())
+                .generate(Select.field(UserRegisterCommand::getBirthDate), gen -> gen.temporal()
+                        .localDate().range(LocalDate.of(1950, 1, 1), LocalDate.of(2005, 12, 31))
+                        .as(date -> date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
+    }
+}
+```
+
+## 6. 사용
+
+- **기본:** `ProductFixture.complete().create()`, `UserRegisterCommandFixture.complete().create()`.
+- **오버라이드:** `ProductFixture.complete().set(Select.field(Product::getName), "특정이름").create()`.

@@ -23,13 +23,15 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SprintE2ETest
 @RequiredArgsConstructor
@@ -73,26 +75,89 @@ class OrderV1ApiE2ETest {
 
             // when
             OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
-                    1L, // couponId
-                    List.of(new OrderV1Dto.OrderItem(productEntity.getId(), 2L)) // orderItems
+                    1L,
+                    List.of(OrderV1Dto.OrderItem.builder().productId(productEntity.getId()).quantity(2L).build())
             );
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(ApiHeaders.USER_ID, "gunny");
 
-            ResponseEntity<ApiResponse<OrderV1Dto.Response.Place>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
-            });
+            ResponseEntity<ApiResponse<OrderV1Dto.Response.Place>> response = testRestTemplate.exchange(
+                    BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers),
+                    new ParameterizedTypeReference<ApiResponse<OrderV1Dto.Response.Place>>() {});
 
             // then
             assertAll(
-                    () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue(),
+                    () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
                     () -> assertThat(response.getBody()).isNotNull(),
                     () -> assertThat(response.getBody().data().totalAmount()).isEqualTo(10000L),
                     () -> assertThat(response.getBody().data().discountAmount()).isEqualTo(0L)
             );
         }
 
+        @DisplayName("존재하지 않는 유저로 주문 시 404 Not Found 를 반환한다.")
+        @Test
+        void returnsNotFound_whenUserDoesNotExist() {
+            // given: 상품만 DB에 있고, 유저는 없음
+            Brand brand = Brand.create("nike", "just do it!");
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
+
+            Product product = ProductFixture.complete()
+                    .set(Select.field(Product::getName), "foo")
+                    .set(Select.field(Product::getPrice), 5000L)
+                    .create();
+            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+
+            OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
+                    1L,
+                    List.of(OrderV1Dto.OrderItem.builder().productId(productEntity.getId()).quantity(2L).build())
+            );
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(ApiHeaders.USER_ID, "nonexistentUser");
+
+            // when
+            ResponseEntity<ApiResponse<OrderV1Dto.Response.Place>> response = testRestTemplate.exchange(
+                    BASE_URL,
+                    HttpMethod.POST,
+                    new HttpEntity<>(requestBody, headers),
+                    new ParameterizedTypeReference<ApiResponse<OrderV1Dto.Response.Place>>() {});
+
+            // then
+            assertAll(
+                    () -> assertTrue(response.getStatusCode().is4xxClientError()),
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND)
+            );
+        }
+
+        @DisplayName("존재하지 않는 상품 ID가 주문 항목에 포함되면 주문에 실패한다.")
+        @Test
+        void returnsFailure_whenProductIdDoesNotExist() {
+            // given: 유저만 DB에 있고, 주문 항목의 productId는 DB에 없음
+            User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
+            UserEntity userEntity = UserEntity.fromDomain(user);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userEntity));
+
+            long nonExistentProductId = 99_999L;
+            OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
+                    1L,
+                    List.of(OrderV1Dto.OrderItem.builder().productId(nonExistentProductId).quantity(2L).build())
+            );
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(ApiHeaders.USER_ID, "gunny");
+
+            // when
+            ResponseEntity<ApiResponse<OrderV1Dto.Response.Place>> response = testRestTemplate.exchange(
+                    BASE_URL,
+                    HttpMethod.POST,
+                    new HttpEntity<>(requestBody, headers),
+                    new ParameterizedTypeReference<ApiResponse<OrderV1Dto.Response.Place>>() {});
+
+            // then
+            assertAll(
+                    () -> assertTrue(response.getStatusCode().isError()),
+                    () -> assertThat(response.getStatusCode().is2xxSuccessful()).isFalse()
+            );
+        }
     }
-
-
 }

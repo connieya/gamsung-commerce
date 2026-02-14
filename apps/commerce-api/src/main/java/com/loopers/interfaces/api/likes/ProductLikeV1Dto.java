@@ -4,6 +4,7 @@ import com.loopers.application.likes.GetLikeProductResult;
 import com.loopers.domain.product.ProductDetailInfo;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ProductLikeV1Dto {
         }
     }
 
+    @Getter
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder
     public static class LikedProduct {

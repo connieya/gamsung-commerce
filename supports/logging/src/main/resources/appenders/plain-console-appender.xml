@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <included>
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5level [%X{traceId:-}] [%X{method:-} %X{requestUri:-}] [userId=%X{userId:-}] %-40.40logger{39} : %msg%n</pattern>
+        </encoder>
+    </appender>
 </included>

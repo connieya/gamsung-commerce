@@ -1,14 +1,14 @@
 package com.loopers.application.likes;
 
-import com.loopers.domain.brand.BrandRepository;
-import com.loopers.domain.likes.ProductLikeRepository;
+import com.loopers.domain.brand.BrandInfo;
+import com.loopers.domain.brand.BrandService;
+import com.loopers.domain.likes.ProductLike;
+import com.loopers.domain.likes.ProductLikeService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductDetailInfo;
-import com.loopers.domain.product.ProductRepository;
+import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
-import com.loopers.domain.brand.Brand;
-import com.loopers.domain.likes.ProductLike;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,32 +22,30 @@ import java.util.stream.Collectors;
 public class LikeProductFacade {
 
     private final UserService userService;
-    private final ProductLikeRepository productLikeRepository;
-    private final BrandRepository brandRepository;
-    private final ProductRepository productRepository;
+    private final ProductLikeService productLikeService;
+    private final ProductService productService;
+    private final BrandService brandService;
 
     @Transactional(readOnly = true)
     public GetLikeProductResult getLikedProducts(String userId) {
         User user = userService.findByUserId(userId);
-        List<ProductLike> productLikes = productLikeRepository.findByUserId(user.getId());
+        List<ProductLike> productLikes = productLikeService.findByUserId(user.getId());
         List<Long> productsId = productLikes.stream()
                 .map(ProductLike::getProductId)
                 .toList();
-        List<Product> products = productRepository.findAllById(productsId);
-        List<Brand> brands = brandRepository.findAllById(products.stream().map(Product::getBrandId).toList());
-        Map<Long, Brand> brandMap = brands.stream()
-                .collect(Collectors.toMap(Brand::getId, brand -> brand));
-
+        List<Product> products = productService.findAllById(productsId);
+        Map<Long, BrandInfo> brandMap = brandService.findAllById(
+                products.stream().map(Product::getBrandId).toList()
+        ).stream().collect(Collectors.toMap(BrandInfo::id, brand -> brand));
 
         List<ProductDetailInfo> productDetailInfos = products.stream()
                 .map(product -> {
-                    Brand brand = brandMap.get(product.getBrandId());
-                    Long likeCount = productLikeRepository.getLikeCount(product.getId());
-                    return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), brand.getId(), likeCount);
+                    BrandInfo brand = brandMap.get(product.getBrandId());
+                    Long likeCount = productLikeService.getLikeCount(product.getId());
+                    return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.name(), brand.id(), likeCount);
                 }).toList();
 
         return GetLikeProductResult.create(productDetailInfos);
-
     }
 
 }

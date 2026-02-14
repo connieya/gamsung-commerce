@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,6 +35,16 @@ public class ProductLikeService {
         }
         productLikeRepository.save(userId, productId);
         applicationEventPublisher.publishEvent(ProductLikeEvent.Add.of(productId, LikeTargetType.PRODUCT));
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductLike> findByUserId(Long userId) {
+        return productLikeRepository.findByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getLikeCount(Long productId) {
+        return productLikeRepository.getLikeCount(productId);
     }
 
     @Transactional

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class BrandService {
@@ -22,6 +24,11 @@ public class BrandService {
                     return brandFromDb;
                 });
         return BrandInfo.from(brand);
+    }
+
+    public List<BrandInfo> findAllById(List<Long> brandIds) {
+        List<Brand> brands = brandRepository.findAllById(brandIds);
+        return brands.stream().map(BrandInfo::from).toList();
     }
 
     @Transactional

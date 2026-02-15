@@ -5,6 +5,7 @@ import com.loopers.domain.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -26,5 +27,10 @@ public class OrderCoreRepository implements OrderRepository {
     @Override
     public Optional<Order> findById(Long orderId) {
         return orderJpaRepository.findById(orderId);
+    }
+
+    @Override
+    public List<Order> findByUserId(Long userId) {
+        return orderJpaRepository.findByUserId(userId);
     }
 }

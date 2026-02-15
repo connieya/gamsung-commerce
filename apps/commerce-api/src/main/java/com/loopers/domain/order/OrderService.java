@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,14 @@ public class OrderService {
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
 
         return OrderInfo.from(order);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderInfo> getOrdersByUserId(Long userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream()
+                .map(OrderInfo::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)

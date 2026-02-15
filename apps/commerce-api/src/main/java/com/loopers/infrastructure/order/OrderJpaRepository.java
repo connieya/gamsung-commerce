@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface OrderJpaRepository extends JpaRepository<Order, Long> {
@@ -17,4 +18,7 @@ public interface OrderJpaRepository extends JpaRepository<Order, Long> {
     @Query("update Order o set o.orderStatus  = :orderStatus where o.id = :id")
     @Modifying
     void complete(@Param("orderStatus") OrderStatus orderStatus , @Param("id") Long id);
+
+    @Query("SELECT o FROM Order o WHERE o.userId = :userId ORDER BY o.createdAt DESC")
+    List<Order> findByUserId(@Param("userId") Long userId);
 }

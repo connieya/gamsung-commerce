@@ -2,6 +2,7 @@ package com.loopers.domain.order;
 
 import lombok.*;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,16 +11,23 @@ import java.util.stream.Collectors;
 public class OrderInfo {
 
     private Long orderId;
+    private String orderNumber;
     private Long totalAmount;
     private List<OrderItem> orderItems;
     private Long discountAmount;
+    private OrderStatus orderStatus;
+    private ZonedDateTime createdAt;
 
     @Builder
-    private OrderInfo(Long orderId, Long totalAmount, List<OrderItem> orderItems, Long discountAmount) {
+    private OrderInfo(Long orderId, String orderNumber, Long totalAmount, List<OrderItem> orderItems, 
+                     Long discountAmount, OrderStatus orderStatus, ZonedDateTime createdAt) {
         this.orderId = orderId;
+        this.orderNumber = orderNumber;
         this.totalAmount = totalAmount;
         this.orderItems = orderItems;
         this.discountAmount = discountAmount;
+        this.orderStatus = orderStatus;
+        this.createdAt = createdAt;
     }
 
 
@@ -36,8 +44,11 @@ public class OrderInfo {
         return OrderInfo
                 .builder()
                 .orderId(order.getId())
+                .orderNumber(order.getOrderNumber())
                 .totalAmount(order.getTotalAmount())
                 .discountAmount(order.getDiscountAmount())
+                .orderStatus(order.getOrderStatus())
+                .createdAt(order.getCreatedAt())
                 .orderItems(order.getOrderLines().stream().map(orderLine -> OrderItem.
                                 builder()
                                 .productId(orderLine.getProductId())

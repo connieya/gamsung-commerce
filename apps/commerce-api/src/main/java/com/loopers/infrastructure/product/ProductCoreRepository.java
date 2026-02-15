@@ -49,8 +49,8 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
-    public Page<ProductInfo> findProductDetailsOptimized(Pageable pageable , Long brandId) {
-        return productJpaRepository.findProductDetailsOptimized(pageable , brandId);
+    public Page<ProductInfo> findProductDetailsOptimized(Pageable pageable) {
+        return productJpaRepository.findProductDetailsOptimized(pageable);
     }
 
     @Override

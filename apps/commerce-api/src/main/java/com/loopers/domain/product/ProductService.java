@@ -59,9 +59,9 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 쿼리 최적화 (product_like count 서브 쿼리 )
-    public ProductsInfo getProductsOptimized(ProductCommand.Search search) {
-        Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable, search.getBrandId());
+    public ProductsInfo getProductsOptimized(int size, int page, ProductSort sortType) {
+        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable);
         return ProductsInfo.create(productDetails);
     }
 

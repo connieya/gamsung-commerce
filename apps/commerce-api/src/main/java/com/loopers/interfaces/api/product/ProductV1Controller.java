@@ -31,11 +31,8 @@ public class ProductV1Controller implements ProductV1ApiSpec {
     public ApiResponse<ProductV1Dto.SummaryResponse> getProductsOptimized(
             @RequestParam int page
             , @RequestParam int size
-            , @RequestParam ProductSort productSort
-            , @RequestParam Long brandId
-    ) {
-        ProductCommand.Search search = ProductCommand.Search.create(page, size, productSort, brandId);
-        ProductsInfo products = productService.getProductsOptimized(search);
+            , @RequestParam ProductSort productSort) {
+        ProductsInfo products = productService.getProductsOptimized(size, page, productSort);
         return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
     }
 

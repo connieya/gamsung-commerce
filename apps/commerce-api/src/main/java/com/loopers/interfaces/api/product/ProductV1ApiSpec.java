@@ -26,9 +26,7 @@ public interface ProductV1ApiSpec {
     ApiResponse<?> getProductsOptimized(
             @RequestParam int page
             , @RequestParam int size
-            , @RequestParam ProductSort productSort
-            , @RequestParam Long brandId
-    );
+            , @RequestParam ProductSort productSort);
 
     @Operation(
             summary = "상품 목록 조회",

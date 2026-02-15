@@ -8,11 +8,11 @@ datasource:
   redis:
     database: 0
     master:
-      host: ${REDIS_MASTER_HOST}
-      port: ${REDIS_MASTER_PORT}
+      host: ${REDIS_MASTER_HOST:localhost}
+      port: ${REDIS_MASTER_PORT:6379}
     replicas:
-      - host: ${REDIS_REPLICA_1_HOST}
-        port: ${REDIS_REPLICA_1_PORT}
+      - host: ${REDIS_REPLICA_1_HOST:localhost}
+        port: ${REDIS_REPLICA_1_PORT:6380}
 
 ---
 

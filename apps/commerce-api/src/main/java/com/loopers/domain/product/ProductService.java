@@ -1,18 +1,11 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.activity.event.ActivityEvent;
-import com.loopers.domain.brand.BrandCacheRepository;
-import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.likes.LikeSummary;
 import com.loopers.domain.likes.LikeSummaryRepository;
 import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.exception.ProductException;
-import com.loopers.domain.likes.ProductLikeRepository;
-import com.loopers.domain.brand.BrandRepository;
-import com.loopers.domain.brand.Brand;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,9 +21,6 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final BrandRepository brandRepository;
-    private final ProductLikeRepository productLikeRepository;
-    private final BrandCacheRepository brandCacheRepository;
     private final ProductCacheRepository productCacheRepository;
     private final LikeSummaryRepository likeSummaryRepository;
 
@@ -59,24 +49,6 @@ public class ProductService {
         ProductDetailInfo productDetailInfo = productRepository.findProductDetail(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
         productCacheRepository.saveProductDetail(productDetailInfo);
         return productDetailInfo;
-    }
-
-    
-    @Transactional(readOnly = true)
-    public ProductDetailInfo getProduct_Old(Long productId) { // 공부용으로 남겨둠
-        Product product = productRepository.findById(productId).orElseThrow(() -> new ProductException.ProductNotFoundException(ErrorType.PRODUCT_NOT_FOUND));
-        Long brandId = product.getBrandId();
-
-        Brand brand = brandCacheRepository.findById(brandId)
-                .orElseGet(() -> {
-                    Brand brandFromDb = brandRepository.findBrand(brandId)
-                            .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-                    brandCacheRepository.save(brandFromDb);
-                    return brandFromDb;
-                });
-        Long likeCount = productLikeRepository.getLikeCount(productId);
-
-        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), brandId, product.getImageUrl(), likeCount);
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )

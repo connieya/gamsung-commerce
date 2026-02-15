@@ -86,13 +86,6 @@ public class ProductService {
         return ProductsInfo.create(productDetails);
     }
 
-    @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )
-    public ProductsInfo getProducts_Old(int size, int page, ProductSort sortType) {
-        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
-        return ProductsInfo.create(productDetails, sortType);
-    }
-
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 쿼리 최적화 (product_like count 서브 쿼리 )
     public ProductsInfo getProductsOptimized(ProductCommand.Search search) {
         Pageable pageable = PageRequest.of(search.getPage(), search.getSize(), search.getProductSort().toSort());

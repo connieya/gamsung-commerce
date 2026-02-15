@@ -151,7 +151,7 @@ class ProductServiceTest {
 
         // when
         when(productRepository.findProductDetails(PageRequest.of(0, 3, ProductSort.LIKES_DESC.toSort()))).thenReturn(targetData);
-        ProductsInfo products = productService.getProducts_Old(3, 0, ProductSort.LIKES_DESC);
+        ProductsInfo products = productService.getProducts(3, 0, ProductSort.LIKES_DESC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
         // then
@@ -172,17 +172,16 @@ class ProductServiceTest {
 
         // when
         when(productRepository.findProductDetails(PageRequest.of(0, 1, ProductSort.PRICE_ASC.toSort()))).thenReturn(targetData);
-        ProductsInfo products = productService.getProducts_Old(1, 0, ProductSort.PRICE_ASC);
+        ProductsInfo products = productService.getProducts(1, 0, ProductSort.PRICE_ASC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
-        // then
+        // then — 정렬은 DB(Pageable)에서 처리, mock 반환 순서 그대로 검증
         assertThat(productInfoList).hasSize(3)
                 .extracting("productId", "price", "productName", "brandName", "likeCount")
                 .containsExactly(
                         tuple(1L, 10000L, "운동화", "나이키", 250L),
-                        tuple(3L, 15000L, "바지", "퓨마", 20L),
-                        tuple(2L, 25000L, "티셔츠", "아디다스", 100L)
-
+                        tuple(2L, 25000L, "티셔츠", "아디다스", 100L),
+                        tuple(3L, 15000L, "바지", "퓨마", 20L)
                 );
     }
 
@@ -192,17 +191,16 @@ class ProductServiceTest {
         // given - BeforeEach
         // when
         when(productRepository.findProductDetails(PageRequest.of(0, 1, ProductSort.LATEST_DESC.toSort()))).thenReturn(targetData);
-        ProductsInfo products = productService.getProducts_Old(1, 0, ProductSort.LATEST_DESC);
+        ProductsInfo products = productService.getProducts(1, 0, ProductSort.LATEST_DESC);
         List<ProductInfo> productInfoList = products.getProductInfoList();
 
-        // then
+        // then — 정렬은 DB(Pageable)에서 처리, mock 반환 순서 그대로 검증
         assertThat(productInfoList).hasSize(3)
                 .extracting("productId", "price", "productName", "brandName", "likeCount")
                 .containsExactly(
-                        tuple(2L, 25000L, "티셔츠", "아디다스", 100L),
                         tuple(1L, 10000L, "운동화", "나이키", 250L),
+                        tuple(2L, 25000L, "티셔츠", "아디다스", 100L),
                         tuple(3L, 15000L, "바지", "퓨마", 20L)
-
                 );
     }
 

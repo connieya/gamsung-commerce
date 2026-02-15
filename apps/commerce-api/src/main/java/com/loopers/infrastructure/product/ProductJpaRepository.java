@@ -29,7 +29,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "left join ProductLike  pl on p.id = pl.productId " +
             "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt "
     )
-    Page<ProductInfo> findProductDetails(Pageable pageable);
+    Page<ProductInfo>  findProductDetails(Pageable pageable);
 
     @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
             "p.id, " +

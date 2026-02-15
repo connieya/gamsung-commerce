@@ -34,14 +34,15 @@ spring:
 logging:
   level:
     io.github.resilience4j.retry: DEBUG
+    # === BUSINESS 모드 기본값: 프레임워크 노이즈 억제 ===
+    # VERBOSE 모드로 전환 시 /api/internal/log-mode API 사용
     # Tx 경계/합류/롤백/서스펜드
-    org.springframework.transaction.interceptor: TRACE
-    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
-    org.springframework.jdbc.datasource.DataSourceTransactionManager: DEBUG   # NESTED 쓸 때
-
+    org.springframework.transaction.interceptor: WARN
+    org.springframework.orm.jpa.JpaTransactionManager: WARN
+    org.springframework.jdbc.datasource.DataSourceTransactionManager: WARN
     # SQL + 바인딩 값 (Hibernate 6)
-    org.hibernate.SQL: DEBUG
-    org.hibernate.orm.jdbc.bind: TRACE
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
 
 springdoc:
   use-fqn: true

@@ -19,6 +19,16 @@ public class LayerLoggingAspect {
 
     private static final int MAX_STRING_LENGTH = 50;
 
+    // ANSI 색상
+    private static final String RESET = "\u001B[0m";
+    private static final String BOLD = "\u001B[1m";
+    private static final String GREEN = "\u001B[32m";
+    private static final String YELLOW = "\u001B[33m";
+    private static final String BLUE = "\u001B[34m";
+    private static final String CYAN = "\u001B[36m";
+    private static final String RED = "\u001B[31m";
+    private static final String GRAY = "\u001B[90m";
+
     @Pointcut("execution(* com.loopers.application..*(..))")
     private void applicationLayer() {}
 
@@ -30,36 +40,47 @@ public class LayerLoggingAspect {
 
     @Around("applicationLayer()")
     public Object logApplicationLayer(ProceedingJoinPoint joinPoint) throws Throwable {
-        return logExecution(joinPoint, "APPLICATION");
+        return logExecution(joinPoint, "APPLICATION", BLUE);
     }
 
     @Around("domainLayer() && !repositoryMethods()")
     public Object logDomainLayer(ProceedingJoinPoint joinPoint) throws Throwable {
-        return logExecution(joinPoint, "DOMAIN");
+        return logExecution(joinPoint, "DOMAIN", GREEN);
     }
 
-    private Object logExecution(ProceedingJoinPoint joinPoint, String layer) throws Throwable {
+    private Object logExecution(ProceedingJoinPoint joinPoint, String layer, String color) throws Throwable {
         Logger log = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
 
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
         String args = summarizeArgs(joinPoint.getArgs());
 
-        log.debug("[{}] {}.{} 진입 (args: {})", layer, className, methodName, args);
+        log.debug("{}{}[{}]{} {}{}.{}{} {} (args: {})",
+                BOLD, color, layer, RESET,
+                CYAN, className, methodName, RESET,
+                YELLOW + "▶" + RESET, args);
 
         long start = System.currentTimeMillis();
         try {
             Object result = joinPoint.proceed();
             long elapsed = System.currentTimeMillis() - start;
 
-            log.debug("[{}] {}.{} 완료 ({}ms, return: {})",
-                    layer, className, methodName, elapsed, summarizeResult(result));
+            log.debug("{}{}[{}]{} {}{}.{}{} {} ({}{}ms{}, return: {})",
+                    BOLD, color, layer, RESET,
+                    CYAN, className, methodName, RESET,
+                    GREEN + "✓" + RESET,
+                    GRAY, elapsed, RESET,
+                    summarizeResult(result));
 
             return result;
         } catch (Exception e) {
             long elapsed = System.currentTimeMillis() - start;
-            log.debug("[{}] {}.{} 예외 ({}ms, exception: {})",
-                    layer, className, methodName, elapsed, e.getClass().getSimpleName());
+            log.debug("{}{}[{}]{} {}{}.{}{} {} ({}{}ms{}, exception: {}{}{})",
+                    BOLD, color, layer, RESET,
+                    CYAN, className, methodName, RESET,
+                    RED + "✗" + RESET,
+                    GRAY, elapsed, RESET,
+                    RED, e.getClass().getSimpleName(), RESET);
             throw e;
         }
     }

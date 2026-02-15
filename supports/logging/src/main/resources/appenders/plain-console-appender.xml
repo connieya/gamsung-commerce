@@ -4,7 +4,7 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %5level [%X{traceId:-}] [%X{method:-} %X{requestUri:-}] [userId=%X{userId:-}] %-40.40logger{39} : %msg%n</pattern>
+            <pattern>%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5level){highlight} %clr([%X{traceId:-}]){cyan} %clr([%X{method:-} %X{requestUri:-}]){blue} %clr([userId=%X{userId:-}]){magenta} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %msg%n</pattern>
         </encoder>
     </appender>
 </included>

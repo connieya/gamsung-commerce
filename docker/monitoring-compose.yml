@@ -1,4 +1,3 @@
-version: '3'
 services:
   prometheus:
     image: prom/prometheus
@@ -6,6 +5,8 @@ services:
       - "9090:9090"
     volumes:
       - ./grafana/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - default
 
   grafana:
     image: grafana/grafana
@@ -16,3 +17,10 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - default
+
+networks:
+  default:
+    external: true
+    name: docker_default

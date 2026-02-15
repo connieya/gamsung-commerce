@@ -8,7 +8,7 @@ echo "=== like_summary 테이블 데이터 삽입 시작 ==="
 # 데이터베이스 접속 정보가 환경 변수로 설정되어 있지 않으면 기본값을 사용합니다.
 DB_HOST=${DB_HOST:-"localhost"}
 DB_PORT=${DB_PORT:-"3306"}
-DB_NAME=${DB_NAME:-"loopers"}
+DB_NAME=${DB_NAME:-"loopers_qa"}
 DB_USER=${DB_USER:-"application"}
 DB_PASSWORD=${DB_PASSWORD:-"application"}
 

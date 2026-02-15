@@ -13,7 +13,7 @@ echo "=== monthly metrics 샘플 데이터 삽입 시작 ==="
 # DB 환경 변수
 DB_HOST=${DB_HOST:-"localhost"}
 DB_PORT=${DB_PORT:-"3306"}
-DB_NAME=${DB_NAME:-"loopers"}
+DB_NAME=${DB_NAME:-"loopers_qa"}
 DB_USER=${DB_USER:-"application"}
 DB_PASSWORD=${DB_PASSWORD:-"application"}
 

@@ -78,10 +78,11 @@ datasource:
 ---
 spring.config.activate.on-profile: qa
 
+# 부하 테스트·QA 전용 DB (로컬 화면용 loopers와 분리)
 datasource:
   mysql-jpa:
     main:
-      jdbc-url: jdbc:mysql://localhost:3306/loopers
+      jdbc-url: jdbc:mysql://localhost:3306/loopers_qa
       username: application
       password: application
 

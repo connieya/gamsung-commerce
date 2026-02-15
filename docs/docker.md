@@ -96,7 +96,8 @@ docker exec -it docker-mysql-1 mysql -u root -proot loopers
 | 호스트 | localhost (또는 컨테이너 내부: mysql) |
 | 포트 | 3306 |
 | root 비밀번호 | root |
-| DB 이름 | loopers |
+| DB 이름 (로컬·웹용) | loopers |
+| DB 이름 (부하 테스트·QA용) | loopers_qa |
 | 애플리케이션 계정 | application / application |
 
 ### 4.5 자주 쓰는 쿼리
@@ -113,6 +114,30 @@ SELECT * FROM product_like;
 ```
 
 > **참고**: 이 프로젝트의 상품 테이블 이름은 **`product`** (단수)입니다. `products`가 아닙니다.
+
+---
+
+## 4.6 부하 테스트용 DB (loopers_qa)
+
+- **loopers**: 로컬 웹 화면·시드 데이터용 (프로필 `local`, `DataLocalLoader`로 시드 삽입)
+- **loopers_qa**: 부하 테스트·k6·대량 샘플 데이터용 (프로필 `qa`, 시드 자동 실행 없음)
+
+**최초 1회 설정**
+
+- **Docker를 막 올린 경우**: `docker/mysql-init/02-create-loopers-qa.sql`이 DB만 생성함. 테이블이 없으므로 `qa/init-schema-loopers-qa.sh`로 `loopers` 스키마를 복사하세요.
+- **이미 MySQL 볼륨을 쓰고 있는 경우**: `qa/init-schema-loopers-qa.sh` 한 번 실행 (DB 생성 + 스키마 복사).
+
+```bash
+# 프로젝트 루트에서 (root 비밀번호 기본값: root)
+MYSQL_ROOT_PASSWORD=root ./qa/init-schema-loopers-qa.sh
+```
+
+**부하 테스트 시**
+
+1. `loopers_qa` 스키마 준비 (위 스크립트로 1회)
+2. `qa/sample/insert-all-data.sh` 등으로 대량 데이터 삽입 (기본 DB가 `loopers_qa`로 설정됨)
+3. API는 **qa 프로필**로 기동: `SPRING_PROFILES_ACTIVE=qa ./gradlew :apps:commerce-api:bootRun`
+4. k6 실행: `qa/k6/scripts/` 아래 스크립트 사용
 
 ---
 

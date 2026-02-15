@@ -1,6 +1,7 @@
 // generate-all-data.js
-// 모든 테이블(users, brand, product, product_like)의 더미 데이터를 생성하여
+// 모든 테이블(users, brand, product, product_like, like_summary)의 더미 데이터를 생성하여
 // 하나의 SQL 파일로 저장하는 스크립트입니다.
+// 좋아요 분포: 멱법칙(Zipf). 인기 상품(낮은 product_id)에 좋아요 집중 → 비정규화 전/후 부하 차이 입증.
 
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +18,9 @@ const productNamesPath = path.join(__dirname, '../data/product-names.csv');
 
 // --- 데이터 생성 상수 ---
 const TOTAL_PRODUCTS = 500000;
-const TOTAL_LIKES = 100000; // 상품 좋아요 데이터 개수
+const TOTAL_LIKES = 5000000;   // 상품당 평균 10개, 비정규화 전/후 부하 차이 입증용
+const TOTAL_USERS = 50000;     // 좋아요 조합 다양성 확보
+const ZIPF_S = 1;              // Zipf 지수 (1 = 전형적 멱법칙)
 
 // --- 시작 로직 ---
 if (!fs.existsSync(resultsDir)) {
@@ -53,8 +56,30 @@ if (userLines.length === 0 || brandLines.length === 0 || adjectives.length === 0
     process.exit(1);
 }
 
+// --- Zipf(멱법칙) 누적 확률 테이블: rank k 확률 ∝ 1/k^s ---
+console.log('Zipf 누적 분포 계산 중...');
+const zipfCumulative = [0];
+let zipfSum = 0;
+for (let k = 1; k <= TOTAL_PRODUCTS; k++) {
+    zipfSum += 1 / Math.pow(k, ZIPF_S);
+    zipfCumulative.push(zipfSum);
+}
+const zipfTotal = zipfSum;
+
+/** Zipf 분포로 상품 rank(1-based) 샘플링. rank 1 = 가장 인기 상품 */
+function sampleZipfProductId() {
+    const u = Math.random() * zipfTotal;
+    let lo = 1, hi = TOTAL_PRODUCTS;
+    while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (zipfCumulative[mid] < u) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+
 // --- SQL 파일 시작 부분 생성 ---
-let sqlContent = `-- 모든 테이블(users, brand, product, product_like) 데이터 삽입\n`;
+let sqlContent = `-- 모든 테이블(users, brand, product, product_like, like_summary) 데이터 삽입 (Zipf 분포)\n`;
 sqlContent += `-- 생성 시간: ${new Date().toISOString()}\n\n`;
 sqlContent += '-- 한글 지원을 위한 문자셋 설정\n';
 sqlContent += 'SET NAMES utf8mb4;\n';
@@ -64,6 +89,7 @@ sqlContent += 'SET character_set_connection=utf8mb4;\n\n';
 // 외래 키 제약 조건을 일시적으로 비활성화하고 테이블을 정리합니다.
 sqlContent += 'SET FOREIGN_KEY_CHECKS = 0;\n';
 sqlContent += `TRUNCATE TABLE product_like;\n`;
+sqlContent += `TRUNCATE TABLE like_summary;\n`;
 sqlContent += `TRUNCATE TABLE product;\n`;
 sqlContent += `TRUNCATE TABLE brand;\n`;
 sqlContent += `TRUNCATE TABLE users;\n`;
@@ -84,21 +110,22 @@ const brandValues = brandLines.map(line => {
 sqlContent += brandValues.join(',\n') + ';\n\n';
 console.log(`총 ${brandLines.length}개의 브랜드 데이터 SQL 문이 생성되었습니다.`);
 
-// --- 사용자 데이터 삽입 ---
+// --- 사용자 데이터 삽입 (TOTAL_USERS명, CSV 행 반복·user_id/email 유니크) ---
 sqlContent += `-- 2. 사용자 데이터 삽입\n`;
 sqlContent += `INSERT INTO users (user_id, email, gender, birth_date, created_at, updated_at) VALUES\n`;
-const userValues = userLines.map(line => {
-    const [userId, email, gender, birthDate] = line.split(',');
-    const safeUserName = userId.trim().replace(/'/g, "''");
-    const safeEmail = email.trim().replace(/'/g, "''");
-
-    // 성별 매핑: Male: 1, Female: 2
-    const genderId = gender.trim().toUpperCase() === 'FEMALE' ? 2 : 1;
-
-    return `('${safeUserName}', '${safeEmail}', ${genderId}, '${birthDate.trim()}', NOW(), NOW())`;
-});
+const userValues = [];
+for (let i = 0; i < TOTAL_USERS; i++) {
+    const line = userLines[i % userLines.length];
+    const parts = line.split(',');
+    const gender = parts[2] ? parts[2].trim() : 'Male';
+    const birthDate = parts[3] ? parts[3].trim() : '1990-01-01';
+    const genderId = gender.toUpperCase() === 'FEMALE' ? 2 : 1;
+    const user_id = `user_${i + 1}`;
+    const email = `user${i + 1}@qa.loadtest`;
+    userValues.push(`('${user_id}', '${email}', ${genderId}, '${birthDate}', NOW(), NOW())`);
+}
 sqlContent += userValues.join(',\n') + ';\n\n';
-console.log(`총 ${userLines.length}개의 사용자 데이터 SQL 문이 생성되었습니다.`);
+console.log(`총 ${TOTAL_USERS}개의 사용자 데이터 SQL 문이 생성되었습니다.`);
 
 // --- 상품 데이터 삽입 ---
 sqlContent += `-- 3. 상품 데이터 삽입\n`;
@@ -129,28 +156,48 @@ for (let i = 0; i < TOTAL_PRODUCTS; i++) {
 sqlContent += productValues.join(',\n') + ';\n\n';
 console.log(`총 ${TOTAL_PRODUCTS}개의 상품 데이터 SQL 문이 생성되었습니다.`);
 
-// --- 상품 좋아요 데이터 삽입 ---
-sqlContent += `-- 4. 상품 좋아요 데이터 삽입\n`;
+// --- 상품 좋아요 데이터 삽입 (Zipf: 인기 상품에 좋아요 집중) ---
+sqlContent += `-- 4. 상품 좋아요 데이터 삽입 (Zipf 분포)\n`;
 sqlContent += `INSERT INTO product_like (ref_user_id, ref_product_id, created_at, updated_at) VALUES\n`;
 const likeValues = [];
-const userCount = userLines.length;
-
-// 중복된 좋아요 조합을 저장할 Set
 const uniqueLikes = new Set();
+let attempts = 0;
+const maxAttempts = TOTAL_LIKES * 20; // 중복 시 리샘플링 상한
 
-for (let i = 0; i < TOTAL_LIKES; i++) {
-    const randomUserId = Math.floor(Math.random() * userCount) + 1; // 사용자 ID는 1부터 시작
-    const randomProductId = Math.floor(Math.random() * TOTAL_PRODUCTS) + 1; // 상품 ID는 1부터 시작
-    const uniqueKey = `${randomUserId}-${randomProductId}`;
-
-    // Set에 이미 존재하는지 확인
+while (likeValues.length < TOTAL_LIKES && attempts < maxAttempts) {
+    const randomUserId = Math.floor(Math.random() * TOTAL_USERS) + 1;
+    const productId = sampleZipfProductId(); // Zipf로 인기 상품 위주
+    const uniqueKey = `${randomUserId}-${productId}`;
     if (!uniqueLikes.has(uniqueKey)) {
         uniqueLikes.add(uniqueKey);
-        likeValues.push(`(${randomUserId}, ${randomProductId}, NOW(), NOW())`);
+        likeValues.push(`(${randomUserId}, ${productId}, NOW(), NOW())`);
+    }
+    attempts++;
+}
+if (likeValues.length < TOTAL_LIKES) {
+    console.warn(`경고: 유니크 조합 한계로 좋아요 ${likeValues.length}건만 생성됨 (목표 ${TOTAL_LIKES}). users/상품 조합을 늘려보세요.`);
+}
+sqlContent += likeValues.join(',\n') + ';\n\n';
+console.log(`총 ${likeValues.length}개의 상품 좋아요 데이터 SQL 문이 생성되었습니다. (Zipf 분포)`);
+
+// --- 5. like_summary (동일 product_like 기준 집계, 비정규화 비교용) ---
+const likeCountByProduct = new Map();
+for (const row of likeValues) {
+    const m = row.match(/\((\d+),\s*(\d+),/);
+    if (m) {
+        const productId = parseInt(m[2], 10);
+        likeCountByProduct.set(productId, (likeCountByProduct.get(productId) || 0) + 1);
     }
 }
-sqlContent += likeValues.join(',\n') + ';\n';
-console.log(`총 ${TOTAL_LIKES}개의 상품 좋아요 데이터 SQL 문이 생성되었습니다.`);
+sqlContent += `-- 5. like_summary (product_like와 동일 데이터 집계)\n`;
+sqlContent += `INSERT INTO like_summary (like_count, target_id, target_type, created_at, updated_at) VALUES\n`;
+const likeSummaryValues = [];
+for (let productId = 1; productId <= TOTAL_PRODUCTS; productId++) {
+    const count = likeCountByProduct.get(productId) || 0;
+    likeSummaryValues.push(`(${count}, ${productId}, 'PRODUCT', NOW(), NOW())`);
+}
+sqlContent += likeSummaryValues.join(',\n') + ';\n';
+console.log(`총 ${likeSummaryValues.length}개의 like_summary 행이 생성되었습니다.`);
 
 // --- 최종 파일 저장 ---
 fs.writeFileSync(outputSqlPath, sqlContent);

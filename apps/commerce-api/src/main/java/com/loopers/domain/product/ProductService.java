@@ -82,6 +82,13 @@ public class ProductService {
     }
 
 
+    @Transactional(readOnly = true) // 좋아요 비정규화 적용 (brandId 없이, 캐시 미적용)
+    public ProductsInfo getProductsDenormalized(int size, int page, ProductSort sortType) {
+        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable);
+        return ProductsInfo.create(productDetails);
+    }
+
     public List<Product> findAllById(List<Long> productIds) {
         return productRepository.findAllById(productIds);
     }

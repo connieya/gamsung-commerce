@@ -65,6 +65,11 @@ public class ProductCoreRepository implements ProductRepository {
     }
 
     @Override
+    public Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable) {
+        return productJpaRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable);
+    }
+
+    @Override
     public List<ProductInfo> findRankByIds(List<Long> rankingInfo) {
         return productJpaRepository.findRankByIds(rankingInfo);
     }

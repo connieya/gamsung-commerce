@@ -51,6 +51,16 @@ public class ProductV1Controller implements ProductV1ApiSpec {
 
 
 
+    @GetMapping("/denormalized/no-brand")
+    @Override
+    public ApiResponse<ProductV1Dto.SummaryResponse> getProductsDenormalized(
+            @RequestParam int page
+            , @RequestParam int size
+            , @RequestParam ProductSort productSort) {
+        ProductsInfo products = productService.getProductsDenormalized(size, page, productSort);
+        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+    }
+
     @GetMapping("/{productId}")
     @Override
     public ApiResponse<ProductV1Dto.DetailResponse> getProduct(@PathVariable Long productId) {

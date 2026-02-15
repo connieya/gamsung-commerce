@@ -34,7 +34,7 @@ class ProductTest {
 
             // when & then
             assertThatThrownBy(() -> {
-                Product.create(name, basePrice ,1L , ZonedDateTime.now());
+                Product.create(name, basePrice, 1L, null, ZonedDateTime.now());
             }).isInstanceOf(CoreException.class)
                     .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);
 
@@ -52,7 +52,7 @@ class ProductTest {
 
             // when & then
             assertThatThrownBy(() -> {
-                Product.create(name, basePrice ,1L , ZonedDateTime.now());
+                Product.create(name, basePrice, 1L, null, ZonedDateTime.now());
             }).isInstanceOf(CoreException.class)
                     .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);
         }
@@ -66,7 +66,7 @@ class ProductTest {
 
             // when & then
             assertThatThrownBy(() -> {
-                Product.create(name, basePrice ,1L , null);
+                Product.create(name, basePrice, 1L, null, null);
             }).isInstanceOf(CoreException.class)
                     .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);
         }
@@ -80,7 +80,7 @@ class ProductTest {
         @ParameterizedTest
         void createNewProduct(String name , Long price , Long brandId , ZonedDateTime releasedAt) {
             // when
-            Product product = Product.create(name, price, brandId, releasedAt);
+            Product product = Product.create(name, price, brandId, null, releasedAt);
 
             // then
             assertAll(

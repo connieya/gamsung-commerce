@@ -50,9 +50,9 @@ class ProductServiceTest {
     @BeforeEach
     void setUp() {
         List<ProductInfo> productInfos = new ArrayList<>();
-        productInfos.add(new ProductInfo(1L, 10000L, "운동화", "나이키", 250L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(10)));
-        productInfos.add(new ProductInfo(2L, 25000L, "티셔츠", "아디다스", 100L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(5)));
-        productInfos.add(new ProductInfo(3L, 15000L, "바지", "퓨마", 20L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(15)));
+        productInfos.add(new ProductInfo(1L, 10000L, "운동화", "나이키", null, 250L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(10)));
+        productInfos.add(new ProductInfo(2L, 25000L, "티셔츠", "아디다스", null, 100L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(5)));
+        productInfos.add(new ProductInfo(3L, 15000L, "바지", "퓨마", null, 20L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(15)));
 
         // Pageable 객체 생성: 현재 페이지 번호, 페이지 크기
         Pageable pageable = PageRequest.of(0, 1);
@@ -70,7 +70,7 @@ class ProductServiceTest {
         Long productId = 2L;
         Long brandId = 20L;
         Brand brandFromDb = Brand.create("아디다스","스포츠 브랜드");
-        Product product = Product.create("울트라부스트", 150000L, brandId, ZonedDateTime.now());
+        Product product = Product.create("울트라부스트", 150000L, brandId, null, ZonedDateTime.now());
 
         // 캐시 미스 상황을 Mocking: findById() 호출 시 empty를 반환
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
@@ -99,7 +99,7 @@ class ProductServiceTest {
         Long productId = 1L;
         Long brandId = 10L;
         Brand cachedBrand = Brand.create("나이키", "스포츠 브랜드");
-        Product product = Product.create("에어맥스", 100000L, brandId, ZonedDateTime.now());
+        Product product = Product.create("에어맥스", 100000L, brandId, null, ZonedDateTime.now());
 
         // 캐시 히트 상황을 Mocking: findById() 호출 시 캐시 데이터를 반환
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
@@ -128,7 +128,7 @@ class ProductServiceTest {
     void getProductDetail() {
         // given
         ZonedDateTime zonedDateTime = ZonedDateTime.of(2025, 8, 1, 10, 0, 0, 0, ZoneId.of("Asia/Seoul"));
-        when(productRepository.findById(1L)).thenReturn(Optional.of(Product.create("상품1", 50000L, 1L, zonedDateTime)));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(Product.create("상품1", 50000L, 1L, null, zonedDateTime)));
         when(brandRepository.findBrand(1L)).thenReturn(Optional.of(Brand.create("브랜드1", "멋진 브랜드")));
         when(productLikeRepository.getLikeCount(1L)).thenReturn(10L);
 

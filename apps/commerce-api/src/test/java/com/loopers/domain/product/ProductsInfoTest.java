@@ -23,9 +23,9 @@ class ProductsInfoTest {
     @BeforeEach
     void setUp() {
         List<ProductInfo> productInfos = new ArrayList<>();
-        productInfos.add(new ProductInfo(1L, 10000L, "운동화", "나이키", 250L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(10)));
-        productInfos.add(new ProductInfo(2L, 25000L, "티셔츠", "아디다스", 100L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(5)));
-        productInfos.add(new ProductInfo(3L, 15000L, "바지", "퓨마", 20L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(15)));
+        productInfos.add(new ProductInfo(1L, 10000L, "운동화", "나이키", null, 250L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(10)));
+        productInfos.add(new ProductInfo(2L, 25000L, "티셔츠", "아디다스", null, 100L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(5)));
+        productInfos.add(new ProductInfo(3L, 15000L, "바지", "퓨마", null, 20L, ZonedDateTime.now(ZoneId.of("Asia/Seoul")).minusDays(15)));
 
         // Pageable 객체 생성: 현재 페이지 번호, 페이지 크기
         Pageable pageable = PageRequest.of(0, 1);

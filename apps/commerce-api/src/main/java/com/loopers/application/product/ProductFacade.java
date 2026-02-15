@@ -32,6 +32,7 @@ public class ProductFacade {
                 productDetail.getProductPrice(),
                 productDetail.getBrandName(),
                 productDetail.getBrandId(),
+                productDetail.getImageUrl(),
                 productDetail.getLikeCount(),
                 rankOfProduct
         );

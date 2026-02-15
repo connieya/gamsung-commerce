@@ -34,25 +34,25 @@ INSERT INTO users (user_id, email, birth_date, gender, created_at, updated_at, d
 ('nayoung.lim',  'nayoung.lim@kakao.com',  '1997-12-25', 'FEMALE', NOW(), NOW(), NULL),
 ('siwoo_han',    'siwoo.han@naver.com',     '1995-10-09', 'MALE',   NOW(), NOW(), NULL);
 
--- 3. 상품 (브랜드 id 1~7, 가격 원화)
-INSERT INTO product (name, price, ref_brand_id, released_at, created_at, updated_at, deleted_at) VALUES
-('오버핏 맨투맨 그레이', 39000, 1, '2024-09-01 00:00:00', NOW(), NOW(), NULL),
-('오버핏 후드 네이비', 59000, 1, '2024-10-01 00:00:00', NOW(), NOW(), NULL),
-('와이드 슬랙스 베이지', 79000, 1, '2024-09-15 00:00:00', NOW(), NOW(), NULL),
-('조거 팬츠 블랙', 49000, 1, '2024-10-10 00:00:00', NOW(), NOW(), NULL),
-('크로스백 블랙', 45000, 1, '2024-08-01 00:00:00', NOW(), NOW(), NULL),
-('볼캡 로고', 29000, 1, '2024-09-20 00:00:00', NOW(), NOW(), NULL),
-('나이키 에어맥스 90', 159000, 2, '2024-08-15 00:00:00', NOW(), NOW(), NULL),
-('나이키 덩크 로우', 129000, 2, '2024-07-20 00:00:00', NOW(), NOW(), NULL),
-('아디다스 삼바 OG', 129000, 3, '2024-07-20 00:00:00', NOW(), NOW(), NULL),
-('아디다스 가젤', 119000, 3, '2024-09-01 00:00:00', NOW(), NOW(), NULL),
-('디스커버리 코치 재킷', 189000, 4, '2024-11-01 00:00:00', NOW(), NOW(), NULL),
-('디스커버리 플리스 자켓', 139000, 4, '2024-10-15 00:00:00', NOW(), NOW(), NULL),
-('코듀로이 와이드 팬츠', 89000, 5, '2024-10-01 00:00:00', NOW(), NOW(), NULL),
-('울 싱글 코트 체크', 279000, 5, '2024-11-10 00:00:00', NOW(), NOW(), NULL),
-('스톤아일랜드 후드 스웨트', 329000, 6, '2024-08-20 00:00:00', NOW(), NOW(), NULL),
-('무인양품 울 블렌드 코트', 199000, 7, '2024-11-01 00:00:00', NOW(), NOW(), NULL),
-('무인양품 캐시미어 스웨터', 89000, 7, '2024-10-01 00:00:00', NOW(), NOW(), NULL);
+-- 3. 상품 (브랜드 id 1~7, 가격 원화, 이미지 URL)
+INSERT INTO product (name, price, ref_brand_id, image_url, released_at, created_at, updated_at, deleted_at) VALUES
+('오버핏 맨투맨 그레이',      39000, 1, 'https://picsum.photos/seed/musinsa-mtm/400/533',       '2024-09-01 00:00:00', NOW(), NOW(), NULL),
+('오버핏 후드 네이비',        59000, 1, 'https://picsum.photos/seed/musinsa-hood/400/533',      '2024-10-01 00:00:00', NOW(), NOW(), NULL),
+('와이드 슬랙스 베이지',      79000, 1, 'https://picsum.photos/seed/musinsa-slacks/400/533',    '2024-09-15 00:00:00', NOW(), NOW(), NULL),
+('조거 팬츠 블랙',           49000, 1, 'https://picsum.photos/seed/musinsa-jogger/400/533',    '2024-10-10 00:00:00', NOW(), NOW(), NULL),
+('크로스백 블랙',            45000, 1, 'https://picsum.photos/seed/musinsa-bag/400/533',       '2024-08-01 00:00:00', NOW(), NOW(), NULL),
+('볼캡 로고',               29000, 1, 'https://picsum.photos/seed/musinsa-cap/400/533',       '2024-09-20 00:00:00', NOW(), NOW(), NULL),
+('나이키 에어맥스 90',       159000, 2, 'https://picsum.photos/seed/nike-airmax90/400/533',     '2024-08-15 00:00:00', NOW(), NOW(), NULL),
+('나이키 덩크 로우',         129000, 2, 'https://picsum.photos/seed/nike-dunklow/400/533',      '2024-07-20 00:00:00', NOW(), NOW(), NULL),
+('아디다스 삼바 OG',         129000, 3, 'https://picsum.photos/seed/adidas-samba/400/533',      '2024-07-20 00:00:00', NOW(), NOW(), NULL),
+('아디다스 가젤',            119000, 3, 'https://picsum.photos/seed/adidas-gazelle/400/533',    '2024-09-01 00:00:00', NOW(), NOW(), NULL),
+('디스커버리 코치 재킷',     189000, 4, 'https://picsum.photos/seed/discovery-coach/400/533',   '2024-11-01 00:00:00', NOW(), NOW(), NULL),
+('디스커버리 플리스 자켓',    139000, 4, 'https://picsum.photos/seed/discovery-fleece/400/533',  '2024-10-15 00:00:00', NOW(), NOW(), NULL),
+('코듀로이 와이드 팬츠',      89000, 5, 'https://picsum.photos/seed/corduroy-wide/400/533',     '2024-10-01 00:00:00', NOW(), NOW(), NULL),
+('울 싱글 코트 체크',        279000, 5, 'https://picsum.photos/seed/wool-coat-check/400/533',   '2024-11-10 00:00:00', NOW(), NOW(), NULL),
+('스톤아일랜드 후드 스웨트',  329000, 6, 'https://picsum.photos/seed/stoneisland-hood/400/533',  '2024-08-20 00:00:00', NOW(), NOW(), NULL),
+('무인양품 울 블렌드 코트',   199000, 7, 'https://picsum.photos/seed/muji-woolcoat/400/533',     '2024-11-01 00:00:00', NOW(), NOW(), NULL),
+('무인양품 캐시미어 스웨터',   89000, 7, 'https://picsum.photos/seed/muji-cashmere/400/533',     '2024-10-01 00:00:00', NOW(), NOW(), NULL);
 
 -- 4. 상품 좋아요 (user id 1~20, product id 1~17)
 -- 인기 상품일수록 좋아요 多 — 나이키/아디다스 신발류 인기, 무신사스탠다드 중간, 기타 적음

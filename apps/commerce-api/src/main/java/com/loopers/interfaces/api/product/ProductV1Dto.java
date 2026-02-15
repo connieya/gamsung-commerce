@@ -18,6 +18,7 @@ public class ProductV1Dto {
             String productName,
             Long price,
             String brandName,
+            String imageUrl,
             Long likeCount,
             Long rank
     ) {
@@ -28,6 +29,7 @@ public class ProductV1Dto {
                     productResult.getProductName(),
                     productResult.getProductPrice(),
                     productResult.getBrandName(),
+                    productResult.getImageUrl(),
                     likeCount,
                     productResult.getRank()
             );
@@ -52,6 +54,7 @@ public class ProductV1Dto {
                                     .price(productInfo.getPrice())
                                     .productName(productInfo.getProductName())
                                     .brandName(productInfo.getBrandName())
+                                    .imageUrl(productInfo.getImageUrl())
                                     .likeCount(productInfo.getLikeCount())
                                     .releasedAt(productInfo.getReleasedAt())
                                     .build()
@@ -77,6 +80,7 @@ public class ProductV1Dto {
         private final Long price;
         private final String productName;
         private final String brandName;
+        private final String imageUrl;
         private final Long likeCount;
         private final ZonedDateTime releasedAt;
     }

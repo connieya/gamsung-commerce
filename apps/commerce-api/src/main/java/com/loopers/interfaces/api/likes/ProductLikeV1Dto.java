@@ -23,6 +23,7 @@ public class ProductLikeV1Dto {
                                     .productPrice(productDetailInfo.getProductPrice())
                                     .productName(productDetailInfo.getProductName())
                                     .brandName(productDetailInfo.getBrandName())
+                                    .imageUrl(productDetailInfo.getImageUrl())
                                     .likeCount(productDetailInfo.getLikeCount())
                                     .build()
                     ).toList();
@@ -38,6 +39,7 @@ public class ProductLikeV1Dto {
         private final String productName;
         private final Long productPrice;
         private final String brandName;
+        private final String imageUrl;
         private final Long likeCount;
     }
 

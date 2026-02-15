@@ -18,10 +18,11 @@ public class Product {
     private String name;
     private Long price;
     private Long brandId;
+    private String imageUrl;
     private ZonedDateTime releasedAt;
 
     @Builder
-    private Product(Long id, String name, Long price, Long brandId ,ZonedDateTime releasedAt) {
+    private Product(Long id, String name, Long price, Long brandId, String imageUrl, ZonedDateTime releasedAt) {
         if (!StringUtils.hasText(name)) {
             throw new CoreException(ErrorType.BAD_REQUEST , "이름이 올바르지 않습니다.");
         }
@@ -42,14 +43,16 @@ public class Product {
         this.name = name;
         this.price = price;
         this.brandId = brandId;
+        this.imageUrl = imageUrl;
         this.releasedAt= releasedAt;
     }
 
-    public static Product create(String name, Long price, Long brandId , ZonedDateTime releasedAt) {
+    public static Product create(String name, Long price, Long brandId, String imageUrl, ZonedDateTime releasedAt) {
         return Product.builder()
                 .name(name)
                 .price(price)
                 .brandId(brandId)
+                .imageUrl(imageUrl)
                 .releasedAt(releasedAt)
                 .build();
     }

@@ -42,7 +42,7 @@ public class LikeProductFacade {
                 .map(product -> {
                     BrandInfo brand = brandMap.get(product.getBrandId());
                     Long likeCount = productLikeService.getLikeCount(product.getId());
-                    return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.name(), brand.id(), likeCount);
+                    return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.name(), brand.id(), product.getImageUrl(), likeCount);
                 }).toList();
 
         return GetLikeProductResult.create(productDetailInfos);

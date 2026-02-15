@@ -40,6 +40,7 @@ public class ProductService {
                 register.getName()
                 , register.getPrice()
                 , register.getBrandId()
+                , null
                 , ZonedDateTime.now()
         );
         Product save = productRepository.save(product, register.getBrandId());
@@ -75,7 +76,7 @@ public class ProductService {
                 });
         Long likeCount = productLikeRepository.getLikeCount(productId);
 
-        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(),brandId, likeCount);
+        return ProductDetailInfo.create(product.getId(), product.getName(), product.getPrice(), brand.getName(), brandId, product.getImageUrl(), likeCount);
     }
 
     @Transactional(readOnly = true) // 좋아요 비정규화 하기 전 (product_like 테이블과 조인 )

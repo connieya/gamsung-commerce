@@ -19,6 +19,9 @@ public class ProductEntity extends BaseEntity {
     @JoinColumn(name = "ref_brand_id")
     private Brand brand;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     private ZonedDateTime releasedAt;
 
     public static ProductEntity fromDomain(Product product , Brand brand) {
@@ -27,6 +30,7 @@ public class ProductEntity extends BaseEntity {
         productEntity.name = product.getName();
         productEntity.price = product.getPrice();
         productEntity.brand = brand;
+        productEntity.imageUrl = product.getImageUrl();
         productEntity.releasedAt = product.getReleasedAt();
 
         return productEntity;
@@ -38,6 +42,7 @@ public class ProductEntity extends BaseEntity {
                 .name(name)
                 .price(price)
                 .brandId(brand.getId())
+                .imageUrl(imageUrl)
                 .releasedAt(releasedAt)
                 .build();
     }

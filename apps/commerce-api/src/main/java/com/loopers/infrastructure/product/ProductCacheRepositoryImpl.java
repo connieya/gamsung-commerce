@@ -124,6 +124,7 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
                 .productPrice(info.getProductPrice())
                 .brandName(info.getBrandName())
                 .brandId(info.getBrandId())
+                .imageUrl(info.getImageUrl())
                 .likeCount(next)
                 .build();
         saveProductDetail(updated);

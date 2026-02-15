@@ -16,27 +16,30 @@ public class ProductDetailInfo {
     private Long productPrice;
     private String brandName;
     private Long brandId;
+    private String imageUrl;
     private Long likeCount;
 
     @Builder
-    public ProductDetailInfo(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
+    public ProductDetailInfo(Long productId, String productName, Long productPrice, String brandName, Long brandId, String imageUrl, Long likeCount) {
         this.productId = productId;
         this.productName = productName;
         this.productPrice = productPrice;
         this.brandName = brandName;
         this.brandId = brandId;
+        this.imageUrl = imageUrl;
         this.likeCount = likeCount;
     }
 
-    public static ProductDetailInfo create(Long productId, String productName, Long productPrice, String brandName, Long brandId, Long likeCount) {
+    public static ProductDetailInfo create(Long productId, String productName, Long productPrice, String brandName, Long brandId, String imageUrl, Long likeCount) {
         return ProductDetailInfo
                 .builder()
                 .productId(productId)
                 .productName(productName)
                 .productPrice(productPrice)
                 .brandName(brandName)
-                .likeCount(likeCount)
                 .brandId(brandId)
+                .imageUrl(imageUrl)
+                .likeCount(likeCount)
                 .build();
     }
 }

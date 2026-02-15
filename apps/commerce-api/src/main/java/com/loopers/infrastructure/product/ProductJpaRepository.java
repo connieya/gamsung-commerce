@@ -21,12 +21,13 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.price," +
             "p.name," +
             "b.name," +
-            "cast(count(pl.id) as long) as likeCount," + // 좋아요 수
+            "p.imageUrl," +
+            "cast(count(pl.id) as long) as likeCount," +
             "p.releasedAt" +
             ") from ProductEntity p " +
             "left join p.brand b " +
             "left join ProductLike  pl on p.id = pl.productId " +
-            "group by p.id, p.price, p.name, b.name, p.releasedAt "
+            "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt "
     )
     Page<ProductInfo> findProductDetails(Pageable pageable);
 
@@ -35,6 +36,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.price, " +
             "p.name, " +
             "b.name, " +
+            "p.imageUrl, " +
             "cast((SELECT COUNT(l) FROM ProductLike l WHERE l.productId = p.id) as long )as likeCount, " +
             "p.releasedAt" +
             ") FROM ProductEntity p " +
@@ -49,6 +51,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.price, " +
             "p.name, " +
             "b.name, " +
+            "p.imageUrl, " +
             "s.likeCount, " +
             "p.releasedAt" +
             ") FROM ProductEntity p " +
@@ -65,6 +68,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.price, " +
             "p.name, " +
             "b.name, " +
+            "p.imageUrl, " +
             "s.likeCount, " +
             "p.releasedAt" +
             ") FROM LikeSummary s " +
@@ -80,13 +84,14 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.price," +
             "p.name," +
             "b.name," +
-            "cast(count(pl.id) as long) as likeCount," + // 좋아요 수
+            "p.imageUrl," +
+            "cast(count(pl.id) as long) as likeCount," +
             "p.releasedAt" +
             ") from ProductEntity p " +
             "left join p.brand b " +
             "left join ProductLike  pl on p.id = pl.productId " +
             "where p.id in :rankingInfo " +
-            "group by p.id, p.price, p.name, b.name, p.releasedAt"
+            "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt"
     )
     List<ProductInfo> findRankByIds(@Param("rankingInfo") List<Long> rankingInfo);
 
@@ -96,7 +101,8 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.price," +
             "b.name," +
             "b.id, " +
-            "l.likeCount" + // 좋아요 수
+            "p.imageUrl, " +
+            "l.likeCount" +
             ") from ProductEntity p " +
             "left join p.brand b " +
             "left join LikeSummary l on p.id = l.target.id " +

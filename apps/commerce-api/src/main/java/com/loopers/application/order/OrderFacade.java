@@ -40,6 +40,13 @@ public class  OrderFacade {
 
         return OrderResult.GetDetail.from(orderDetail);
     }
+
+    @Transactional(readOnly = true)
+    public OrderResult.List getOrders(String userId) {
+        User user = userService.findByUserId(userId);
+        List<OrderInfo> orders = orderService.getOrdersByUserId(user.getId());
+        return OrderResult.List.from(orders);
+    }
 }
 
 

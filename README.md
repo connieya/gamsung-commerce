@@ -36,6 +36,12 @@ docker-compose -f ./docker/monitoring-compose.yml up
 - 시드 스크립트: `apps/commerce-api/src/main/resources/data-local.sql`
 - local 프로필에서는 `ddl-auto: create`로 테이블이 매 기동 시 재생성된 뒤, 위 SQL이 실행됩니다.
 
+### 부하 테스트 (k6)
+
+상품 목록 API 등에 대한 부하 테스트는 **loopers_qa** DB에 대량 데이터를 넣은 뒤 **k6**로 실행합니다. 진행 순서·사전 요구사항·관련 파일은 아래 문서를 참고하세요.
+
+> **[docs/load-test.md](docs/load-test.md)** — 부하 테스트 진행 방법
+
 ### 트러블슈팅
 
 - **[E2E 테스트 개별 실행 실패 및 test 프로필·Redis·DDL 설정 정리](https://github.com/connieya/gamsung-commerce/issues/30)** — 테스트 격리성, Redis NPE, Table doesn't exist 등

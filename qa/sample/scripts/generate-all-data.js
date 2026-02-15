@@ -10,6 +10,9 @@ const path = require('path');
 const resultsDir = path.join(__dirname, '../results');
 const outputSqlPath = path.join(resultsDir, 'all-data.sql');
 
+// --- 배치 INSERT 상수 ---
+const BATCH_SIZE = 50000; // INSERT 당 최대 행 수 (max_allowed_packet 64MB 초과 방지)
+
 // CSV 파일 경로
 const userSamplePath = path.join(__dirname, '../data/user-sample.csv');
 const brandSamplePath = path.join(__dirname, '../data/brand-sample-data.csv');
@@ -78,26 +81,37 @@ function sampleZipfProductId() {
     return lo;
 }
 
-// --- SQL 파일 시작 부분 생성 ---
-let sqlContent = `-- 모든 테이블(users, brand, product, product_like, like_summary) 데이터 삽입 (Zipf 분포)\n`;
-sqlContent += `-- 생성 시간: ${new Date().toISOString()}\n\n`;
-sqlContent += '-- 한글 지원을 위한 문자셋 설정\n';
-sqlContent += 'SET NAMES utf8mb4;\n';
-sqlContent += 'SET CHARACTER SET utf8mb4;\n';
-sqlContent += 'SET character_set_connection=utf8mb4;\n\n';
+// --- 배치 INSERT 헬퍼: values 배열을 BATCH_SIZE 단위로 나눠 INSERT 문 생성 ---
+function batchInsert(columnsDef, values) {
+    let sql = '';
+    for (let i = 0; i < values.length; i += BATCH_SIZE) {
+        const chunk = values.slice(i, i + BATCH_SIZE);
+        sql += `${columnsDef}\n${chunk.join(',\n')};\n\n`;
+    }
+    return sql;
+}
+
+// --- 스트림 기반 파일 쓰기 (메모리 절약) ---
+const ws = fs.createWriteStream(outputSqlPath, { encoding: 'utf8' });
+
+ws.write(`-- 모든 테이블(users, brand, product, product_like, like_summary) 데이터 삽입 (Zipf 분포)\n`);
+ws.write(`-- 생성 시간: ${new Date().toISOString()}\n\n`);
+ws.write('-- 한글 지원을 위한 문자셋 설정\n');
+ws.write('SET NAMES utf8mb4;\n');
+ws.write('SET CHARACTER SET utf8mb4;\n');
+ws.write('SET character_set_connection=utf8mb4;\n\n');
 
 // 외래 키 제약 조건을 일시적으로 비활성화하고 테이블을 정리합니다.
-sqlContent += 'SET FOREIGN_KEY_CHECKS = 0;\n';
-sqlContent += `TRUNCATE TABLE product_like;\n`;
-sqlContent += `TRUNCATE TABLE like_summary;\n`;
-sqlContent += `TRUNCATE TABLE product;\n`;
-sqlContent += `TRUNCATE TABLE brand;\n`;
-sqlContent += `TRUNCATE TABLE users;\n`;
-sqlContent += 'SET FOREIGN_KEY_CHECKS = 1;\n\n';
+ws.write('SET FOREIGN_KEY_CHECKS = 0;\n');
+ws.write('TRUNCATE TABLE product_like;\n');
+ws.write('TRUNCATE TABLE like_summary;\n');
+ws.write('TRUNCATE TABLE product;\n');
+ws.write('TRUNCATE TABLE brand;\n');
+ws.write('TRUNCATE TABLE users;\n');
+ws.write('SET FOREIGN_KEY_CHECKS = 1;\n\n');
 
 // --- 브랜드 데이터 삽입 ---
-sqlContent += `-- 1. 브랜드 데이터 삽입\n`;
-sqlContent += `INSERT INTO brand (name, description, created_at, updated_at) VALUES\n`;
+ws.write(`-- 1. 브랜드 데이터 삽입\n`);
 const brandValues = brandLines.map(line => {
     const fields = line.match(/(".*?"|[^,]+)/g);
     let name = fields && fields[0] ? fields[0].trim().replace(/^"|"$/g, '') : '';
@@ -107,12 +121,11 @@ const brandValues = brandLines.map(line => {
     const safeDescription = description.replace(/'/g, "''");
     return `('${safeName}', '${safeDescription}', NOW(), NOW())`;
 });
-sqlContent += brandValues.join(',\n') + ';\n\n';
+ws.write(`INSERT INTO brand (name, description, created_at, updated_at) VALUES\n${brandValues.join(',\n')};\n\n`);
 console.log(`총 ${brandLines.length}개의 브랜드 데이터 SQL 문이 생성되었습니다.`);
 
 // --- 사용자 데이터 삽입 (TOTAL_USERS명, CSV 행 반복·user_id/email 유니크) ---
-sqlContent += `-- 2. 사용자 데이터 삽입\n`;
-sqlContent += `INSERT INTO users (user_id, email, gender, birth_date, created_at, updated_at) VALUES\n`;
+ws.write(`-- 2. 사용자 데이터 삽입\n`);
 const userValues = [];
 for (let i = 0; i < TOTAL_USERS; i++) {
     const line = userLines[i % userLines.length];
@@ -124,12 +137,11 @@ for (let i = 0; i < TOTAL_USERS; i++) {
     const email = `user${i + 1}@qa.loadtest`;
     userValues.push(`('${user_id}', '${email}', ${genderId}, '${birthDate}', NOW(), NOW())`);
 }
-sqlContent += userValues.join(',\n') + ';\n\n';
+ws.write(batchInsert('INSERT INTO users (user_id, email, gender, birth_date, created_at, updated_at) VALUES', userValues));
 console.log(`총 ${TOTAL_USERS}개의 사용자 데이터 SQL 문이 생성되었습니다.`);
 
 // --- 상품 데이터 삽입 ---
-sqlContent += `-- 3. 상품 데이터 삽입\n`;
-sqlContent += `INSERT INTO product (name, price, ref_brand_id, released_at, created_at, updated_at) VALUES\n`;
+ws.write(`-- 3. 상품 데이터 삽입\n`);
 const productValues = [];
 const brandCount = brandLines.length;
 const adjectiveCount = adjectives.length;
@@ -140,7 +152,7 @@ oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 for (let i = 0; i < TOTAL_PRODUCTS; i++) {
     const randomAdjectiveIndex = Math.floor(Math.random() * adjectiveCount);
     const randomProductNameIndex = Math.floor(Math.random() * productNameCount);
-    const randomBrandId = Math.floor(Math.random() * brandCount) + 1; // 브랜드 ID는 1부터 시작
+    const randomBrandId = Math.floor(Math.random() * brandCount) + 1;
 
     const name = `${adjectives[randomAdjectiveIndex].trim()} ${productNames[randomProductNameIndex].trim()} #${i + 1}`;
     const price = Math.floor(Math.random() * (10000000 - 1000 + 1)) + 1000;
@@ -153,53 +165,46 @@ for (let i = 0; i < TOTAL_PRODUCTS; i++) {
     productValues.push(`('${safeName}', ${price}, ${randomBrandId}, '${releasedAt}', NOW(), NOW())`);
 }
 
-sqlContent += productValues.join(',\n') + ';\n\n';
+ws.write(batchInsert('INSERT INTO product (name, price, ref_brand_id, released_at, created_at, updated_at) VALUES', productValues));
 console.log(`총 ${TOTAL_PRODUCTS}개의 상품 데이터 SQL 문이 생성되었습니다.`);
 
 // --- 상품 좋아요 데이터 삽입 (Zipf: 인기 상품에 좋아요 집중) ---
-sqlContent += `-- 4. 상품 좋아요 데이터 삽입 (Zipf 분포)\n`;
-sqlContent += `INSERT INTO product_like (ref_user_id, ref_product_id, created_at, updated_at) VALUES\n`;
+ws.write(`-- 4. 상품 좋아요 데이터 삽입 (Zipf 분포)\n`);
 const likeValues = [];
 const uniqueLikes = new Set();
+const likeCountByProduct = new Map(); // 생성하면서 바로 집계 (like_summary용)
 let attempts = 0;
-const maxAttempts = TOTAL_LIKES * 20; // 중복 시 리샘플링 상한
+const maxAttempts = TOTAL_LIKES * 20;
 
 while (likeValues.length < TOTAL_LIKES && attempts < maxAttempts) {
     const randomUserId = Math.floor(Math.random() * TOTAL_USERS) + 1;
-    const productId = sampleZipfProductId(); // Zipf로 인기 상품 위주
+    const productId = sampleZipfProductId();
     const uniqueKey = `${randomUserId}-${productId}`;
     if (!uniqueLikes.has(uniqueKey)) {
         uniqueLikes.add(uniqueKey);
         likeValues.push(`(${randomUserId}, ${productId}, NOW(), NOW())`);
+        likeCountByProduct.set(productId, (likeCountByProduct.get(productId) || 0) + 1);
     }
     attempts++;
 }
 if (likeValues.length < TOTAL_LIKES) {
     console.warn(`경고: 유니크 조합 한계로 좋아요 ${likeValues.length}건만 생성됨 (목표 ${TOTAL_LIKES}). users/상품 조합을 늘려보세요.`);
 }
-sqlContent += likeValues.join(',\n') + ';\n\n';
+ws.write(batchInsert('INSERT INTO product_like (ref_user_id, ref_product_id, created_at, updated_at) VALUES', likeValues));
 console.log(`총 ${likeValues.length}개의 상품 좋아요 데이터 SQL 문이 생성되었습니다. (Zipf 분포)`);
 
 // --- 5. like_summary (동일 product_like 기준 집계, 비정규화 비교용) ---
-const likeCountByProduct = new Map();
-for (const row of likeValues) {
-    const m = row.match(/\((\d+),\s*(\d+),/);
-    if (m) {
-        const productId = parseInt(m[2], 10);
-        likeCountByProduct.set(productId, (likeCountByProduct.get(productId) || 0) + 1);
-    }
-}
-sqlContent += `-- 5. like_summary (product_like와 동일 데이터 집계)\n`;
-sqlContent += `INSERT INTO like_summary (like_count, target_id, target_type, created_at, updated_at) VALUES\n`;
+ws.write(`-- 5. like_summary (product_like와 동일 데이터 집계)\n`);
 const likeSummaryValues = [];
 for (let productId = 1; productId <= TOTAL_PRODUCTS; productId++) {
     const count = likeCountByProduct.get(productId) || 0;
     likeSummaryValues.push(`(${count}, ${productId}, 'PRODUCT', NOW(), NOW())`);
 }
-sqlContent += likeSummaryValues.join(',\n') + ';\n';
+ws.write(batchInsert('INSERT INTO like_summary (like_count, target_id, target_type, created_at, updated_at) VALUES', likeSummaryValues));
 console.log(`총 ${likeSummaryValues.length}개의 like_summary 행이 생성되었습니다.`);
 
-// --- 최종 파일 저장 ---
-fs.writeFileSync(outputSqlPath, sqlContent);
-console.log(`SQL 파일이 생성되었습니다: ${outputSqlPath}`);
-console.log('--- 모든 테이블 데이터 SQL 문 생성 완료 ---');
+// --- 스트림 종료 ---
+ws.end(() => {
+    console.log(`SQL 파일이 생성되었습니다: ${outputSqlPath}`);
+    console.log('--- 모든 테이블 데이터 SQL 문 생성 완료 ---');
+});

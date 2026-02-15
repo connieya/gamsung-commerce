@@ -38,3 +38,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+# QA 부하 테스트 생성 결과물 (용량 큼, insert-all-data.sh 등으로 로컬 생성)
+qa/sample/results/

@@ -184,9 +184,70 @@ LIMIT 5
 
 ---
 
-### 4단계: 인덱스 적용
+### 4단계: 인덱스 적용 (like_summary)
 
-> TODO: 비정규화 결과 확인 후, 병목 쿼리에 인덱스 추가
+**엔드포인트:** `GET /api/v1/products/denormalized/no-brand?productSort=DENORMALIZED_LIKES_DESC` (3단계와 동일)
+**스크립트:** `product-list-denormalized.js`
+
+**적용 인덱스:**
+```sql
+CREATE INDEX idx_like_summary_type_count ON like_summary (target_type, like_count);
+```
+
+**실행 계획 (EXPLAIN):**
+```
++----+-------------+-------+--------+-------------------------------------------------------+-----------------------------+---------+---------------------------+--------+----------+------------------------------------+
+| id | select_type | table | type   | possible_keys                                         | key                         | key_len | ref                       | rows   | filtered | Extra                              |
++----+-------------+-------+--------+-------------------------------------------------------+-----------------------------+---------+---------------------------+--------+----------+------------------------------------+
+|  1 | SIMPLE      | s     | ref    | UKaqw1do2xdd90a3o0aneikiq8y,idx_like_summary_type_count | idx_like_summary_type_count | 2       | const                     | 249125 |   100.00 | Using where; Backward index scan   |
+|  1 | SIMPLE      | p     | eq_ref | PRIMARY                                               | PRIMARY                     | 8       | loopers_qa.s.target_id    |      1 |   100.00 | NULL                               |
+|  1 | SIMPLE      | b     | eq_ref | PRIMARY                                               | PRIMARY                     | 8       | loopers_qa.p.ref_brand_id |      1 |   100.00 | NULL                               |
++----+-------------+-------+--------+-------------------------------------------------------+-----------------------------+---------+---------------------------+--------+----------+------------------------------------+
+```
+
+**데이터 조회 실행 계획 분석 (3단계 대비):**
+- `s` (like_summary): **ALL → ref** (풀스캔 → 인덱스 사용)
+- **Using filesort 제거** → `Backward index scan`으로 정렬 없이 인덱스 역순 탐색
+- `target_type = 'PRODUCT'` 조건으로 인덱스를 타고, `like_count` 내림차순으로 바로 상위 5건 조회
+
+**k6 결과:**
+
+| 지표 | 값 |
+|------|-----|
+| http_req_duration (avg) | 14.85s |
+| http_req_duration (p95) | 20.57s |
+| http_req_failed | 0% (0/48) |
+| http_reqs (TPS) | 0.65/s |
+| iterations | 48 |
+
+> 3단계(avg 1.85s) 대비 오히려 **8배 느려짐** — EXPLAIN상 데이터 조회는 인덱스를 타지만 전체 응답은 악화
+
+**원인 분석: COUNT 쿼리가 병목**
+
+Spring Data JPA의 `Page<>` 반환 시 페이징을 위한 COUNT 쿼리가 자동 실행된다:
+```sql
+-- 데이터 조회 (인덱스 적용) → 0.015초 ✅
+SELECT ... FROM like_summary s JOIN product p ... WHERE s.target_type = 'PRODUCT'
+ORDER BY s.like_count DESC LIMIT 5
+
+-- COUNT 쿼리 (매 요청마다 실행) → 8.95초 ❌
+SELECT COUNT(*) FROM like_summary s JOIN product p ... WHERE s.target_type = 'PRODUCT'
+```
+
+| | 인덱스 없음 (3단계) | 인덱스 있음 (4단계) |
+|---|---|---|
+| 데이터 조회 | 풀스캔 + filesort | **0.015초** (인덱스 + backward scan) |
+| COUNT 쿼리 | **3.09초** | **8.95초** (3배 느려짐) |
+| COUNT 실행 계획 | `index` (UK 커버링 인덱스 스캔, `Using index`) | `ref` (새 인덱스 사용, `Using index condition`) |
+
+**인덱스가 COUNT를 느리게 만든 이유:**
+- **인덱스 없을 때**: 기존 UK `(target_id, target_type)`로 **커버링 인덱스 스캔** — 테이블 접근 없이 인덱스만으로 COUNT 처리
+- **인덱스 있을 때**: MySQL이 새 인덱스 `(target_type, like_count)`를 선택하지만 `Using index condition` (ICP) — 인덱스에서 1차 필터 후 **테이블로 돌아가서 추가 확인**, 이 과정에서 랜덤 I/O 발생
+
+**교훈:**
+- 인덱스 추가가 항상 성능을 개선하는 것은 아니다
+- MySQL 옵티마이저가 새 인덱스를 선택하면서 다른 쿼리(COUNT)의 실행 계획이 바뀔 수 있다
+- `Page<>` 사용 시 데이터 조회 쿼리뿐 아니라 **COUNT 쿼리의 성능도 함께 고려**해야 한다
 
 ---
 
@@ -203,7 +264,7 @@ LIMIT 5
 | 1 | JOIN + GROUP BY + COUNT | 59.99s | 59.99s | 0.17/s | 100% | 전부 타임아웃 |
 | 2 | 스칼라 서브쿼리 | 59.99s | 59.99s | 0.17/s | 100% | 1단계와 동일 (타임아웃) |
 | 3 | 비정규화 (LikeSummary) | 1.85s | 3.83s | 5.09/s | 0% | 1단계 대비 TPS 30배 향상 |
-| 4 | 인덱스 | - | - | - | - | |
+| 4 | 인덱스 (like_summary) | 14.85s | 20.57s | 0.65/s | 0% | 인덱스가 COUNT 쿼리를 3배 느리게 만듦 |
 | 5 | 캐싱 (Redis) | - | - | - | - | |
 
 ---

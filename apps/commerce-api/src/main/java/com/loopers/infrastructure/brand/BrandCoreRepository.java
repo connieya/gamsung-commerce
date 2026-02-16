@@ -32,4 +32,10 @@ public class BrandCoreRepository implements BrandRepository {
         return StreamSupport.stream(brandJpaRepository.findAllById(brandIds).spliterator(), false)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Brand> findAll() {
+        return StreamSupport.stream(brandJpaRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
 }

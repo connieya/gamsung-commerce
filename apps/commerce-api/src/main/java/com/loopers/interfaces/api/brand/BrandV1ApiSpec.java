@@ -9,8 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface BrandV1ApiSpec {
 
     @Operation(
+            summary = "브랜드 목록 조회",
+            description = "전체 브랜드 목록을 조회합니다."
+    )
+    ApiResponse<?> getBrands();
+
+    @Operation(
             summary = "브랜드 정보 조회",
-            description = "브랜드 ID로 브랜드 정보를 조회하빈다."
+            description = "브랜드 ID로 브랜드 정보를 조회합니다."
     )
     ApiResponse<?> getBrand(
             @PathVariable("brandId") Long brandId

@@ -9,12 +9,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/brands")
 public class BrandV1Controller implements BrandV1ApiSpec{
 
     private final BrandService brandService;
+
+    @GetMapping
+    @Override
+    public ApiResponse<BrandV1Dto.BrandListResponse> getBrands() {
+        List<BrandInfo> brands = brandService.getBrands();
+        return ApiResponse.success(BrandV1Dto.BrandListResponse.from(brands));
+    }
 
     @GetMapping("/{brandId}")
     @Override

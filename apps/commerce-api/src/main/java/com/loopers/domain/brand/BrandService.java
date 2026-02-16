@@ -26,6 +26,13 @@ public class BrandService {
         return BrandInfo.from(brand);
     }
 
+    @Transactional(readOnly = true)
+    public List<BrandInfo> getBrands() {
+        return brandRepository.findAll().stream()
+                .map(BrandInfo::from)
+                .toList();
+    }
+
     public List<BrandInfo> findAllById(List<Long> brandIds) {
         List<Brand> brands = brandRepository.findAllById(brandIds);
         return brands.stream().map(BrandInfo::from).toList();

@@ -2,6 +2,9 @@ package com.loopers.interfaces.api.order;
 
 import com.loopers.application.order.OrderResult;
 import com.loopers.domain.order.OrderStatus;
+import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PaymentMethod;
+import com.loopers.domain.payment.PaymentService;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -11,9 +14,23 @@ import java.util.List;
 public class OrderV1Dto {
 
     public static class Request {
-        public record Place(Long couponId , List<OrderItem> orderItems) {
+        public record Place(String orderNo, String orderSignature, String orderKey, Long couponId, List<OrderItem> orderItems) {
 
         }
+
+        public record IssueOrderNo(boolean isNewOrderForm) {
+        }
+        
+        public record Ready(PaymentMethod paymentMethod, String orderKey) {}
+        
+        public record PaymentSession(
+                String orderNo,
+                String orderKey,
+                PaymentMethod paymentMethod,
+                CardType cardType,
+                String cardNumber,
+                Long couponId
+        ) {}
     }
 
 
@@ -29,6 +46,24 @@ public class OrderV1Dto {
         public record Place(Long orderId ,Long totalAmount , Long discountAmount) {
             public static Place from(OrderResult.Create create) {
                 return new Place(create.getOrderId(), create.getTotalAmount(), create.getDiscountAmount());
+            }
+        }
+
+        public record IssueOrderNo(
+                String orderNo,
+                String orderSignature,
+                long timestamp,
+                String orderVerifyKey,
+                String orderKey
+        ) {
+            public static IssueOrderNo from(OrderResult.IssueOrderNo result) {
+                return new IssueOrderNo(
+                        result.getOrderNo(),
+                        result.getOrderSignature(),
+                        result.getTimestamp(),
+                        result.getOrderVerifyKey(),
+                        result.getOrderKey()
+                );
             }
         }
 
@@ -82,6 +117,30 @@ public class OrderV1Dto {
             }
 
             public record OrderLineItem(Long productId, Long quantity, Long price) {}
+        }
+        
+        public record Ready(Long paymentId, String paymentStatus) {
+            public static Ready from(PaymentService.PaymentReadyResult result) {
+                return new Ready(result.paymentId(), result.paymentStatus().toString());
+            }
+        }
+        
+        public record PaymentSession(
+                String orderNo,
+                String paymentKey,
+                Long amount,
+                String paymentUrl,
+                String pgKind
+        ) {
+            public static PaymentSession from(PaymentService.PaymentSessionResult result) {
+                return new PaymentSession(
+                        result.orderNo(),
+                        result.paymentKey(),
+                        result.amount(),
+                        result.paymentUrl(),
+                        result.pgKind()
+                );
+            }
         }
     }
 }

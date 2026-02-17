@@ -1,6 +1,7 @@
 package com.loopers.application.order;
 
 import com.loopers.domain.order.OrderInfo;
+import com.loopers.domain.order.OrderNoIssue;
 import com.loopers.domain.order.OrderStatus;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -90,6 +91,27 @@ public class OrderResult {
                         .createdAt(orderInfo.getCreatedAt())
                         .build();
             }
+        }
+    }
+
+    @Getter
+    @Builder
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class IssueOrderNo {
+        private final String orderNo;
+        private final String orderSignature;
+        private final long timestamp;
+        private final String orderVerifyKey;
+        private final String orderKey;
+
+        public static IssueOrderNo from(OrderNoIssue issue) {
+            return IssueOrderNo.builder()
+                    .orderNo(issue.orderNo())
+                    .orderSignature(issue.orderSignature())
+                    .timestamp(issue.timestamp())
+                    .orderVerifyKey(issue.orderVerifyKey())
+                    .orderKey(issue.orderKey())
+                    .build();
         }
     }
 }

@@ -14,12 +14,18 @@ public class OrderCriteria {
     private String userId;
     private List<OrderItem> orderItems;
     private Long couponId;
+    private String orderNo;
+    private String orderSignature;
+    private String orderKey;
 
     @Builder
-    public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId) {
+    public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId, String orderNo, String orderSignature, String orderKey) {
         this.userId = userId;
         this.orderItems = orderItems;
         this.couponId = couponId;
+        this.orderNo = orderNo;
+        this.orderSignature = orderSignature;
+        this.orderKey = orderKey;
     }
 
     @Getter

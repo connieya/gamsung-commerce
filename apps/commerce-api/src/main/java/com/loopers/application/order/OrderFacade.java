@@ -1,5 +1,7 @@
 package com.loopers.application.order;
 
+import com.loopers.domain.cart.CartItem;
+import com.loopers.domain.cart.CartRepository;
 import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderInfo;
@@ -24,6 +26,7 @@ public class  OrderFacade {
     private final OrderService orderService;
     private final CouponService couponService;
     private final OrderNoIssuer orderNoIssuer;
+    private final CartRepository cartRepository;
 
     @Transactional
     public OrderResult.Create place(OrderCriteria orderCriteria) {
@@ -58,6 +61,40 @@ public class  OrderFacade {
     public OrderResult.IssueOrderNo issueOrderNo(boolean isNewOrderForm) {
         OrderNoIssue issue = orderNoIssuer.issue(isNewOrderForm);
         return OrderResult.IssueOrderNo.from(issue);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResult.OrderForm getOrderForm(String userId, List<Long> cartItemIds) {
+        User user = userService.findByUserId(userId);
+
+        List<CartItem> cartItems = cartRepository.findItemsByIds(cartItemIds);
+
+        List<OrderResult.OrderForm.CartItemInfo> cartItemInfos = cartItems.stream()
+                .map(item -> {
+                    com.loopers.domain.product.ProductDetailInfo product = productService.getProductDetail(item.getProductId());
+                    return OrderResult.OrderForm.CartItemInfo.builder()
+                            .cartId(item.getId())
+                            .productId(item.getProductId())
+                            .productName(product.getProductName())
+                            .quantity(item.getQuantity())
+                            .price(item.getPrice())
+                            .imageUrl(product.getImageUrl())
+                            .build();
+                })
+                .toList();
+
+        Long totalAmount = cartItems.stream()
+                .mapToLong(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        return OrderResult.OrderForm.builder()
+                .member(OrderResult.OrderForm.Member.builder()
+                        .name(user.getUserId())
+                        .email(user.getEmail())
+                        .build())
+                .cartItems(cartItemInfos)
+                .totalAmount(totalAmount)
+                .build();
     }
 }
 

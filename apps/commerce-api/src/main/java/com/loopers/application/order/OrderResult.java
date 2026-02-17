@@ -114,4 +114,31 @@ public class OrderResult {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class OrderForm {
+        private final Member member;
+        private final java.util.List<CartItemInfo> cartItems;
+        private final Long totalAmount;
+        
+        @Getter
+        @Builder
+        public static class Member {
+            private final String name;
+            private final String email;
+        }
+        
+        @Getter
+        @Builder
+        public static class CartItemInfo {
+            private final Long cartId;
+            private final Long productId;
+            private final String productName;
+            private final Long quantity;
+            private final Long price;
+            private final String imageUrl;
+        }
+    }
 }

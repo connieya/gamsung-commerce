@@ -21,7 +21,7 @@ public class OrderV1Dto {
         public record IssueOrderNo(boolean isNewOrderForm) {
         }
         
-        public record Ready(PaymentMethod paymentMethod, String orderKey) {}
+        public record Ready(PaymentMethod paymentMethod, String orderKey, List<OrderItem> orderItems, Long couponId) {}
         
         public record PaymentSession(
                 String orderNo,
@@ -141,6 +141,28 @@ public class OrderV1Dto {
                         result.pgKind()
                 );
             }
+        }
+        
+        public record OrderForm(Member member, java.util.List<CartItem> cartItems, Long totalAmount) {
+            public static OrderForm from(OrderResult.OrderForm result) {
+                return new OrderForm(
+                        new Member(result.getMember().getName(), result.getMember().getEmail()),
+                        result.getCartItems().stream()
+                                .map(item -> new CartItem(
+                                        item.getCartId(),
+                                        item.getProductId(),
+                                        item.getProductName(),
+                                        item.getQuantity(),
+                                        item.getPrice(),
+                                        item.getImageUrl()
+                                ))
+                                .toList(),
+                        result.getTotalAmount()
+                );
+            }
+            
+            public record Member(String name, String email) {}
+            public record CartItem(Long cartId, Long productId, String productName, Long quantity, Long price, String imageUrl) {}
         }
     }
 }

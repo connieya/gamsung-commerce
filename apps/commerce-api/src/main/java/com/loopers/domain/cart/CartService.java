@@ -24,13 +24,18 @@ public class CartService {
                 .orElseGet(() -> cartRepository.save(Cart.create(userId)));
 
         // 같은 상품이 있으면 수량만 증가
-        cart.getItems().stream()
+        boolean updated = cart.getItems().stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
-                .ifPresentOrElse(
-                        item -> item.updateQuantity(item.getQuantity() + quantity),
-                        () -> cart.addItem(CartItem.create(productId, quantity, product.getPrice()))
-                );
+                .map(item -> {
+                    item.updateQuantity(item.getQuantity() + quantity);
+                    return true;
+                })
+                .orElse(false);
+
+        if (!updated) {
+            cart.addItem(CartItem.create(productId, quantity, product.getPrice()));
+        }
 
         return cartRepository.save(cart);
     }

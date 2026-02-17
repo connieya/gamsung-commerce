@@ -46,6 +46,16 @@ public class OrderV1Controller implements OrderV1ApiSpec {
         return ApiResponse.success(OrderV1Dto.Response.Place.from(place));
     }
 
+    @GetMapping("/order-form")
+    public ApiResponse<OrderV1Dto.Response.OrderForm> getOrderForm(
+            @RequestHeader(ApiHeaders.USER_ID) String userId,
+            @RequestParam(value = "cartItemIds") java.util.List<Long> cartItemIds,
+            @RequestParam(value = "t", required = false) Long timestamp
+    ) {
+        OrderResult.OrderForm result = orderFacade.getOrderForm(userId, cartItemIds);
+        return ApiResponse.success(OrderV1Dto.Response.OrderForm.from(result));
+    }
+
     @PostMapping("/order-no")
     public ApiResponse<OrderV1Dto.Response.IssueOrderNo> issueOrderNo(
             @RequestHeader(ApiHeaders.USER_ID) String userId,
@@ -76,7 +86,12 @@ public class OrderV1Controller implements OrderV1ApiSpec {
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestBody OrderV1Dto.Request.Ready request
     ) {
-        PaymentCriteria.Ready criteria = new PaymentCriteria.Ready(request.paymentMethod());
+        PaymentCriteria.Ready criteria = new PaymentCriteria.Ready(
+                request.paymentMethod(),
+                userId,
+                request.orderItems(),
+                request.couponId()
+        );
         PaymentService.PaymentReadyResult result = paymentFacade.ready(orderNo, request.orderKey(), criteria);
         return ApiResponse.success(OrderV1Dto.Response.Ready.from(result));
     }

@@ -3,6 +3,9 @@ package com.loopers.application.payment;
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
+import com.loopers.interfaces.api.order.OrderV1Dto;
+
+import java.util.List;
 
 
 public class PaymentCriteria {
@@ -20,7 +23,10 @@ public class PaymentCriteria {
     }
     
     public record Ready(
-            PaymentMethod paymentMethod
+            PaymentMethod paymentMethod,
+            String userId,
+            List<com.loopers.interfaces.api.order.OrderV1Dto.OrderItem> orderItems,
+            Long couponId
     ) {}
     
     public record PaymentSession(

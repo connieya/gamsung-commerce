@@ -39,4 +39,9 @@ public class CartCoreRepository implements CartRepository {
     public void deleteCart(Cart cart) {
         cartJpaRepository.delete(cart);
     }
+
+    @Override
+    public java.util.List<CartItem> findItemsByIds(java.util.List<Long> cartItemIds) {
+        return cartItemJpaRepository.findAllById(cartItemIds);
+    }
 }

@@ -59,6 +59,17 @@ docker-compose -f ./docker/monitoring-compose.yml up
 의존성은 domain ← application ← interfaces, domain ← infrastructure 방향만 허용합니다.  
 자세한 패키지·네이밍 규칙은 `.cursor/rules/clean-architecture-conventions.mdc`를 참고하세요.
 
+## Documentation
+
+- **이커머스 도메인 기술 명세 규칙**: [`.cursor/rules/ecommerce-domain-knowledge.mdc`](.cursor/rules/ecommerce-domain-knowledge.mdc) — 도메인 지식을 어떻게 정리할지에 대한 규칙과 템플릿
+
+## Domain Specification
+
+도메인별 비즈니스 로직 및 상세 설계 명세입니다.
+
+- [주문 (Order)](docs/domain-spec/order.md) : 주문번호 설계, 주문 플로우
+- [결제 (Payment)](docs/domain-spec/payment.md) : 결제 승인 플로우, 멱등성 보장
+
 ## Multi-Module 구조
 
 멀티 모듈로 위계와 역할을 나누어 적용합니다.

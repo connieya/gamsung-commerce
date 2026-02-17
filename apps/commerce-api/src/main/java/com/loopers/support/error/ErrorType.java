@@ -32,6 +32,9 @@ public enum ErrorType {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order Not Found", "존재하지 않는 주문입니다."),
     ORDER_INVALID_STATUS(HttpStatus.BAD_REQUEST, "Order Invalid Status", "주문 상태가 결제를 진행할 수 없는 상태입니다."),
     ORDER_INVALID_AMOUNT(HttpStatus.BAD_REQUEST, "Order Invalid Amount", "최종 결제 금액이 0 이하일 수 없습니다."),
+    ORDER_NO_NOT_ISSUED(HttpStatus.BAD_REQUEST, "Order No Not Issued", "발급되지 않은 주문번호입니다."),
+    ORDER_SIGNATURE_INVALID(HttpStatus.BAD_REQUEST, "Order Signature Invalid", "주문 서명이 유효하지 않습니다."),
+    ORDER_NO_ALREADY_USED(HttpStatus.CONFLICT, "Order No Already Used", "이미 사용된 주문번호입니다."),
 
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "Coupon Not Found", "존재하지 않는 쿠폰입니다."),
     USER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "UserCoupon Not Found", "존재하지 않는 사용자 쿠폰입니다."),

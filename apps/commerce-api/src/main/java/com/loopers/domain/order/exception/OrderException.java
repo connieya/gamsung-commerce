@@ -22,4 +22,22 @@ public class OrderException {
             super(errorType);
         }
     }
+
+    public static class OrderNoNotIssuedException extends CoreException {
+        public OrderNoNotIssuedException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
+
+    public static class OrderSignatureInvalidException extends CoreException {
+        public OrderSignatureInvalidException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
+
+    public static class OrderNoAlreadyUsedException extends CoreException {
+        public OrderNoAlreadyUsedException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
 }

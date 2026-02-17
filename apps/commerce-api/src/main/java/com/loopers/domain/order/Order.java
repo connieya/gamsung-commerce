@@ -11,11 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Table(name = "orders")
 @Entity
@@ -68,6 +65,10 @@ public class Order extends BaseEntity {
     }
 
     public static Order create(OrderCommand orderCommand) {
+        return create(orderCommand, generateOrderNumber());
+    }
+
+    public static Order create(OrderCommand orderCommand, String orderNumber) {
         List<OrderLine> orderLines = orderCommand.getOrderItems()
                 .stream()
                 .map(item -> OrderLine.create(item.getProductId(), item.getQuantity(), item.getPrice()))
@@ -79,7 +80,7 @@ public class Order extends BaseEntity {
                 .totalAmount(calculateTotalAmount(orderCommand.getOrderItems()))
                 .discountAmount(orderCommand.getDiscountAmount())
                 .orderLines(orderLines)
-                .orderNumber(generateOrderNumber())
+                .orderNumber(orderNumber)
                 .build();
 
         orderLines.forEach(orderLine -> orderLine.setOrder(order));
@@ -113,8 +114,7 @@ public class Order extends BaseEntity {
     }
 
     private static String generateOrderNumber() {
-        return "ORD-" + LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE)
-                + "-" + UUID.randomUUID().toString().substring(0, 8);
+        return OrderNumberGenerator.generate();
     }
 
 }

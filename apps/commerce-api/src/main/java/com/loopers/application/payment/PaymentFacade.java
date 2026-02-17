@@ -4,6 +4,7 @@ import com.loopers.application.payment.processor.PaymentProcessContext;
 import com.loopers.domain.order.OrderService;
 import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
+import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -24,10 +25,44 @@ public class PaymentFacade {
         Order order = orderService.getOrder(criteria.orderId());
         order.validatePay();
 
-        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod()));
+        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod()), null);
 
         PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
         paymentProcessor.pay(PaymentProcessContext.of(criteria));
+    }
+    
+    @Transactional
+    public PaymentService.PaymentReadyResult ready(String orderNo, String orderKey, PaymentCriteria.Ready criteria) {
+        Order order = orderService.getOrderByOrderNumber(orderNo);
+        order.validatePay();
+        
+        PaymentCommand.Ready readyCommand = PaymentCommand.Ready.of(
+                order.getId(), 
+                order.getOrderNumber(), 
+                order.getUserId(), 
+                order.getFinalAmount(), 
+                criteria.paymentMethod()
+        );
+        
+        return paymentService.ready(readyCommand, orderKey);
+    }
+    
+    @Transactional
+    public PaymentService.PaymentSessionResult createPaymentSession(String orderNo, String orderKey, PaymentCriteria.PaymentSession criteria) {
+        Order order = orderService.getOrderByOrderNumber(orderNo);
+        order.validatePay();
+        
+        PaymentCommand.Transaction transactionCommand = PaymentCommand.Transaction.of(
+                order.getId(),
+                order.getOrderNumber(),
+                criteria.cardType(),
+                criteria.cardNumber(),
+                order.getFinalAmount(),
+                order.getUserId(),
+                criteria.couponId()
+        );
+        
+        return paymentService.createPaymentSession(transactionCommand, orderKey);
     }
 
     @Transactional

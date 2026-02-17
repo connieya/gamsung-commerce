@@ -22,6 +22,15 @@ public class OrderService {
         return OrderInfo.from(orderRepository.save(order));
     }
 
+    @Transactional
+    public OrderInfo place(OrderCommand orderCommand, String orderNo) {
+        if (orderNo == null || orderNo.isBlank()) {
+            return place(orderCommand);
+        }
+        Order order = Order.create(orderCommand, orderNo);
+        return OrderInfo.from(orderRepository.save(order));
+    }
+
     @Transactional(readOnly = true)
     public OrderInfo getOrderDetail(Long orderId) {
         Order order = orderRepository.findOrderDetailById(orderId)
@@ -41,6 +50,12 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Order getOrder(Long orderId) {
         return orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+    }
+    
+    @Transactional(readOnly = true)
+    public Order getOrderByOrderNumber(String orderNumber) {
+        return orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
     }
 

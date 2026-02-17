@@ -1,28 +1,29 @@
 package com.loopers.domain.payment;
 
-import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderRepository;
-import com.loopers.domain.order.exception.OrderException;
-import com.loopers.domain.payment.attempt.AttemptCommand;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.domain.payment.attempt.AttemptStatus;
 import com.loopers.domain.payment.attempt.PaymentAttempt;
 import com.loopers.domain.payment.attempt.PaymentAttemptRepository;
 import com.loopers.domain.payment.event.PaymentEvent;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.domain.payment.exception.PaymentFailure;
-import com.loopers.domain.user.User;
-import com.loopers.domain.user.UserRepository;
-import com.loopers.domain.user.exception.UserException;
+import com.loopers.domain.payment.idempotency.IdempotencyKey;
+import com.loopers.domain.payment.idempotency.IdempotencyKeyRepository;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -31,6 +32,8 @@ public class PaymentService {
     private final PaymentAttemptRepository paymentAttemptRepository;
     private final PaymentClient paymentClient;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final IdempotencyKeyRepository idempotencyKeyRepository;
+    private final ObjectMapper objectMapper;
 
     @Transactional
     public void complete(PaymentCommand.Search paymentCommand) {
@@ -67,6 +70,53 @@ public class PaymentService {
 
 
     @Transactional
+    public PaymentSessionResult createPaymentSession(PaymentCommand.Transaction transaction, String orderKey) {
+        // 멱등성 체크: 이미 처리된 경우 기존 결과 반환
+        Optional<IdempotencyKey> existingKey = idempotencyKeyRepository.findByOrderNoAndOrderKeyAndOperationType(
+                transaction.orderNumber(), 
+                orderKey, 
+                IdempotencyKey.OperationType.PAYMENT_SESSION
+        );
+        
+        if (existingKey.isPresent()) {
+            try {
+                return objectMapper.readValue(
+                        existingKey.get().getResultData(),
+                        PaymentSessionResult.class
+                );
+            } catch (JsonProcessingException e) {
+                log.error("[멱등성] PaymentSession 캐시 결과 역직렬화 실패. orderNo={}", transaction.orderNumber(), e);
+            }
+        }
+
+        // 실제 payment session 생성
+        try {
+            PaymentRequestResult requestResult = paymentClient.request(transaction);
+
+            // paymentUrl 생성 (pg-simulator가 제공하지 않으면 우리가 생성)
+            String paymentUrl = String.format("http://localhost:8082/payment/%s", requestResult.transactionKey());
+
+            PaymentSessionResult result = new PaymentSessionResult(
+                    transaction.orderNumber(),
+                    requestResult.transactionKey(),
+                    transaction.amount(),
+                    paymentUrl,
+                    "VIVAREPUBLICA" // pgKind
+            );
+
+            saveIdempotencyKey(transaction.orderNumber(), orderKey, IdempotencyKey.OperationType.PAYMENT_SESSION, result);
+
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId()));
+
+            return result;
+        } catch (CoreException e) {
+            AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
+            applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));
+            throw e;
+        }
+    }
+    
+    @Transactional
     public void requestPayment(PaymentCommand.Transaction transaction) {
         try {
             PaymentRequestResult requestResult = paymentClient.request(transaction);
@@ -77,12 +127,58 @@ public class PaymentService {
 
         }
     }
+    
+    public record PaymentSessionResult(
+            String orderNo,
+            String paymentKey,
+            Long amount,
+            String paymentUrl,
+            String pgKind
+    ) {}
 
     @Transactional
-    public void ready(PaymentCommand.Ready ready) {
+    public PaymentReadyResult ready(PaymentCommand.Ready ready, String orderKey) {
+        // 멱등성 체크: 이미 처리된 경우 기존 결과 반환
+        Optional<IdempotencyKey> existingKey = idempotencyKeyRepository.findByOrderNoAndOrderKeyAndOperationType(
+                ready.orderNumber(), 
+                orderKey, 
+                IdempotencyKey.OperationType.READY
+        );
+        
+        if (existingKey.isPresent()) {
+            try {
+                return objectMapper.readValue(
+                        existingKey.get().getResultData(),
+                        PaymentReadyResult.class
+                );
+            } catch (JsonProcessingException e) {
+                log.error("[멱등성] PaymentReady 캐시 결과 역직렬화 실패. orderNo={}", ready.orderNumber(), e);
+            }
+        }
+
+        // 실제 ready 처리
         Payment payment = Payment.create(ready.totalAmount(), ready.orderId(), ready.orderNumber(), ready.userId(), ready.paymentMethod(), PaymentStatus.PENDING);
         Payment savedPayment = paymentRepository.save(payment);
         PaymentAttempt paymentAttempt = PaymentAttempt.create(savedPayment.getId(), ready.orderNumber(), AttemptStatus.REQUESTED);
         paymentAttemptRepository.save(paymentAttempt);
+
+        PaymentReadyResult result = new PaymentReadyResult(savedPayment.getId(), savedPayment.getPaymentStatus());
+        saveIdempotencyKey(ready.orderNumber(), orderKey, IdempotencyKey.OperationType.READY, result);
+
+        return result;
     }
+
+    private <T> void saveIdempotencyKey(String orderNo, String orderKey, IdempotencyKey.OperationType operationType, T result) {
+        try {
+            String resultJson = objectMapper.writeValueAsString(result);
+            IdempotencyKey idempotencyKey = IdempotencyKey.create(orderNo, orderKey, operationType, resultJson);
+            idempotencyKeyRepository.save(idempotencyKey);
+        } catch (JsonProcessingException e) {
+            log.error("[멱등성] 결과 직렬화 실패. orderNo={}, operationType={}", orderNo, operationType, e);
+        } catch (DataIntegrityViolationException e) {
+            log.warn("[멱등성] 동시 요청으로 중복 키 저장 시도. orderNo={}, operationType={}", orderNo, operationType);
+        }
+    }
+
+    public record PaymentReadyResult(Long paymentId, PaymentStatus paymentStatus) {}
 }

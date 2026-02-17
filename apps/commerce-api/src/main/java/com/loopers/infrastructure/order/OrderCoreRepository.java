@@ -30,6 +30,11 @@ public class OrderCoreRepository implements OrderRepository {
     }
 
     @Override
+    public Optional<Order> findByOrderNumber(String orderNumber) {
+        return orderJpaRepository.findByOrderNumber(orderNumber);
+    }
+
+    @Override
     public List<Order> findByUserId(Long userId) {
         return orderJpaRepository.findByUserId(userId);
     }

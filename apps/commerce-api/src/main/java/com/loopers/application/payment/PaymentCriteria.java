@@ -18,6 +18,17 @@ public class PaymentCriteria {
             return new Pay(userId, orderId, paymentMethod, cardType, cardNumber , couponId);
         }
     }
+    
+    public record Ready(
+            PaymentMethod paymentMethod
+    ) {}
+    
+    public record PaymentSession(
+            PaymentMethod paymentMethod,
+            CardType cardType,
+            String cardNumber,
+            Long couponId
+    ) {}
 
     public record Complete(
             String transactionKey,

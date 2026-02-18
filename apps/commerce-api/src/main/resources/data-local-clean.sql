@@ -334,6 +334,50 @@ PREPARE migration FROM @stmt;
 EXECUTE migration;
 DEALLOCATE PREPARE migration;
 
+-- 17. issued_order_no
+SET @table_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'issued_order_no');
+SET @stmt = IF(@table_exists = 0,
+    'CREATE TABLE `issued_order_no` (
+      `id` BIGINT NOT NULL AUTO_INCREMENT,
+      `created_at` DATETIME(6) NOT NULL,
+      `updated_at` DATETIME(6) NOT NULL,
+      `deleted_at` DATETIME(6) DEFAULT NULL,
+      `order_no` VARCHAR(255) NOT NULL,
+      `order_signature` VARCHAR(512) NOT NULL,
+      `timestamp` BIGINT NOT NULL,
+      `order_verify_key` VARCHAR(255) NOT NULL,
+      `order_key` VARCHAR(255) NOT NULL,
+      `used` BIT(1) NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `UK_order_no` (`order_no`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+    'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 18. idempotency_keys
+SET @table_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'idempotency_keys');
+SET @stmt = IF(@table_exists = 0,
+    'CREATE TABLE `idempotency_keys` (
+      `id` BIGINT NOT NULL AUTO_INCREMENT,
+      `created_at` DATETIME(6) NOT NULL,
+      `updated_at` DATETIME(6) NOT NULL,
+      `deleted_at` DATETIME(6) DEFAULT NULL,
+      `order_no` VARCHAR(255) NOT NULL,
+      `order_key` VARCHAR(255) NOT NULL,
+      `operation_type` VARCHAR(255) NOT NULL,
+      `result_data` TEXT DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `UK_order_no_key_operation` (`order_no`, `order_key`, `operation_type`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+    'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
 SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE product_like;
@@ -352,5 +396,7 @@ TRUNCATE TABLE payment;
 TRUNCATE TABLE user_coupon;
 TRUNCATE TABLE coupon;
 TRUNCATE TABLE points;
+TRUNCATE TABLE issued_order_no;
+TRUNCATE TABLE idempotency_keys;
 
 SET FOREIGN_KEY_CHECKS = 1;

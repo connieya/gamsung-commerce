@@ -57,7 +57,7 @@ public class  OrderFacade {
         return OrderResult.List.from(orders);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public OrderResult.IssueOrderNo issueOrderNo(boolean isNewOrderForm) {
         OrderNoIssue issue = orderNoIssuer.issue(isNewOrderForm);
         return OrderResult.IssueOrderNo.from(issue);

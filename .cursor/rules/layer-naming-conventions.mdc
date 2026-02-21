@@ -6,8 +6,22 @@ alwaysApply: true
 
 ## presentation (진입 계층)
 
-- **Request/Response DTO**: API 요청·응답용. 도메인/엔티티를 그대로 노출하지 않고 DTO로 변환해 반환한다.
-- 이름은 팀/프로젝트에 맞게 (예: `*Request`, `*Response`, `*Dto` 등).
+- **DTO 파일**: API 도메인별 하나의 파일 `XxxV1Dto.java`에 모든 Request/Response를 묶는다.
+- **Request/Response 그룹핑**: 반드시 `Request`, `Response` static class로 분리한다.
+  ```java
+  public class OrderV1Dto {
+      public static class Request {
+          public record Place(...) {}
+      }
+      public static class Response {
+          public record Detail(...) {}
+      }
+  }
+  ```
+- **record 사용**: DTO는 record로 정의한다 (불변, 간결).
+- **중첩 깊이**: 최대 3단까지 허용 (`XxxV1Dto > Request/Response > 구체 DTO > 하위 구조체`).
+- **from() 팩토리**: Response record에 `static from(Result/Info)` 메서드로 application/domain 타입 → DTO 변환.
+- **컨트롤러 변환**: Request → Criteria/Command 변환은 Controller에서 수행한다.
 
 ## application (유스케이스)
 
@@ -28,4 +42,4 @@ alwaysApply: true
 
 - **Application**: Criteria (조회 입력), Result (출력)
 - **Domain**: Command (쓰기 입력), 엔티티 (쓰기 반환), xxInfo (조회 반환)
-- **Presentation**: Request/Response DTO — 필수. 나머지 레이어 타입을 그대로 노출하지 않는다.
+- **Presentation**: `XxxV1Dto.Request.*` / `XxxV1Dto.Response.*` (record). 나머지 레이어 타입을 그대로 노출하지 않는다.

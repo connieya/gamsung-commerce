@@ -12,5 +12,6 @@ public interface CartRepository {
     void deleteItem(CartItem item);
     void deleteCart(Cart cart);
     List<CartItem> findItemsByIds(List<Long> cartItemIds);
+    List<CartItem> findItemsByIdsAndUserId(List<Long> cartItemIds, Long userId);
     List<CartItem> findItemsByUserId(Long userId);
 }

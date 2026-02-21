@@ -51,6 +51,11 @@ public class CartCoreRepository implements CartRepository {
     }
 
     @Override
+    public java.util.List<CartItem> findItemsByIdsAndUserId(java.util.List<Long> cartItemIds, Long userId) {
+        return cartItemJpaRepository.findAllByIdInAndCartUserId(cartItemIds, userId);
+    }
+
+    @Override
     public java.util.List<CartItem> findItemsByUserId(Long userId) {
         return cartItemJpaRepository.findAllByCartUserId(userId);
     }

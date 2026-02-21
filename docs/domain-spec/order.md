@@ -30,8 +30,8 @@
 - **목적**: 주문서 렌더링에 필요한 최소 데이터 조회
 - **요청 규칙**:
   - `t`는 캐시 방지용 쿼리
-  - 바로구매인 경우 `buyNowCartItemId`를 함께 전달해 해당 장바구니 아이템 1건 우선 조회
-  - 일반 주문(장바구니 주문하기)은 로그인 사용자 장바구니 전체 조회
+  - `cartItemIds`가 있으면 해당 아이템들만 조회 (바로구매 = 1건, 부분선택 = N건)
+  - `cartItemIds`가 없으면 로그인 사용자 장바구니 전체 조회
 - **응답 최소 필드**:
   - `member.name`, `member.email`
   - `cartItems[]` (`cartId`, `productId`, `productName`, `quantity`, `price`, `imageUrl`)

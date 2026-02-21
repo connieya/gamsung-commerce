@@ -10,37 +10,38 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 public class ProductLikeV1Dto {
-    public record LikedProductResponse(
-            List<LikedProduct> likedProducts
-    ) {
-        public static LikedProductResponse from(GetLikeProductResult getLikeProductResult) {
-            List<ProductDetailInfo> productDetailInfos = getLikeProductResult.getProductDetailInfos();
-            List<LikedProduct> likedProducts = productDetailInfos.stream()
-                    .map(productDetailInfo ->
-                            LikedProduct
-                                    .builder()
-                                    .productId(productDetailInfo.getProductId())
-                                    .productPrice(productDetailInfo.getProductPrice())
-                                    .productName(productDetailInfo.getProductName())
-                                    .brandName(productDetailInfo.getBrandName())
-                                    .imageUrl(productDetailInfo.getImageUrl())
-                                    .likeCount(productDetailInfo.getLikeCount())
-                                    .build()
-                    ).toList();
-            return new LikedProductResponse(likedProducts);
+    public static class Response {
+        public record LikedProducts(
+                List<LikedProduct> likedProducts
+        ) {
+            public static LikedProducts from(GetLikeProductResult getLikeProductResult) {
+                List<ProductDetailInfo> productDetailInfos = getLikeProductResult.getProductDetailInfos();
+                List<LikedProduct> likedProducts = productDetailInfos.stream()
+                        .map(productDetailInfo ->
+                                LikedProduct
+                                        .builder()
+                                        .productId(productDetailInfo.getProductId())
+                                        .productPrice(productDetailInfo.getProductPrice())
+                                        .productName(productDetailInfo.getProductName())
+                                        .brandName(productDetailInfo.getBrandName())
+                                        .imageUrl(productDetailInfo.getImageUrl())
+                                        .likeCount(productDetailInfo.getLikeCount())
+                                        .build()
+                        ).toList();
+                return new LikedProducts(likedProducts);
+            }
+
+            @Getter
+            @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+            @Builder
+            public static class LikedProduct {
+                private final Long productId;
+                private final String productName;
+                private final Long productPrice;
+                private final String brandName;
+                private final String imageUrl;
+                private final Long likeCount;
+            }
         }
     }
-
-    @Getter
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder
-    public static class LikedProduct {
-        private final Long productId;
-        private final String productName;
-        private final Long productPrice;
-        private final String brandName;
-        private final String imageUrl;
-        private final Long likeCount;
-    }
-
 }

@@ -55,11 +55,11 @@ public class BrandV1ApiE2ETest {
                     .buildAndExpand(brandId)
                     .toUriString();
 
-            ParameterizedTypeReference<ApiResponse<BrandV1Dto.BrandResponse>> responseType = new ParameterizedTypeReference<ApiResponse<BrandV1Dto.BrandResponse>>() {
+            ParameterizedTypeReference<ApiResponse<BrandV1Dto.Response.Brand>> responseType = new ParameterizedTypeReference<ApiResponse<BrandV1Dto.Response.Brand>>() {
             };
 
             // when
-            ResponseEntity<ApiResponse<BrandV1Dto.BrandResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, requestEntity, responseType);
+            ResponseEntity<ApiResponse<BrandV1Dto.Response.Brand>> response = testRestTemplate.exchange(url, HttpMethod.GET, requestEntity, responseType);
 
             // then
             assertAll(
@@ -87,11 +87,11 @@ public class BrandV1ApiE2ETest {
                     .buildAndExpand(brand.getId())
                     .toUriString();
 
-            ParameterizedTypeReference<ApiResponse<BrandV1Dto.BrandResponse>> responseType = new ParameterizedTypeReference<ApiResponse<BrandV1Dto.BrandResponse>>() {
+            ParameterizedTypeReference<ApiResponse<BrandV1Dto.Response.Brand>> responseType = new ParameterizedTypeReference<ApiResponse<BrandV1Dto.Response.Brand>>() {
             };
 
             // when
-            ResponseEntity<ApiResponse<BrandV1Dto.BrandResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, requestEntity, responseType);
+            ResponseEntity<ApiResponse<BrandV1Dto.Response.Brand>> response = testRestTemplate.exchange(url, HttpMethod.GET, requestEntity, responseType);
 
             // then
             assertAll(

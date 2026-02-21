@@ -58,11 +58,11 @@ class PointV1ApiE2ETest {
             HttpHeaders headers = new HttpHeaders();
             headers.add(ApiHeaders.USER_ID, userId);
 
-            ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.Point>> responseType = new ParameterizedTypeReference<>() {
             };
 
             // when
-            ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+            ResponseEntity<ApiResponse<PointV1Dto.Response.Point>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
 
             // then
@@ -80,12 +80,12 @@ class PointV1ApiE2ETest {
             // given
             HttpHeaders headers = new HttpHeaders();
 
-            ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.Point>> responseType = new ParameterizedTypeReference<>() {
             };
 
 
             // when
-            ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+            ResponseEntity<ApiResponse<PointV1Dto.Response.Point>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // then
             assertAll(
@@ -109,14 +109,14 @@ class PointV1ApiE2ETest {
             headers.add(ApiHeaders.USER_ID, userId);
 
 
-            ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.Point>> responseType = new ParameterizedTypeReference<>() {
             };
 
             Long chargeAmount = 50000L;
-            PointV1Dto.PointRequest pointRequest = new PointV1Dto.PointRequest(chargeAmount);
+            PointV1Dto.Request.Charge pointRequest = new PointV1Dto.Request.Charge(chargeAmount);
 
             // when
-            ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response = testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, new HttpEntity<>(pointRequest, headers), responseType);
+            ResponseEntity<ApiResponse<PointV1Dto.Response.Point>> response = testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, new HttpEntity<>(pointRequest, headers), responseType);
 
             // then
             assertAll(
@@ -134,14 +134,14 @@ class PointV1ApiE2ETest {
             HttpHeaders headers = new HttpHeaders();
             headers.add(ApiHeaders.USER_ID, userId);
 
-            ParameterizedTypeReference<ApiResponse<PointV1Dto.PointResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<PointV1Dto.Response.Point>> responseType = new ParameterizedTypeReference<>() {
             };
 
             Long chargeAmount = 50000L;
-            PointV1Dto.PointRequest pointRequest = new PointV1Dto.PointRequest(chargeAmount);
+            PointV1Dto.Request.Charge pointRequest = new PointV1Dto.Request.Charge(chargeAmount);
 
             // when
-            ResponseEntity<ApiResponse<PointV1Dto.PointResponse>> response = testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, new HttpEntity<>(pointRequest, headers), responseType);
+            ResponseEntity<ApiResponse<PointV1Dto.Response.Point>> response = testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, new HttpEntity<>(pointRequest, headers), responseType);
 
             // then
             assertAll(

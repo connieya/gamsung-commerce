@@ -18,27 +18,27 @@ public class ProductV1Controller implements ProductV1ApiSpec {
 
     @GetMapping
     @Override
-    public ApiResponse<ProductV1Dto.SummaryResponse> getProducts(
+    public ApiResponse<ProductV1Dto.Response.Summary> getProducts(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort) {
         ProductsInfo products = productService.getProducts(size, page, productSort);
-        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+        return ApiResponse.success(ProductV1Dto.Response.Summary.from(products));
     }
 
     @GetMapping("/optimized")
     @Override
-    public ApiResponse<ProductV1Dto.SummaryResponse> getProductsOptimized(
+    public ApiResponse<ProductV1Dto.Response.Summary> getProductsOptimized(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort) {
         ProductsInfo products = productService.getProductsOptimized(size, page, productSort);
-        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+        return ApiResponse.success(ProductV1Dto.Response.Summary.from(products));
     }
 
     @GetMapping("/denormalized")
     @Override
-    public ApiResponse<ProductV1Dto.SummaryResponse> getProductsDenormalizedLikeCount(
+    public ApiResponse<ProductV1Dto.Response.Summary> getProductsDenormalizedLikeCount(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort
@@ -46,25 +46,25 @@ public class ProductV1Controller implements ProductV1ApiSpec {
     ) {
         ProductCommand.Search search = ProductCommand.Search.create(page, size, productSort, brandId);
         ProductsInfo products = productService.getProductsDenormalizedLikeCount(search);
-        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+        return ApiResponse.success(ProductV1Dto.Response.Summary.from(products));
     }
 
 
 
     @GetMapping("/denormalized/no-brand")
     @Override
-    public ApiResponse<ProductV1Dto.SummaryResponse> getProductsDenormalized(
+    public ApiResponse<ProductV1Dto.Response.Summary> getProductsDenormalized(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort) {
         ProductsInfo products = productService.getProductsDenormalized(size, page, productSort);
-        return ApiResponse.success(ProductV1Dto.SummaryResponse.from(products));
+        return ApiResponse.success(ProductV1Dto.Response.Summary.from(products));
     }
 
     @GetMapping("/{productId}")
     @Override
-    public ApiResponse<ProductV1Dto.DetailResponse> getProduct(@PathVariable Long productId) {
+    public ApiResponse<ProductV1Dto.Response.Detail> getProduct(@PathVariable Long productId) {
         ProductResult productResult = productFacade.getProductDetail(new ProductCriteria.GetDetail(productId));
-        return ApiResponse.success(ProductV1Dto.DetailResponse.from(productResult));
+        return ApiResponse.success(ProductV1Dto.Response.Detail.from(productResult));
     }
 }

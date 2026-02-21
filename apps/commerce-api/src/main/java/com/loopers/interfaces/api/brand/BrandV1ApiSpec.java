@@ -12,13 +12,13 @@ public interface BrandV1ApiSpec {
             summary = "브랜드 목록 조회",
             description = "전체 브랜드 목록을 조회합니다."
     )
-    ApiResponse<?> getBrands();
+    ApiResponse<BrandV1Dto.Response.BrandList> getBrands();
 
     @Operation(
             summary = "브랜드 정보 조회",
             description = "브랜드 ID로 브랜드 정보를 조회합니다."
     )
-    ApiResponse<?> getBrand(
+    ApiResponse<BrandV1Dto.Response.Brand> getBrand(
             @PathVariable("brandId") Long brandId
     );
 

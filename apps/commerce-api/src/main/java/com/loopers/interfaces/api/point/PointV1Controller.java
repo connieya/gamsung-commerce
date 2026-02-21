@@ -16,18 +16,18 @@ public class PointV1Controller implements PointV1ApiSpec {
 
   @Override
   @GetMapping
-  public ApiResponse<PointV1Dto.PointResponse> getPoint(@RequestHeader(ApiHeaders.USER_ID) String userId) {
+  public ApiResponse<PointV1Dto.Response.Point> getPoint(@RequestHeader(ApiHeaders.USER_ID) String userId) {
     PointInfoResult pointInfoResult = pointService.getPoint(userId);
 
-    return ApiResponse.success(PointV1Dto.PointResponse.of(pointInfoResult.userId(), pointInfoResult.value()));
+    return ApiResponse.success(PointV1Dto.Response.Point.of(pointInfoResult.userId(), pointInfoResult.value()));
   }
 
   @Override
   @PostMapping("/charge")
-  public ApiResponse<PointV1Dto.PointResponse> chargePoint(@RequestHeader(ApiHeaders.USER_ID) String userId,
-      @RequestBody PointV1Dto.PointRequest request) {
+  public ApiResponse<PointV1Dto.Response.Point> chargePoint(@RequestHeader(ApiHeaders.USER_ID) String userId,
+      @RequestBody PointV1Dto.Request.Charge request) {
     PointInfoResult pointInfoResult = pointService.charge(userId, request.value());
 
-    return ApiResponse.success(PointV1Dto.PointResponse.of(pointInfoResult.userId(), pointInfoResult.value()));
+    return ApiResponse.success(PointV1Dto.Response.Point.of(pointInfoResult.userId(), pointInfoResult.value()));
   }
 }

@@ -37,8 +37,8 @@ public class ProductLikeV1Controller implements ProductLikeV1ApiSpec {
 
     @GetMapping
     @Override
-    public ApiResponse<ProductLikeV1Dto.LikedProductResponse> getMyLikes(@RequestHeader(ApiHeaders.USER_ID) String userId) {
+    public ApiResponse<ProductLikeV1Dto.Response.LikedProducts> getMyLikes(@RequestHeader(ApiHeaders.USER_ID) String userId) {
         GetLikeProductResult likedProducts = likeProductFacade.getLikedProducts(userId);
-        return ApiResponse.success(ProductLikeV1Dto.LikedProductResponse.from(likedProducts));
+        return ApiResponse.success(ProductLikeV1Dto.Response.LikedProducts.from(likedProducts));
     }
 }

@@ -20,15 +20,15 @@ public class BrandV1Controller implements BrandV1ApiSpec{
 
     @GetMapping
     @Override
-    public ApiResponse<BrandV1Dto.BrandListResponse> getBrands() {
+    public ApiResponse<BrandV1Dto.Response.BrandList> getBrands() {
         List<BrandInfo> brands = brandService.getBrands();
-        return ApiResponse.success(BrandV1Dto.BrandListResponse.from(brands));
+        return ApiResponse.success(BrandV1Dto.Response.BrandList.from(brands));
     }
 
     @GetMapping("/{brandId}")
     @Override
-    public ApiResponse<BrandV1Dto.BrandResponse> getBrand(@PathVariable(value = "brandId") Long brandId) {
+    public ApiResponse<BrandV1Dto.Response.Brand> getBrand(@PathVariable(value = "brandId") Long brandId) {
         BrandInfo brandInfo = brandService.getBrandInfo(brandId);
-        return ApiResponse.success(BrandV1Dto.BrandResponse.from(brandInfo));
+        return ApiResponse.success(BrandV1Dto.Response.Brand.from(brandInfo));
     }
 }

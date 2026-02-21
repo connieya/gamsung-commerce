@@ -20,14 +20,14 @@ public class RankingV1Controller {
     private final RankingService rankingService;
 
     @GetMapping("/daily")
-    public ApiResponse<RankingV1Dto.SummaryResponse> getRanking(
+    public ApiResponse<RankingV1Dto.Response.Summary> getRanking(
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam LocalDate date
     ) {
 
         RankingInfo rankingInfo = rankingService.getProductRanking(RankingCommand.GetProducts.of(date,page,size));
-        return ApiResponse.success(RankingV1Dto.SummaryResponse.from(rankingInfo));
+        return ApiResponse.success(RankingV1Dto.Response.Summary.from(rankingInfo));
     }
 
     @GetMapping("/weekly")

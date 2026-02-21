@@ -5,30 +5,32 @@ import com.loopers.domain.brand.BrandInfo;
 import java.util.List;
 
 public class BrandV1Dto {
-    public record BrandResponse(
-            Long id,
-            String name,
-            String description
-    ) {
+    public static class Response {
+        public record Brand(
+                Long id,
+                String name,
+                String description
+        ) {
 
-        public static BrandResponse from(BrandInfo brandInfo){
-            return new BrandResponse(
-                    brandInfo.id(),
-                    brandInfo.name(),
-                    brandInfo.description()
-            );
+            public static Brand from(BrandInfo brandInfo){
+                return new Brand(
+                        brandInfo.id(),
+                        brandInfo.name(),
+                        brandInfo.description()
+                );
+            }
+
         }
 
-    }
-
-    public record BrandListResponse(
-            List<BrandResponse> brands
-    ) {
-        public static BrandListResponse from(List<BrandInfo> brandInfos) {
-            List<BrandResponse> brands = brandInfos.stream()
-                    .map(BrandResponse::from)
-                    .toList();
-            return new BrandListResponse(brands);
+        public record BrandList(
+                List<Brand> brands
+        ) {
+            public static BrandList from(List<BrandInfo> brandInfos) {
+                List<Brand> brands = brandInfos.stream()
+                        .map(Brand::from)
+                        .toList();
+                return new BrandList(brands);
+            }
         }
     }
 }

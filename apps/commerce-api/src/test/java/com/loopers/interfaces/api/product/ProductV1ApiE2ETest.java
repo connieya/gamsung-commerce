@@ -82,7 +82,7 @@ class ProductV1ApiE2ETest {
                     .buildAndExpand()
                     .toUriString();
 
-            ResponseEntity<ApiResponse<ProductV1Dto.SummaryResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
+            ResponseEntity<ApiResponse<ProductV1Dto.Response.Summary>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
             });
 
             // then`
@@ -129,7 +129,7 @@ class ProductV1ApiE2ETest {
                     .buildAndExpand()
                     .toUriString();
 
-            ResponseEntity<ApiResponse<ProductV1Dto.SummaryResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
+            ResponseEntity<ApiResponse<ProductV1Dto.Response.Summary>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
             });
 
             // then`
@@ -192,7 +192,7 @@ class ProductV1ApiE2ETest {
                     .buildAndExpand()
                     .toUriString();
 
-            ResponseEntity<ApiResponse<ProductV1Dto.SummaryResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
+            ResponseEntity<ApiResponse<ProductV1Dto.Response.Summary>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
             });
 
             // then`
@@ -263,7 +263,7 @@ class ProductV1ApiE2ETest {
                     .buildAndExpand()
                     .toUriString();
 
-            ResponseEntity<ApiResponse<ProductV1Dto.SummaryResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
+            ResponseEntity<ApiResponse<ProductV1Dto.Response.Summary>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, new ParameterizedTypeReference<>() {
             });
 
             // then`
@@ -324,10 +324,10 @@ class ProductV1ApiE2ETest {
                     .buildAndExpand(productEntity.getId())
                     .toUriString();
 
-            ParameterizedTypeReference<ApiResponse<ProductV1Dto.DetailResponse>> responseType = new ParameterizedTypeReference<ApiResponse<ProductV1Dto.DetailResponse>>() {
+            ParameterizedTypeReference<ApiResponse<ProductV1Dto.Response.Detail>> responseType = new ParameterizedTypeReference<ApiResponse<ProductV1Dto.Response.Detail>>() {
             };
 
-            ResponseEntity<ApiResponse<ProductV1Dto.DetailResponse>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, responseType);
+            ResponseEntity<ApiResponse<ProductV1Dto.Response.Detail>> response = testRestTemplate.exchange(url, HttpMethod.GET, HttpEntity.EMPTY, responseType);
 
             // then
             assertAll(

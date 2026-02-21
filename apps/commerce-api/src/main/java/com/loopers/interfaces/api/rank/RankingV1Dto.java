@@ -11,38 +11,40 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 public class RankingV1Dto {
-    public record SummaryResponse(
-            List<Item> items
-    ) {
+    public static class Response {
+        public record Summary(
+                List<Item> items
+        ) {
 
-        public static SummaryResponse from(RankingInfo rankingInfo) {
-            List<ProductInfo> productInfos = rankingInfo.getProductInfos();
-            return new SummaryResponse(
-                    productInfos.stream()
-                            .map(productInfo ->
-                                    Item
-                                            .builder()
-                                            .productId(productInfo.getProductId())
-                                            .productName(productInfo.getProductName())
-                                            .brandName(productInfo.getBrandName())
-                                            .likeCount(productInfo.getLikeCount())
-                                            .releasedAt(productInfo.getReleasedAt())
-                                            .price(productInfo.getPrice())
-                                            .build()
-                            ).toList()
-            );
+            public static Summary from(RankingInfo rankingInfo) {
+                List<ProductInfo> productInfos = rankingInfo.getProductInfos();
+                return new Summary(
+                        productInfos.stream()
+                                .map(productInfo ->
+                                        Item
+                                                .builder()
+                                                .productId(productInfo.getProductId())
+                                                .productName(productInfo.getProductName())
+                                                .brandName(productInfo.getBrandName())
+                                                .likeCount(productInfo.getLikeCount())
+                                                .releasedAt(productInfo.getReleasedAt())
+                                                .price(productInfo.getPrice())
+                                                .build()
+                                ).toList()
+                );
+            }
+
+            @Getter
+            @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+            @Builder
+            public static class Item {
+                private final Long productId;
+                private final Long price;
+                private final String productName;
+                private final String brandName;
+                private final Long likeCount;
+                private final ZonedDateTime releasedAt;
+            }
         }
-    }
-
-    @Getter
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    @Builder
-    public static class Item {
-        private final Long productId;
-        private final Long price;
-        private final String productName;
-        private final String brandName;
-        private final Long likeCount;
-        private final ZonedDateTime releasedAt;
     }
 }

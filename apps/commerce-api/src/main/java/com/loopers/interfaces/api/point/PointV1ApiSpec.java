@@ -15,7 +15,7 @@ public interface PointV1ApiSpec {
             summary = "포인트 조회",
             description = "유저 ID로 포인트를 조회합니다."
     )
-    ApiResponse<PointV1Dto.PointResponse> getPoint(
+    ApiResponse<PointV1Dto.Response.Point> getPoint(
             @Schema(name = "유저 ID", description = "포인트를 조회할 유저의 ID", example = "user123")
             @RequestHeader(ApiHeaders.USER_ID) String userId
     );
@@ -24,8 +24,8 @@ public interface PointV1ApiSpec {
             summary = "포인트 충전",
             description = "유저의 포인트를 충전합니다."
     )
-    ApiResponse<PointV1Dto.PointResponse> chargePoint(
+    ApiResponse<PointV1Dto.Response.Point> chargePoint(
         @Schema(name = "유저 ID , 충전할 포인트 " , description = "충전할 포인트")
-        @RequestHeader(ApiHeaders.USER_ID) String userId, @RequestBody PointV1Dto.PointRequest request
+        @RequestHeader(ApiHeaders.USER_ID) String userId, @RequestBody PointV1Dto.Request.Charge request
     );
 }

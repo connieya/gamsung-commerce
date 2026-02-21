@@ -15,16 +15,16 @@ public interface UserV1ApiSpec {
             summary = "회원가입",
             description = "회원가입"
     )
-    ApiResponse<UserV1Dto.UserResponse> register(
+    ApiResponse<UserV1Dto.Response.User> register(
             @Schema(name = "회원가입 요청", description = "회원가입에 필요한 정보")
-            @RequestBody UserV1Dto.UserRequest userRequest
+            @RequestBody UserV1Dto.Request.Register userRequest
     );
 
     @Operation(
             summary = "유저 정보 조회",
             description = "ID 로 유저 정보를 조회합니다."
     )
-    ApiResponse<UserV1Dto.UserResponse> getUser(
+    ApiResponse<UserV1Dto.Response.User> getUser(
             @Schema(name = "유저 ID", description = "조회할 유저의 ID")
             @RequestHeader(ApiHeaders.USER_ID) String userId
     );

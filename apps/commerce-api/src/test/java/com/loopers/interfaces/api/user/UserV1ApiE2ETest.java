@@ -51,16 +51,16 @@ class UserV1ApiE2ETest {
         @Test
         void returnsCreatedUser_whenRegistrationIsSuccessful() {
             // given
-            HttpEntity<UserV1Dto.UserRequest> httpEntity = new HttpEntity<>(new UserV1Dto.UserRequest(
+            HttpEntity<UserV1Dto.Request.Register> httpEntity = new HttpEntity<>(new UserV1Dto.Request.Register(
                     "geonhee",
                     "geonhee@naver.com",
                     "1994-09-26",
                     Gender.MALE
             ));
             // when
-            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.Response.User>> responseType = new ParameterizedTypeReference<>() {
             };
-            ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response =
+            ResponseEntity<ApiResponse<UserV1Dto.Response.User>> response =
                     testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, httpEntity, responseType);
 
             // then
@@ -78,16 +78,16 @@ class UserV1ApiE2ETest {
         @Test
         void throwsBadRequest_whenGenderIsNotProvided() {
             // given
-            HttpEntity<UserV1Dto.UserRequest> httpEntity = new HttpEntity<>(new UserV1Dto.UserRequest(
+            HttpEntity<UserV1Dto.Request.Register> httpEntity = new HttpEntity<>(new UserV1Dto.Request.Register(
                     "geonhee",
                     "geonhee@naver.com",
                     "1994-09-26",
                     null));
 
             // when
-            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.Response.User>> responseType = new ParameterizedTypeReference<>() {
             };
-            ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response = testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, httpEntity, responseType);
+            ResponseEntity<ApiResponse<UserV1Dto.Response.User>> response = testRestTemplate.exchange(ENDPOINT_POST, HttpMethod.POST, httpEntity, responseType);
 
             // then
             assertAll(
@@ -106,7 +106,7 @@ class UserV1ApiE2ETest {
         void returnsUserInfo_whenUserIdIsProvided() {
             // given
             userJpaRepository.save(UserEntity.fromDomain(User.create("geonhee", "geonhee@naver.com", "1994-09-26", Gender.MALE)));
-            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.Response.User>> responseType = new ParameterizedTypeReference<>() {
             };
 
             String userId = "geonhee";
@@ -115,7 +115,7 @@ class UserV1ApiE2ETest {
 
 
             // when
-            ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+            ResponseEntity<ApiResponse<UserV1Dto.Response.User>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // then
             assertAll(
@@ -136,11 +136,11 @@ class UserV1ApiE2ETest {
             HttpHeaders headers = new HttpHeaders();
             headers.add(ApiHeaders.USER_ID, userId);
 
-            ParameterizedTypeReference<ApiResponse<UserV1Dto.UserResponse>> responseType = new ParameterizedTypeReference<>() {
+            ParameterizedTypeReference<ApiResponse<UserV1Dto.Response.User>> responseType = new ParameterizedTypeReference<>() {
             };
 
             // when
-            ResponseEntity<ApiResponse<UserV1Dto.UserResponse>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
+            ResponseEntity<ApiResponse<UserV1Dto.Response.User>> response = testRestTemplate.exchange(ENDPOINT_GET, HttpMethod.GET, new HttpEntity<>(null, headers), responseType);
 
             // then
             assertAll(

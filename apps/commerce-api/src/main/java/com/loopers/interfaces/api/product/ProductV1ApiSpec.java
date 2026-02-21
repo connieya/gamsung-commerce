@@ -14,7 +14,7 @@ public interface ProductV1ApiSpec {
             summary = "상품 목록 조회",
             description = "상품 목록을 조회합니다."
     )
-    ApiResponse<?> getProducts(
+    ApiResponse<ProductV1Dto.Response.Summary> getProducts(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort);
@@ -23,7 +23,7 @@ public interface ProductV1ApiSpec {
             summary = "상품 목록 조회",
             description = "상품 목록을 조회합니다."
     )
-    ApiResponse<?> getProductsOptimized(
+    ApiResponse<ProductV1Dto.Response.Summary> getProductsOptimized(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort);
@@ -32,7 +32,7 @@ public interface ProductV1ApiSpec {
             summary = "상품 목록 조회",
             description = "상품 목록을 조회합니다."
     )
-    ApiResponse<?> getProductsDenormalizedLikeCount(
+    ApiResponse<ProductV1Dto.Response.Summary> getProductsDenormalizedLikeCount(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort
@@ -44,7 +44,7 @@ public interface ProductV1ApiSpec {
             summary = "상품 목록 조회 (비정규화, brandId 없음)",
             description = "비정규화 테이블을 이용한 상품 목록 조회 (캐시 미적용)"
     )
-    ApiResponse<?> getProductsDenormalized(
+    ApiResponse<ProductV1Dto.Response.Summary> getProductsDenormalized(
             @RequestParam int page
             , @RequestParam int size
             , @RequestParam ProductSort productSort);
@@ -53,7 +53,7 @@ public interface ProductV1ApiSpec {
             summary = "상품 정보 조회",
             description = "상품 ID로 상품 정보를 조회합니다."
     )
-    ApiResponse<?> getProduct(
+    ApiResponse<ProductV1Dto.Response.Detail> getProduct(
             @PathVariable("productId") Long productId
     );
 

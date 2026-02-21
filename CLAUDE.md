@@ -46,6 +46,7 @@ interfaces/api  →  application  →  domain  ←  infrastructure
 - `application` 패키지의 Criteria/Facade에서 `interfaces.api.XxxV1Dto`를 import하면 **위반**
 - 대신 `application` 레이어 전용 타입(예: `PaymentCriteria.OrderItem`)을 정의하고, Controller에서 Dto → Criteria 변환
 - `domain`에서 `application`의 Facade나 Criteria를 import하면 **위반**
+- `application`(Facade)에서 `Repository`를 직접 호출하면 **위반** — 반드시 `XxxService`를 통해 호출 (Facade → Service → Repository)
 
 ## 연관 프로젝트
 - 프론트엔드: `/Users/cony/Desktop/workspace/gamsung-web` (Next.js)

@@ -3,10 +3,13 @@ package com.loopers;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.library.Architectures;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 class LayerDependencyArchTest {
 
@@ -35,5 +38,16 @@ class LayerDependencyArchTest {
                 .whereLayer("Interfaces").mayNotBeAccessedByAnyLayer()
                 .whereLayer("Support").mayOnlyBeAccessedByLayers("Domain", "Application", "Infrastructure", "Interfaces")
                 .check(classes);
+    }
+
+    @Test
+    @DisplayName("application 레이어(Facade)는 Repository를 직접 의존할 수 없다 — Service를 통해 호출해야 한다")
+    void application_layer_should_not_depend_on_repository() {
+        ArchRule rule = noClasses()
+                .that().resideInAPackage("com.loopers.application..")
+                .should().dependOnClassesThat()
+                .haveSimpleNameEndingWith("Repository");
+
+        rule.check(classes);
     }
 }

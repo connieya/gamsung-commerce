@@ -1,7 +1,7 @@
 package com.loopers.application.order;
 
 import com.loopers.domain.cart.CartItem;
-import com.loopers.domain.cart.CartRepository;
+import com.loopers.domain.cart.CartService;
 import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderInfo;
@@ -29,7 +29,7 @@ public class  OrderFacade {
     private final OrderService orderService;
     private final CouponService couponService;
     private final OrderNoIssuer orderNoIssuer;
-    private final CartRepository cartRepository;
+    private final CartService cartService;
 
     @Transactional
     public OrderResult.Create place(OrderCriteria orderCriteria) {
@@ -71,8 +71,8 @@ public class  OrderFacade {
         User user = userService.findByUserId(userId);
 
         List<CartItem> cartItems = (cartItemIds != null && !cartItemIds.isEmpty())
-                ? cartRepository.findItemsByIdsAndUserId(cartItemIds, user.getId())
-                : cartRepository.findItemsByUserId(user.getId());
+                ? cartService.getCartItemsByIds(cartItemIds, user.getId())
+                : cartService.getCartItems(user.getId());
 
         List<Long> productIds = cartItems.stream()
                 .map(CartItem::getProductId)

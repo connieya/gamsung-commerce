@@ -27,6 +27,8 @@ public class CartV1Dto {
                 return new CartDetail(cart.getId(), items, cart.getTotalAmount());
             }
         }
+
+        public record CartCount(Long count) {}
     }
 
     public record CartItemDto(

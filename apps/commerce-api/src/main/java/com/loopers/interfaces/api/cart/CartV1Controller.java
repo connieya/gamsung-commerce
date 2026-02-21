@@ -65,4 +65,13 @@ public class CartV1Controller {
         cartService.clearCart(user.getId());
         return ApiResponse.success(null);
     }
+
+    @GetMapping("/count")
+    public ApiResponse<CartV1Dto.Response.CartCount> getCartCount(
+            @RequestHeader(ApiHeaders.USER_ID) String userId
+    ) {
+        User user = userService.findByUserId(userId);
+        Long count = cartService.getCartCount(user.getId());
+        return ApiResponse.success(new CartV1Dto.Response.CartCount(count));
+    }
 }

@@ -65,4 +65,13 @@ public class CartService {
         cartRepository.findByUserId(userId)
                 .ifPresent(cartRepository::deleteCart);
     }
+
+    @Transactional(readOnly = true)
+    public Long getCartCount(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseGet(() -> Cart.create(userId));
+        return cart.getItems().stream()
+                .mapToLong(CartItem::getQuantity)
+                .sum();
+    }
 }

@@ -28,7 +28,11 @@ class OrderCriteriaTest {
                 .productId(2L)
                 .quantity(5L)
                 .build();
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2) ,1L);
+        OrderCriteria orderCriteria = OrderCriteria.builder()
+                .userId("gunny")
+                .orderItems(List.of(orderItem1, orderItem2))
+                .couponId(1L)
+                .build();
 
         // when
         Product productA = ProductFixture.complete()

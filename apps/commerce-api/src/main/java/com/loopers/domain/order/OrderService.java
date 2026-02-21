@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -57,6 +58,11 @@ public class OrderService {
     public Order getOrderByOrderNumber(String orderNumber) {
         return orderRepository.findByOrderNumber(orderNumber)
                 .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Order> findOrderByOrderNumber(String orderNumber) {
+        return orderRepository.findByOrderNumber(orderNumber);
     }
 
     @Transactional

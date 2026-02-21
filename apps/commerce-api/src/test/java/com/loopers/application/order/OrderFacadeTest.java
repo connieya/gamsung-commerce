@@ -58,7 +58,11 @@ class OrderFacadeTest {
                     .productId(1L)
                     .quantity(10L)
                     .build();
-            OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem), 1L);
+            OrderCriteria orderCriteria = OrderCriteria.builder()
+                    .userId("gunny")
+                    .orderItems(List.of(orderItem))
+                    .couponId(1L)
+                    .build();
 
             when(userService.findByUserId("gunny"))
                     .thenThrow(new UserException.UserNotFoundException(ErrorType.USER_NOT_FOUND));
@@ -77,7 +81,11 @@ class OrderFacadeTest {
                     .productId(1L)
                     .quantity(10L)
                     .build();
-            OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem), 1L);
+            OrderCriteria orderCriteria = OrderCriteria.builder()
+                    .userId("gunny")
+                    .orderItems(List.of(orderItem))
+                    .couponId(1L)
+                    .build();
 
             User user = UserFixture.complete().set(Select.field(User::getId), 1L).create();
             Product product = ProductFixture.complete()

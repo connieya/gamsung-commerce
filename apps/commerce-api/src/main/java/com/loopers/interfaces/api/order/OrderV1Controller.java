@@ -86,11 +86,14 @@ public class OrderV1Controller implements OrderV1ApiSpec {
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestBody OrderV1Dto.Request.Ready request
     ) {
+        List<PaymentCriteria.OrderItem> orderItems = request.orderItems().stream()
+                .map(item -> new PaymentCriteria.OrderItem(item.getProductId(), item.getQuantity()))
+                .toList();
         PaymentCriteria.Ready criteria = new PaymentCriteria.Ready(
                 request.paymentMethod(),
                 request.payKind(),
                 userId,
-                request.orderItems(),
+                orderItems,
                 request.couponId()
         );
         PaymentService.PaymentReadyResult result = paymentFacade.ready(orderNo, request.orderKey(), criteria);
@@ -102,18 +105,21 @@ public class OrderV1Controller implements OrderV1ApiSpec {
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestBody OrderV1Dto.Request.PaymentSession request
     ) {
+        List<PaymentCriteria.OrderItem> orderItems = request.orderItems().stream()
+                .map(item -> new PaymentCriteria.OrderItem(item.getProductId(), item.getQuantity()))
+                .toList();
         PaymentCriteria.PaymentSession criteria = new PaymentCriteria.PaymentSession(
                 request.paymentMethod(),
                 request.payKind(),
                 userId,
-                request.orderItems(),
+                orderItems,
                 request.cardType(),
                 request.cardNumber(),
                 request.couponId()
         );
         PaymentService.PaymentSessionResult result = paymentFacade.createPaymentSession(
-                request.orderNo(), 
-                request.orderKey(), 
+                request.orderNo(),
+                request.orderKey(),
                 criteria
         );
         return ApiResponse.success(OrderV1Dto.Response.PaymentSession.from(result));

@@ -43,9 +43,10 @@ public class PaymentCommand {
     }
 
     public record Ready(Long orderId, String orderNumber, Long userId, Long totalAmount,
-                        PaymentMethod paymentMethod) {
-        public static PaymentCommand.Ready of(Long orderId, String orderNumber, Long userId, Long totalAmount, PaymentMethod paymentMethod) {
-            return new PaymentCommand.Ready(orderId, orderNumber, userId, totalAmount, paymentMethod);
+                        PaymentMethod paymentMethod, PayKind payKind) {
+        public static PaymentCommand.Ready of(Long orderId, String orderNumber, Long userId, Long totalAmount,
+                                              PaymentMethod paymentMethod, PayKind payKind) {
+            return new PaymentCommand.Ready(orderId, orderNumber, userId, totalAmount, paymentMethod, payKind);
         }
     }
 

@@ -6,7 +6,6 @@ import com.loopers.application.payment.processor.PaymentProcessor;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderNoIssuer;
-import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
@@ -18,13 +17,15 @@ import com.loopers.domain.user.UserService;
 import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.support.error.ErrorType;
-import com.loopers.interfaces.api.order.OrderV1Dto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +43,8 @@ public class PaymentFacade {
         Order order = orderService.getOrder(criteria.orderId());
         order.validatePay();
 
-        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod()), null);
+        PayKind resolvedPayKind = resolvePayKind(criteria.paymentMethod(), criteria.payKind());
+        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod(), resolvedPayKind), null);
 
         PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
         paymentProcessor.pay(PaymentProcessContext.of(criteria));
@@ -53,12 +55,14 @@ public class PaymentFacade {
         Order order = getOrCreateOrder(orderNo, criteria.userId(), criteria.orderItems(), criteria.couponId());
         order.validatePay();
 
+        PayKind resolvedPayKind = resolvePayKind(criteria.paymentMethod(), criteria.payKind());
         PaymentCommand.Ready readyCommand = PaymentCommand.Ready.of(
                 order.getId(),
                 order.getOrderNumber(),
                 order.getUserId(),
                 order.getFinalAmount(),
-                criteria.paymentMethod()
+                criteria.paymentMethod(),
+                resolvedPayKind
         );
 
         return paymentService.ready(readyCommand, orderKey);
@@ -69,13 +73,15 @@ public class PaymentFacade {
         Order order = getOrCreateOrder(orderNo, criteria.userId(), criteria.orderItems(), criteria.couponId());
         order.validatePay();
 
+        PayKind resolvedPayKind = resolvePayKind(criteria.paymentMethod(), criteria.payKind());
         paymentService.ensurePendingPayment(
                 PaymentCommand.Ready.of(
                         order.getId(),
                         order.getOrderNumber(),
                         order.getUserId(),
                         order.getFinalAmount(),
-                        criteria.paymentMethod()
+                        criteria.paymentMethod(),
+                        resolvedPayKind
                 )
         );
 
@@ -83,7 +89,7 @@ public class PaymentFacade {
                 order.getId(),
                 order.getOrderNumber(),
                 criteria.paymentMethod(),
-                resolvePayKind(criteria.paymentMethod(), criteria.payKind()),
+                resolvedPayKind,
                 criteria.cardType(),
                 criteria.cardNumber(),
                 order.getFinalAmount(),
@@ -103,59 +109,48 @@ public class PaymentFacade {
     private Order getOrCreateOrder(
             String orderNo,
             String userId,
-            List<OrderV1Dto.OrderItem> orderItems,
+            List<PaymentCriteria.OrderItem> orderItems,
             Long couponId
     ) {
-        Order order = null;
-        try {
-            order = orderService.getOrderByOrderNumber(orderNo);
-        } catch (Exception e) {
-            // 주문이 없는 경우 새로 생성한다.
+        Optional<Order> existingOrder = orderService.findOrderByOrderNumber(orderNo);
+        if (existingOrder.isPresent()) {
+            return existingOrder.get();
         }
 
-        if (order == null && orderItems != null && !orderItems.isEmpty()) {
-            User user = userService.findByUserId(userId);
-            List<Long> productIds = orderItems.stream()
-                    .map(OrderV1Dto.OrderItem::getProductId)
-                    .toList();
-            List<Product> products = productService.findAllById(productIds);
-
-            Long totalAmount = orderItems.stream()
-                    .mapToLong(item -> {
-                        Product product = products.stream()
-                                .filter(p -> p.getId().equals(item.getProductId()))
-                                .findFirst()
-                                .orElseThrow();
-                        return product.getPrice() * item.getQuantity();
-                    })
-                    .sum();
-
-            Long discountAmount = couponService.calculateDiscountAmount(couponId, totalAmount);
-
-            List<OrderCommand.OrderItem> orderCommandItems = orderItems.stream()
-                    .map(item -> {
-                        Product product = products.stream()
-                                .filter(p -> p.getId().equals(item.getProductId()))
-                                .findFirst()
-                                .orElseThrow();
-                        return OrderCommand.OrderItem.builder()
-                                .productId(product.getId())
-                                .price(product.getPrice())
-                                .quantity(item.getQuantity())
-                                .build();
-                    })
-                    .toList();
-
-            OrderCommand command = OrderCommand.of(user.getId(), orderCommandItems, discountAmount);
-            orderService.place(command, orderNo);
+        if (orderItems == null || orderItems.isEmpty()) {
             return orderService.getOrderByOrderNumber(orderNo);
         }
 
-        if (order == null) {
-            return orderService.getOrderByOrderNumber(orderNo);
-        }
+        User user = userService.findByUserId(userId);
+        List<Long> productIds = orderItems.stream()
+                .map(PaymentCriteria.OrderItem::productId)
+                .toList();
+        Map<Long, Product> productMap = productService.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        return order;
+        List<OrderCommand.OrderItem> orderCommandItems = orderItems.stream()
+                .map(item -> {
+                    Product product = productMap.get(item.productId());
+                    if (product == null) {
+                        throw new IllegalArgumentException("상품을 찾을 수 없습니다. productId=" + item.productId());
+                    }
+                    return OrderCommand.OrderItem.builder()
+                            .productId(product.getId())
+                            .price(product.getPrice())
+                            .quantity(item.quantity())
+                            .build();
+                })
+                .toList();
+
+        Long totalAmount = orderCommandItems.stream()
+                .mapToLong(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        Long discountAmount = couponService.calculateDiscountAmount(couponId, totalAmount);
+
+        OrderCommand command = OrderCommand.of(user.getId(), orderCommandItems, discountAmount);
+        orderService.place(command, orderNo);
+        return orderService.getOrderByOrderNumber(orderNo);
     }
 
     private PayKind resolvePayKind(PaymentMethod paymentMethod, PayKind payKind) {

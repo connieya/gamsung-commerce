@@ -75,7 +75,7 @@ class OrderV1ApiE2ETest {
 
             // when
             OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
-                    1L,
+                    null, null, null, 1L,
                     List.of(OrderV1Dto.OrderItem.builder().productId(productEntity.getId()).quantity(2L).build())
             );
 
@@ -110,7 +110,7 @@ class OrderV1ApiE2ETest {
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
 
             OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
-                    1L,
+                    null, null, null, 1L,
                     List.of(OrderV1Dto.OrderItem.builder().productId(productEntity.getId()).quantity(2L).build())
             );
             HttpHeaders headers = new HttpHeaders();
@@ -140,7 +140,7 @@ class OrderV1ApiE2ETest {
 
             long nonExistentProductId = 99_999L;
             OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
-                    1L,
+                    null, null, null, null,
                     List.of(OrderV1Dto.OrderItem.builder().productId(nonExistentProductId).quantity(2L).build())
             );
             HttpHeaders headers = new HttpHeaders();

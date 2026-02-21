@@ -93,7 +93,11 @@ class OrderFacadeIntegrationTest {
 
         Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
 
-        OrderCriteria orderCriteria = new OrderCriteria("gh", List.of(orderItem1, orderItem2), savedCoupon.getId());
+        OrderCriteria orderCriteria = OrderCriteria.builder()
+                .userId("gh")
+                .orderItems(List.of(orderItem1, orderItem2))
+                .couponId(savedCoupon.getId())
+                .build();
 
 
         // when & then
@@ -141,7 +145,11 @@ class OrderFacadeIntegrationTest {
         Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
         userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId()));
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId());
+        OrderCriteria orderCriteria = OrderCriteria.builder()
+                .userId("gunny")
+                .orderItems(List.of(orderItem1, orderItem2))
+                .couponId(savedCoupon.getId())
+                .build();
 
 
         // when
@@ -193,7 +201,11 @@ class OrderFacadeIntegrationTest {
                 .build();
 
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), 0L);
+        OrderCriteria orderCriteria = OrderCriteria.builder()
+                .userId("gunny")
+                .orderItems(List.of(orderItem1, orderItem2))
+                .couponId(0L)
+                .build();
 
 
         // when
@@ -239,7 +251,11 @@ class OrderFacadeIntegrationTest {
                 .build();
 
 
-        OrderCriteria orderCriteria = new OrderCriteria("gunny", List.of(orderItem1, orderItem2), savedCoupon.getId());
+        OrderCriteria orderCriteria = OrderCriteria.builder()
+                .userId("gunny")
+                .orderItems(List.of(orderItem1, orderItem2))
+                .couponId(savedCoupon.getId())
+                .build();
 
         int threadCount = 2;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);

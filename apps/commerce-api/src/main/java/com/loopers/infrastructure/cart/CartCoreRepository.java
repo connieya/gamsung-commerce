@@ -31,6 +31,11 @@ public class CartCoreRepository implements CartRepository {
     }
 
     @Override
+    public Optional<CartItem> findItemByIdAndUserId(Long itemId, Long userId) {
+        return cartItemJpaRepository.findByIdAndCartUserId(itemId, userId);
+    }
+
+    @Override
     public void deleteItem(CartItem item) {
         cartItemJpaRepository.delete(item);
     }
@@ -43,5 +48,10 @@ public class CartCoreRepository implements CartRepository {
     @Override
     public java.util.List<CartItem> findItemsByIds(java.util.List<Long> cartItemIds) {
         return cartItemJpaRepository.findAllById(cartItemIds);
+    }
+
+    @Override
+    public java.util.List<CartItem> findItemsByUserId(Long userId) {
+        return cartItemJpaRepository.findAllByCartUserId(userId);
     }
 }

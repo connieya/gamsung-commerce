@@ -49,10 +49,10 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     @GetMapping("/order-form")
     public ApiResponse<OrderV1Dto.Response.OrderForm> getOrderForm(
             @RequestHeader(ApiHeaders.USER_ID) String userId,
-            @RequestParam(value = "cartItemIds") java.util.List<Long> cartItemIds,
+            @RequestParam(value = "buyNowCartItemId", required = false) Long buyNowCartItemId,
             @RequestParam(value = "t", required = false) Long timestamp
     ) {
-        OrderResult.OrderForm result = orderFacade.getOrderForm(userId, cartItemIds);
+        OrderResult.OrderForm result = orderFacade.getOrderForm(userId, buyNowCartItemId);
         return ApiResponse.success(OrderV1Dto.Response.OrderForm.from(result));
     }
 
@@ -103,6 +103,8 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     ) {
         PaymentCriteria.PaymentSession criteria = new PaymentCriteria.PaymentSession(
                 request.paymentMethod(),
+                userId,
+                request.orderItems(),
                 request.cardType(),
                 request.cardNumber(),
                 request.couponId()

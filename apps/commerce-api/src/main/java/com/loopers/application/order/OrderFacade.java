@@ -64,10 +64,12 @@ public class  OrderFacade {
     }
 
     @Transactional(readOnly = true)
-    public OrderResult.OrderForm getOrderForm(String userId, List<Long> cartItemIds) {
+    public OrderResult.OrderForm getOrderForm(String userId, Long buyNowCartItemId) {
         User user = userService.findByUserId(userId);
 
-        List<CartItem> cartItems = cartRepository.findItemsByIds(cartItemIds);
+        List<CartItem> cartItems = buyNowCartItemId != null
+                ? cartRepository.findItemByIdAndUserId(buyNowCartItemId, user.getId()).stream().toList()
+                : cartRepository.findItemsByUserId(user.getId());
 
         List<OrderResult.OrderForm.CartItemInfo> cartItemInfos = cartItems.stream()
                 .map(item -> {

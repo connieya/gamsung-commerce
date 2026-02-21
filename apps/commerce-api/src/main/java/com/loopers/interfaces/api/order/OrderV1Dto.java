@@ -27,6 +27,7 @@ public class OrderV1Dto {
                 String orderNo,
                 String orderKey,
                 PaymentMethod paymentMethod,
+                List<OrderItem> orderItems,
                 CardType cardType,
                 String cardNumber,
                 Long couponId

@@ -46,82 +46,39 @@ public class PaymentFacade {
     
     @Transactional
     public PaymentService.PaymentReadyResult ready(String orderNo, String orderKey, PaymentCriteria.Ready criteria) {
-        // 1. orderNo로 주문 조회 시도
-        Order order = null;
-        try {
-            order = orderService.getOrderByOrderNumber(orderNo);
-        } catch (Exception e) {
-            // 주문이 없으면 생성
-        }
-        
-        // 2. 주문이 없으면 생성
-        if (order == null && criteria.orderItems() != null && !criteria.orderItems().isEmpty()) {
-            // 주문번호 발급 여부만 확인 (ready 단계에서는 서명 검증 생략)
-            // orderKey는 이미 order-no API에서 발급된 것이므로 사용 가능
-            
-            User user = userService.findByUserId(criteria.userId());
-            List<Long> productIds = criteria.orderItems().stream()
-                    .map(OrderV1Dto.OrderItem::getProductId)
-                    .toList();
-            List<Product> products = productService.findAllById(productIds);
-            
-            Long totalAmount = criteria.orderItems().stream()
-                    .mapToLong(item -> {
-                        Product product = products.stream()
-                                .filter(p -> p.getId().equals(item.getProductId()))
-                                .findFirst()
-                                .orElseThrow();
-                        return product.getPrice() * item.getQuantity();
-                    })
-                    .sum();
-            
-            Long discountAmount = couponService.calculateDiscountAmount(criteria.couponId(), totalAmount);
-            
-            List<OrderCommand.OrderItem> orderCommandItems = criteria.orderItems().stream()
-                    .map(item -> {
-                        Product product = products.stream()
-                                .filter(p -> p.getId().equals(item.getProductId()))
-                                .findFirst()
-                                .orElseThrow();
-                        return OrderCommand.OrderItem.builder()
-                                .productId(product.getId())
-                                .price(product.getPrice())
-                                .quantity(item.getQuantity())
-                                .build();
-                    })
-                    .toList();
-            
-            OrderCommand command = OrderCommand.of(user.getId(), orderCommandItems, discountAmount);
-            orderService.place(command, orderNo);
-            order = orderService.getOrderByOrderNumber(orderNo);
-        }
-        
-        // 3. 주문이 없으면 에러
-        if (order == null) {
-            order = orderService.getOrderByOrderNumber(orderNo);
-        }
-        
+        Order order = getOrCreateOrder(orderNo, criteria.userId(), criteria.orderItems(), criteria.couponId());
         order.validatePay();
-        
+
         PaymentCommand.Ready readyCommand = PaymentCommand.Ready.of(
-                order.getId(), 
-                order.getOrderNumber(), 
-                order.getUserId(), 
-                order.getFinalAmount(), 
+                order.getId(),
+                order.getOrderNumber(),
+                order.getUserId(),
+                order.getFinalAmount(),
                 criteria.paymentMethod()
         );
-        
+
         return paymentService.ready(readyCommand, orderKey);
     }
     
     @Transactional
     public PaymentService.PaymentSessionResult createPaymentSession(String orderNo, String orderKey, PaymentCriteria.PaymentSession criteria) {
-        Order order = orderService.getOrderByOrderNumber(orderNo);
+        Order order = getOrCreateOrder(orderNo, criteria.userId(), criteria.orderItems(), criteria.couponId());
         order.validatePay();
-        
+
+        paymentService.ensurePendingPayment(
+                PaymentCommand.Ready.of(
+                        order.getId(),
+                        order.getOrderNumber(),
+                        order.getUserId(),
+                        order.getFinalAmount(),
+                        criteria.paymentMethod()
+                )
+        );
+
         PaymentCommand.Transaction transactionCommand = PaymentCommand.Transaction.of(
                 order.getId(),
                 order.getOrderNumber(),
+                criteria.paymentMethod(),
                 criteria.cardType(),
                 criteria.cardNumber(),
                 order.getFinalAmount(),
@@ -136,5 +93,63 @@ public class PaymentFacade {
     public void complete(PaymentCriteria.Complete complete) {
         PaymentCommand.Search search = PaymentCommand.Search.of(complete.transactionKey(), complete.orderNumber());
         paymentService.complete(search);
+    }
+
+    private Order getOrCreateOrder(
+            String orderNo,
+            String userId,
+            List<OrderV1Dto.OrderItem> orderItems,
+            Long couponId
+    ) {
+        Order order = null;
+        try {
+            order = orderService.getOrderByOrderNumber(orderNo);
+        } catch (Exception e) {
+            // 주문이 없는 경우 새로 생성한다.
+        }
+
+        if (order == null && orderItems != null && !orderItems.isEmpty()) {
+            User user = userService.findByUserId(userId);
+            List<Long> productIds = orderItems.stream()
+                    .map(OrderV1Dto.OrderItem::getProductId)
+                    .toList();
+            List<Product> products = productService.findAllById(productIds);
+
+            Long totalAmount = orderItems.stream()
+                    .mapToLong(item -> {
+                        Product product = products.stream()
+                                .filter(p -> p.getId().equals(item.getProductId()))
+                                .findFirst()
+                                .orElseThrow();
+                        return product.getPrice() * item.getQuantity();
+                    })
+                    .sum();
+
+            Long discountAmount = couponService.calculateDiscountAmount(couponId, totalAmount);
+
+            List<OrderCommand.OrderItem> orderCommandItems = orderItems.stream()
+                    .map(item -> {
+                        Product product = products.stream()
+                                .filter(p -> p.getId().equals(item.getProductId()))
+                                .findFirst()
+                                .orElseThrow();
+                        return OrderCommand.OrderItem.builder()
+                                .productId(product.getId())
+                                .price(product.getPrice())
+                                .quantity(item.getQuantity())
+                                .build();
+                    })
+                    .toList();
+
+            OrderCommand command = OrderCommand.of(user.getId(), orderCommandItems, discountAmount);
+            orderService.place(command, orderNo);
+            return orderService.getOrderByOrderNumber(orderNo);
+        }
+
+        if (order == null) {
+            return orderService.getOrderByOrderNumber(orderNo);
+        }
+
+        return order;
     }
 }

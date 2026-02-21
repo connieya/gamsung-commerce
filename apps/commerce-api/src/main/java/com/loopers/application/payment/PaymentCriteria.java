@@ -31,6 +31,8 @@ public class PaymentCriteria {
     
     public record PaymentSession(
             PaymentMethod paymentMethod,
+            String userId,
+            List<OrderV1Dto.OrderItem> orderItems,
             CardType cardType,
             String cardNumber,
             Long couponId

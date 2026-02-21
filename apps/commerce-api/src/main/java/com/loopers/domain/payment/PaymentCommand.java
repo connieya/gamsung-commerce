@@ -16,10 +16,27 @@ public class PaymentCommand {
         }
     }
 
-    public record Transaction(Long orderId, String orderNumber, CardType cardType, String cardNumber,
-                              Long amount, Long userId, Long couponId) {
-        public static Transaction of(Long orderId, String orderNumber, CardType cardType, String cardNumber, Long amount, Long userId, Long couponId) {
-            return new Transaction(orderId, orderNumber, cardType, cardNumber, amount, userId, couponId);
+    public record Transaction(
+            Long orderId,
+            String orderNumber,
+            PaymentMethod paymentMethod,
+            CardType cardType,
+            String cardNumber,
+            Long amount,
+            Long userId,
+            Long couponId
+    ) {
+        public static Transaction of(
+                Long orderId,
+                String orderNumber,
+                PaymentMethod paymentMethod,
+                CardType cardType,
+                String cardNumber,
+                Long amount,
+                Long userId,
+                Long couponId
+        ) {
+            return new Transaction(orderId, orderNumber, paymentMethod, cardType, cardNumber, amount, userId, couponId);
         }
     }
 

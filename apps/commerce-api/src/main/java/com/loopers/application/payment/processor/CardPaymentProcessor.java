@@ -19,7 +19,16 @@ public class CardPaymentProcessor implements PaymentProcessor {
     public void pay(PaymentProcessContext paymentProcessContext) {
         Order order = orderService.getOrder(paymentProcessContext.getOrderId());
 
-        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(order.getId(), order.getOrderNumber(), paymentProcessContext.getCardType(), paymentProcessContext.getCardNumber(), order.getFinalAmount(), order.getUserId(), paymentProcessContext.getCouponId());
+        PaymentCommand.Transaction transaction = PaymentCommand.Transaction.of(
+                order.getId(),
+                order.getOrderNumber(),
+                PaymentMethod.CARD,
+                paymentProcessContext.getCardType(),
+                paymentProcessContext.getCardNumber(),
+                order.getFinalAmount(),
+                order.getUserId(),
+                paymentProcessContext.getCouponId()
+        );
 
         paymentService.requestPayment(transaction);
 

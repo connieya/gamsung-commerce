@@ -137,6 +137,27 @@ public class PaymentService {
     ) {}
 
     @Transactional
+    public Payment ensurePendingPayment(PaymentCommand.Ready ready) {
+        Optional<Payment> existingPayment = paymentRepository.findByOrderNumber(ready.orderNumber());
+        if (existingPayment.isPresent()) {
+            return existingPayment.get();
+        }
+
+        Payment payment = Payment.create(
+                ready.totalAmount(),
+                ready.orderId(),
+                ready.orderNumber(),
+                ready.userId(),
+                ready.paymentMethod(),
+                PaymentStatus.PENDING
+        );
+        Payment savedPayment = paymentRepository.save(payment);
+        PaymentAttempt paymentAttempt = PaymentAttempt.create(savedPayment.getId(), ready.orderNumber(), AttemptStatus.REQUESTED);
+        paymentAttemptRepository.save(paymentAttempt);
+        return savedPayment;
+    }
+
+    @Transactional
     public PaymentReadyResult ready(PaymentCommand.Ready ready, String orderKey) {
         // 멱등성 체크: 이미 처리된 경우 기존 결과 반환
         Optional<IdempotencyKey> existingKey = idempotencyKeyRepository.findByOrderNoAndOrderKeyAndOperationType(
@@ -156,14 +177,11 @@ public class PaymentService {
             }
         }
 
-        // 실제 ready 처리
-        Payment payment = Payment.create(ready.totalAmount(), ready.orderId(), ready.orderNumber(), ready.userId(), ready.paymentMethod(), PaymentStatus.PENDING);
-        Payment savedPayment = paymentRepository.save(payment);
-        PaymentAttempt paymentAttempt = PaymentAttempt.create(savedPayment.getId(), ready.orderNumber(), AttemptStatus.REQUESTED);
-        paymentAttemptRepository.save(paymentAttempt);
-
+        Payment savedPayment = ensurePendingPayment(ready);
         PaymentReadyResult result = new PaymentReadyResult(savedPayment.getId(), savedPayment.getPaymentStatus());
-        saveIdempotencyKey(ready.orderNumber(), orderKey, IdempotencyKey.OperationType.READY, result);
+        if (orderKey != null) {
+            saveIdempotencyKey(ready.orderNumber(), orderKey, IdempotencyKey.OperationType.READY, result);
+        }
 
         return result;
     }

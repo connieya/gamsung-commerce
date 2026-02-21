@@ -20,6 +20,7 @@ public class PaymentCommand {
             Long orderId,
             String orderNumber,
             PaymentMethod paymentMethod,
+            PayKind payKind,
             CardType cardType,
             String cardNumber,
             Long amount,
@@ -30,13 +31,14 @@ public class PaymentCommand {
                 Long orderId,
                 String orderNumber,
                 PaymentMethod paymentMethod,
+                PayKind payKind,
                 CardType cardType,
                 String cardNumber,
                 Long amount,
                 Long userId,
                 Long couponId
         ) {
-            return new Transaction(orderId, orderNumber, paymentMethod, cardType, cardNumber, amount, userId, couponId);
+            return new Transaction(orderId, orderNumber, paymentMethod, payKind, cardType, cardNumber, amount, userId, couponId);
         }
     }
 

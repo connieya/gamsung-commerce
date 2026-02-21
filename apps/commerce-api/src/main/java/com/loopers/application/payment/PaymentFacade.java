@@ -7,13 +7,17 @@ import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderNoIssuer;
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentCommand;
+import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductService;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
 import com.loopers.domain.coupon.CouponService;
+import com.loopers.domain.payment.exception.PaymentException;
+import com.loopers.support.error.ErrorType;
 import com.loopers.interfaces.api.order.OrderV1Dto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -79,6 +83,7 @@ public class PaymentFacade {
                 order.getId(),
                 order.getOrderNumber(),
                 criteria.paymentMethod(),
+                resolvePayKind(criteria.paymentMethod(), criteria.payKind()),
                 criteria.cardType(),
                 criteria.cardNumber(),
                 order.getFinalAmount(),
@@ -151,5 +156,18 @@ public class PaymentFacade {
         }
 
         return order;
+    }
+
+    private PayKind resolvePayKind(PaymentMethod paymentMethod, PayKind payKind) {
+        if (payKind != null) {
+            return payKind;
+        }
+
+        return switch (paymentMethod) {
+            case CARD -> PayKind.CARD;
+            case POINT -> PayKind.POINT;
+            case ACCOUNT -> PayKind.ACCOUNT_TRANSFER;
+            case SIMPLE_PAY -> throw new PaymentException.InvalidPayKindException(ErrorType.PAYMENT_INVALID_PAY_KIND);
+        };
     }
 }

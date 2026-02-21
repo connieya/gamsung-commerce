@@ -23,6 +23,7 @@ public class CardPaymentProcessor implements PaymentProcessor {
                 order.getId(),
                 order.getOrderNumber(),
                 PaymentMethod.CARD,
+                PayKind.CARD,
                 paymentProcessContext.getCardType(),
                 paymentProcessContext.getCardNumber(),
                 order.getFinalAmount(),

@@ -47,12 +47,8 @@ public enum ErrorType {
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Payment Not Found", "존재하지 않는 결제 정보입니다."),
     PAYMENT_PG_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Payment PG Request Failed", "PG 결제 요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
     PAYMENT_PG_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Timeout", "PG 결제 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요."),
-    PAYMENT_PG_CIRCUIT_OPEN(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Circuit Open", "현재 결제 시스템이 불안정합니다. 잠시 후 다시 시도해주세요.");
-
-
-
-    ;
-
+    PAYMENT_PG_CIRCUIT_OPEN(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Circuit Open", "현재 결제 시스템이 불안정합니다. 잠시 후 다시 시도해주세요."),
+    PAYMENT_INVALID_PAY_KIND(HttpStatus.BAD_REQUEST, "Payment Invalid PayKind", "간편결제는 세부 결제 수단(payKind)을 반드시 지정해야 합니다.");
 
     private final HttpStatus status;
     private final String code;

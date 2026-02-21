@@ -11,6 +11,7 @@ import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.point.PointRepository;
@@ -123,7 +124,7 @@ class RankingServiceTest {
         Order savedOrder = orderRepository.save(initialOrder);
 
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
 
         paymentFacade.pay(criteria);
         productLikeService.add(savedUser.getId(), savedProduct2.getId());
@@ -159,7 +160,7 @@ class RankingServiceTest {
         Order savedOrder2 = orderRepository.save(initialOrder2);
 
 
-        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
+        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
 
         paymentFacade.pay(criteria2);
         productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct4.getId()));
@@ -246,7 +247,7 @@ class RankingServiceTest {
         Order savedOrder = orderRepository.save(initialOrder);
 
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
 
         paymentFacade.pay(criteria);
         productLikeService.add(savedUser.getId(), savedProduct2.getId());

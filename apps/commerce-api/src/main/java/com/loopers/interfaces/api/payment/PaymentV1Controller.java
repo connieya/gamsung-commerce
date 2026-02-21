@@ -5,8 +5,10 @@ import com.loopers.application.payment.PaymentFacade;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/payments")
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class PaymentV1Controller {
                 userId,
                 request.orderId(),
                 request.paymentMethod(),
+                request.payKind(),
                 request.cardType(),
                 request.cardNumber(),
                 request.couponId()
@@ -30,7 +33,7 @@ public class PaymentV1Controller {
 
     @PostMapping("/callback")
     public ApiResponse<?> callback(@RequestBody PaymentV1Dto.Request.CallbackTransaction callback) {
-        System.out.println("callback = " + callback);
+        log.debug("[결제콜백] transactionKey={}, orderId={}", callback.transactionKey(), callback.orderId());
         PaymentCriteria.Complete complete = PaymentCriteria.Complete.of(callback.transactionKey(), callback.orderId(), callback.cardType(), callback.cardNo(), callback.amount());
         paymentFacade.complete(complete);
         return ApiResponse.success();

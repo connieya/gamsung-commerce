@@ -3,6 +3,7 @@ package com.loopers.interfaces.api.order;
 import com.loopers.application.order.OrderResult;
 import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentService;
 import lombok.Builder;
@@ -21,12 +22,19 @@ public class OrderV1Dto {
         public record IssueOrderNo(boolean isNewOrderForm) {
         }
         
-        public record Ready(PaymentMethod paymentMethod, String orderKey, List<OrderItem> orderItems, Long couponId) {}
+        public record Ready(
+                PaymentMethod paymentMethod,
+                PayKind payKind,
+                String orderKey,
+                List<OrderItem> orderItems,
+                Long couponId
+        ) {}
         
         public record PaymentSession(
                 String orderNo,
                 String orderKey,
                 PaymentMethod paymentMethod,
+                PayKind payKind,
                 List<OrderItem> orderItems,
                 CardType cardType,
                 String cardNumber,

@@ -126,7 +126,7 @@ class PaymentFacadeIntegrationTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234" ,1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234" ,1L);
 
         // when
         paymentFacade.pay(criteria);
@@ -190,7 +190,7 @@ class PaymentFacadeIntegrationTest {
         UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
         userCouponRepository.save(userCoupon);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
 
         // when &  then
         assertThatThrownBy(
@@ -241,7 +241,7 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
 
         // when &  then
         assertThatThrownBy(
@@ -319,7 +319,7 @@ class PaymentFacadeIntegrationTest {
                     // 각 스레드가 서로 다른 주문을 처리
                     Order orderToPay = orders.get(index);
                     User userPaying = users.get(index);
-                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+                    PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(userPaying.getUserId(), orderToPay.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
                     paymentFacade.pay(criteria);
                 } finally {
                     latch.countDown();
@@ -379,8 +379,8 @@ class PaymentFacadeIntegrationTest {
 
 
         // when
-        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
-        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+        PaymentCriteria.Pay criteria1 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder1.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+        PaymentCriteria.Pay criteria2 = new PaymentCriteria.Pay(savedUser.getUserId(), savedOrder2.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
 
         int threadCount = 2;
 

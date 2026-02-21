@@ -44,4 +44,10 @@ public class PaymentException {
             return AttemptStatus.PROVIDER_UNAVAILABLE;
         }
     }
+
+    public static class InvalidPayKindException extends CoreException {
+        public InvalidPayKindException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
 }

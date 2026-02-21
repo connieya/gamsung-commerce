@@ -1,6 +1,7 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.payment.CardType;
+import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.interfaces.api.order.OrderV1Dto;
@@ -13,24 +14,35 @@ public class PaymentCriteria {
             String userId,
             Long orderId,
             PaymentMethod paymentMethod,
+            PayKind payKind,
             CardType cardType,
             String cardNumber,
             Long couponId
     ) {
-        public static Pay of(String userId, Long orderId, PaymentMethod paymentMethod, CardType cardType, String cardNumber ,Long couponId) {
-            return new Pay(userId, orderId, paymentMethod, cardType, cardNumber , couponId);
+        public static Pay of(
+                String userId,
+                Long orderId,
+                PaymentMethod paymentMethod,
+                PayKind payKind,
+                CardType cardType,
+                String cardNumber,
+                Long couponId
+        ) {
+            return new Pay(userId, orderId, paymentMethod, payKind, cardType, cardNumber , couponId);
         }
     }
     
     public record Ready(
             PaymentMethod paymentMethod,
+            PayKind payKind,
             String userId,
-            List<com.loopers.interfaces.api.order.OrderV1Dto.OrderItem> orderItems,
+            List<OrderV1Dto.OrderItem> orderItems,
             Long couponId
     ) {}
     
     public record PaymentSession(
             PaymentMethod paymentMethod,
+            PayKind payKind,
             String userId,
             List<OrderV1Dto.OrderItem> orderItems,
             CardType cardType,

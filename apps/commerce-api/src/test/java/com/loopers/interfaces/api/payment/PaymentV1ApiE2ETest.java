@@ -9,6 +9,7 @@ import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.Payment;
+import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
@@ -104,7 +105,7 @@ public class PaymentV1ApiE2ETest {
 
         Payment.create(10000L,order.getId(),order.getOrderNumber(),user.getId(),PaymentMethod.CARD , PaymentStatus.PAID);
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
@@ -168,7 +169,7 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, PayKind.CARD, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");

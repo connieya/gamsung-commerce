@@ -88,6 +88,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     ) {
         PaymentCriteria.Ready criteria = new PaymentCriteria.Ready(
                 request.paymentMethod(),
+                request.payKind(),
                 userId,
                 request.orderItems(),
                 request.couponId()
@@ -103,6 +104,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     ) {
         PaymentCriteria.PaymentSession criteria = new PaymentCriteria.PaymentSession(
                 request.paymentMethod(),
+                request.payKind(),
                 userId,
                 request.orderItems(),
                 request.cardType(),

@@ -118,7 +118,7 @@ class PaymentFacadePgTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, PayKind.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
 
         Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
         Coupon savedCoupon = couponRepository.save(coupon);
@@ -192,7 +192,7 @@ class PaymentFacadePgTest {
         Order initialOrder = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(initialOrder);
 
-        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
+        PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, PayKind.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
         // when
         mockServer.stubFor(post("/api/v1/payments")
                 .willReturn(aResponse()

@@ -1,6 +1,9 @@
 package com.loopers.domain.payment;
 
 public enum PaymentMethod {
-    POINT , CARD , ACCOUNT
+    POINT,
+    CARD,
+    ACCOUNT,
+    SIMPLE_PAY
 
 }

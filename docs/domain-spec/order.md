@@ -147,9 +147,40 @@
   4. `orderNo + orderKey + READY` 멱등 처리
 - **Response**: `{ mpToken: null }` — 무신사페이 미사용 시 null
 
-### Step 4. 결제 완료 처리
-- PG 완료 이후 결제 상태를 갱신하고, 성공 이벤트를 통해 주문 상태를 `PAID`로 전이
-- 브라우저 리다이렉트는 화면 전환 채널이며, 상태 정합성의 기준은 서버 채널
+### Step 4. 주문 최종 처리 — `POST /api/v1/orders/process`
+
+PG 결제 완료 후 **서버 채널**과 **브라우저 채널** 두 경로가 동시 발생:
+
+- **서버 채널** (PG → 서버, 상태 정합성의 보조 확인):
+  1. PG사가 `Ret_URL`(`/api/v1/orders/payment-check`)로 결제 결과 전달
+  2. Payment 상태 확인/갱신
+
+- **브라우저 채널** (PG → 브라우저 → 서버, 주문 최종 확정):
+  1. PG 결제 완료 → PG가 브라우저를 `/order-process`로 리다이렉트 (PG 결과값 포함)
+  2. `/order-process` 페이지가 자동으로 `POST /orders/process` 전송
+  3. 서버가 주문 최종 확정 → 302 리다이렉트 → `/order_result/{orderNo}?code=0`
+
+- **`POST /orders/process` 상세**:
+  - **Content-Type**: `application/x-www-form-urlencoded` (Form Data, JSON 아님)
+  - **Form Data인 이유**: PG사가 브라우저 리다이렉트 시 결제 결과를 Form으로 전달하고, 그 데이터를 원본 주문 데이터와 합쳐서 서버에 재전송하는 구조
+  - **Payload 구성**: ready 단계의 주문 데이터 + PG 결제 결과 데이터가 합쳐짐
+  - **PG 결제 결과 필드** (이 단계에서 새로 추가되는 값):
+    | 필드 | 예시 | 설명 |
+    |------|------|------|
+    | `res_cd` | `0000` | PG 결제 결과 코드 (`0000` = 성공) |
+    | `res_msg` | `정상처리` | PG 결제 결과 메시지 |
+    | `payment_key` | `PP5STE6221KAK004...` | PG 결제 키 (payment-session 응답값) |
+    | `auth_token` | JWT 토큰 | PG 인증 토큰 |
+    | `enc_code` | `68549268811c...` | PG 암호화 코드 (결제 검증용) |
+    | `amount` | `11050` | PG가 확인한 결제 금액 |
+  - **서버 처리 추정**:
+    1. `res_cd == "0000"` 확인 (PG 결제 성공 여부)
+    2. `amount`와 `order_pay_amt` 일치 검증 (금액 위변조 방지)
+    3. `auth_token`, `enc_code`로 PG 결제 진위 검증
+    4. Order 상태 → `PAID`, Payment 상태 → `PAID`
+    5. 302 리다이렉트 → `/order_result/{orderNo}?code=0`
+  - **Response**: 302 Redirect (브라우저가 즉시 이동하여 응답 body 캡처 불가)
+  - `code=0`: 결제 성공 / 그 외: 실패·취소
 
 ## 무신사 레퍼런스와의 관계
 - 무신사는 `order-form`, `plcc`, `order-no`, `payment-session`, `ready` 단계에서 매우 많은 필드를 사용한다.
@@ -170,7 +201,7 @@
 | `PENDING` | 결제 시도 중 | 결제 세션/ready 이후 |
 | `PAID` | 결제 완료 | 결제 성공 이벤트 수신 시 |
 | `FAILED` | 주문 실패 | 결제 실패 이벤트 수신 시 |
-| `CANCELED` | 취소 | 취소 요청 시 |
+| `CANCELED` | 취소 (환불 포함) | 클레임 도메인 취소+환불 실행 시 (상세: [order-cancel.md](order-cancel.md)) |
 | `COMPLETED` | 구매 확정 | 배송 완료 후 자동/수동 확정 |
 
 ```text

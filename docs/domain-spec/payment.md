@@ -23,6 +23,8 @@
        - `IdempotencyKey` 저장
   - **입력**: 주문 금액, 결제 수단, 사용자 정보, 주문 키
   - **출력**: `PaymentReadyResult(paymentId, paymentStatus)`
+  - **`Ret_URL` 전달**: PG 결제 완료 후 콜백 URL이 이 단계에서 서버에 전달됨 (무신사 실제값: `https://order.musinsa.com/api2/order/v1/orders/payment-check`)
+  - **금액 정합성 검증**: 프론트에서 전달한 `orderAmount`, `discount` 값을 서버가 재계산·검증해야 함 (위변조 방지)
 - **Implementation**: `PaymentService.ready()`, `PaymentFacade.ready()`
 
 ## 결제 세션 생성 (Payment Session)
@@ -40,27 +42,34 @@
     4. PG 요청 실패 시:
        - `PaymentEvent.Failure` 이벤트 발행
        - 예외 전파
-  - **입력**: 주문번호, 카드 종류, 카드 번호, 결제 금액
+  - **입력**: 주문번호, 결제수단, 결제금액, 결제자 정보, 상품 목록
   - **출력**: `PaymentSessionResult(orderNo, paymentKey, amount, paymentUrl, pgKind)`
-  - **무신사 실제 응답 분석**:
-    | 필드 | 예시 | 설명 |
-    |------|------|------|
-    | `paymentKey` | `PP5STE6217TOSVI420150952345763` | PG사 결제 고유 키 |
-    | `paymentUrl` | `https://pay.musinsapayments.com/mps/payment/...` | 사용자 리다이렉트 URL |
-    | `pgKind` | `VIVAREPUBLICA` | PG사 식별 (토스페이먼츠) |
-    | `virtualAccount` | `null` | 가상계좌 정보 (해당 시에만) |
+  - **`paymentKey` 포맷**: PG사 식별자가 키에 포함됨
+    | payKind | pgKind | paymentKey 예시 | 키 내 식별자 |
+    |---------|--------|----------------|-------------|
+    | `KAKAOPAY` | `KAKAO` | `PP5STE6221KAK001...` | `KAK` |
+    | `TOSSPAY` | `VIVAREPUBLICA` | `PP5STE6217TOSVI4...` | `TOSVI` |
+  - **`paymentUrl`**: 무신사 자체 결제 게이트웨이(`pay.musinsapayments.com`) 경유
+  - **ready와의 역할 분리**: ready에서 주문 전체 정보(금액, 배송지, 할인 등)를 등록하고, payment-session은 PG 요청에 필요한 최소 정보(결제수단, 금액, 결제자)만 전달
 - **Implementation**: `PaymentService.createPaymentSession()`, `PaymentFacade.createPaymentSession()`
 
 ## 결제 완료 확인 (Payment Complete)
 - **Context**: PG 결제 완료 후 서버가 트랜잭션 결과를 확인하고 상태를 갱신
 - **Specification**:
-  - **Trigger**: PG 콜백 또는 `POST /api/v1/orders/payment-check`
+  - **두 가지 경로로 결제 결과 수신**:
+    | 경로 | Trigger | 역할 |
+    |------|---------|------|
+    | 서버 채널 | PG → `Ret_URL` (`/orders/payment-check`) | PG 서버 간 직접 통신 (보조 확인) |
+    | 브라우저 채널 | PG → 브라우저 → `POST /orders/process` | 원본 주문 데이터 + PG 결과를 합쳐 최종 처리 |
+  - **PG 결과 검증 항목** (`/orders/process` 수신 시):
+    1. `res_cd == "0000"` 확인 (PG 결제 성공 여부)
+    2. PG `amount`와 서버 보관 `payAmount` 일치 검증 (금액 위변조 방지)
+    3. `auth_token` (JWT), `enc_code`로 PG 결제 진위 검증
+    4. `payment_key`로 PG 트랜잭션 매칭
   - **처리 순서**:
-    1. PG사 트랜잭션 상세 조회 (`PaymentClient.getTransactionDetail()`)
-    2. 트랜잭션 결과에 따라 Payment 상태 갱신:
-       - `SUCCESS` → `payment.paid()`
-       - `FAILED` → `payment.fail()`
-       - 기타 → `payment.pending()`
+    1. PG 결과 검증 통과
+    2. Payment 상태 갱신: `PENDING` → `PAID` (또는 `FAILED`)
+    3. 이벤트 발행 → Order 상태 전이
   - **이벤트 연동**: `PaymentEvent.Success` → `OrderEventListener.onPaymentSuccess()` → Order `PAID` 상태 변경
 - **Implementation**: `PaymentService.complete()`, `OrderEventListener`
 

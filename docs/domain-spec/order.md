@@ -81,7 +81,38 @@
 - **Response 최소 필드**:
   - `orderNo`, `orderSignature`, `timestamp`, `orderVerifyKey`, `orderKey`
 
-### Step 2. 결제 세션 생성 — `POST /api/v1/orders/payment-session`
+### Step 2. 결제 Ready 등록 — `POST /api/v1/orders/{orderNo}/ready`
+- **목적**: 전체 주문 정보(상품, 금액, 배송지, 할인, 결제수단)를 서버에 등록하고 결제 직전 상태 확정
+- **무신사 실제 Payload 구조** (카테고리별 정리):
+  | 카테고리 | 필드 | 설명 |
+  |----------|------|------|
+  | 주문 식별 | `orderNo`, `orderSignature`, `timestamp`, `ord_key`, `ord_verify_key` | 주문번호 발급 응답값 그대로 전달 |
+  | 상품 | `good_name`, `good_mny`, `master_goods_no`, `cartIdsText` | 대표 상품명, 결제금액, 상품번호, 장바구니 ID |
+  | 금액 | `orderAmount { normalAmount, saleAmount, payAmount, deliveryAmount }` | 정가 → 판매가 → 결제액 → 배송비 |
+  | 할인 | `discount { usePointAmount, couponAmount, cartCouponAmount, memberAndAdDiscountAmount }` | 포인트, 쿠폰, 장바구니쿠폰, 회원할인 |
+  | 수령인 | `recipient { addressId, title, name, mobile, zipcode, address1, address2 }` | 배송지 전체 정보 |
+  | 배송 메모 | `dlv_msg` | 공동현관 비밀번호 등 포함 |
+  | 결제수단 | `pay_kind` (`KAKAOPAY`), `pgKind` (`kkopay`) | 결제수단 + PG사 |
+  | 현금영수증 | `cashReceipt { registrationType, numberType, registrationNumber }` | 소득공제/지출증빙, 휴대폰/사업자번호 |
+  | 세금 | `comm_tax_mny`, `comm_vat_mny`, `comm_free_mny` | 과세/부가세/면세 금액 |
+  | PG 콜백 | `Ret_URL` | 결제 완료 후 PG가 호출할 서버 URL |
+- **금액 검증 예시**: `149,000(정가) - 10,320(포인트) - 1,490(회원할인) = 137,190(결제액)`
+- **레거시 호환 필드**: `ord_no`/`orderNo`, `rcvr_name`/`rcvr_nm` 등 동일 데이터가 구/신 키로 중복 전달 (API 버전 진화 흔적)
+- **Request 최소 필드** (우리 프로젝트):
+  - `orderNo`, `orderSignature`, `timestamp`, `orderKey`, `orderVerifyKey`
+  - `paymentMethod`, `pgKind`
+  - `orderAmount { normalAmount, saleAmount, payAmount, deliveryAmount }`
+  - `discount { usePointAmount, couponAmount, cartCouponAmount }`
+  - `recipient { name, mobile, zipcode, address1, address2 }`, `dlvMsg`
+  - `cartItemIds[]`
+- **서버 처리**:
+  1. 주문번호 서명 검증
+  2. 주문 조회/생성, 금액 정합성 검증
+  3. 결제(Payment) PENDING 상태로 생성
+  4. `orderNo + orderKey + READY` 멱등 처리
+- **Response**: `{ mpToken: null }` — 무신사페이 미사용 시 null
+
+### Step 3. 결제 세션 생성 — `POST /api/v1/orders/payment-session`
 - **목적**: PG사에 결제를 요청하고 사용자를 리다이렉트할 결제 URL 확보
 - **역할 분리**: ready = 주문 전체 정보 등록, payment-session = PG 결제에 필요한 최소 정보만
 - **무신사 실제 Payload**:
@@ -115,37 +146,6 @@
   | `paymentUrl` | `https://pay.musinsapayments.com/mps/payment/...` | PG 결제 페이지 URL |
   | `pgKind` | `KAKAO` | PG사 식별 (`payKind`와 값이 다를 수 있음) |
   | `virtualAccount` | `null` | 가상계좌 정보 (해당 시에만) |
-
-### Step 3. 결제 Ready 등록 — `POST /api/v1/orders/{orderNo}/ready`
-- **목적**: 전체 주문 정보(상품, 금액, 배송지, 할인, 결제수단)를 서버에 등록하고 결제 직전 상태 확정
-- **무신사 실제 Payload 구조** (카테고리별 정리):
-  | 카테고리 | 필드 | 설명 |
-  |----------|------|------|
-  | 주문 식별 | `orderNo`, `orderSignature`, `timestamp`, `ord_key`, `ord_verify_key` | 주문번호 발급 응답값 그대로 전달 |
-  | 상품 | `good_name`, `good_mny`, `master_goods_no`, `cartIdsText` | 대표 상품명, 결제금액, 상품번호, 장바구니 ID |
-  | 금액 | `orderAmount { normalAmount, saleAmount, payAmount, deliveryAmount }` | 정가 → 판매가 → 결제액 → 배송비 |
-  | 할인 | `discount { usePointAmount, couponAmount, cartCouponAmount, memberAndAdDiscountAmount }` | 포인트, 쿠폰, 장바구니쿠폰, 회원할인 |
-  | 수령인 | `recipient { addressId, title, name, mobile, zipcode, address1, address2 }` | 배송지 전체 정보 |
-  | 배송 메모 | `dlv_msg` | 공동현관 비밀번호 등 포함 |
-  | 결제수단 | `pay_kind` (`KAKAOPAY`), `pgKind` (`kkopay`) | 결제수단 + PG사 |
-  | 현금영수증 | `cashReceipt { registrationType, numberType, registrationNumber }` | 소득공제/지출증빙, 휴대폰/사업자번호 |
-  | 세금 | `comm_tax_mny`, `comm_vat_mny`, `comm_free_mny` | 과세/부가세/면세 금액 |
-  | PG 콜백 | `Ret_URL` | 결제 완료 후 PG가 호출할 서버 URL |
-- **금액 검증 예시**: `149,000(정가) - 10,320(포인트) - 1,490(회원할인) = 137,190(결제액)`
-- **레거시 호환 필드**: `ord_no`/`orderNo`, `rcvr_name`/`rcvr_nm` 등 동일 데이터가 구/신 키로 중복 전달 (API 버전 진화 흔적)
-- **Request 최소 필드** (우리 프로젝트):
-  - `orderNo`, `orderSignature`, `timestamp`, `orderKey`, `orderVerifyKey`
-  - `paymentMethod`, `pgKind`
-  - `orderAmount { normalAmount, saleAmount, payAmount, deliveryAmount }`
-  - `discount { usePointAmount, couponAmount, cartCouponAmount }`
-  - `recipient { name, mobile, zipcode, address1, address2 }`, `dlvMsg`
-  - `cartItemIds[]`
-- **서버 처리**:
-  1. 주문번호 서명 검증
-  2. 주문 조회/생성, 금액 정합성 검증
-  3. 결제(Payment) PENDING 상태로 생성
-  4. `orderNo + orderKey + READY` 멱등 처리
-- **Response**: `{ mpToken: null }` — 무신사페이 미사용 시 null
 
 ### Step 4. 주문 최종 처리 — `POST /api/v1/orders/process`
 

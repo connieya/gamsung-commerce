@@ -47,6 +47,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     }
 
     @GetMapping("/order-form")
+    @Override
     public ApiResponse<OrderV1Dto.Response.OrderForm> getOrderForm(
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestParam(value = "cartItemIds", required = false) List<Long> cartItemIds,
@@ -57,6 +58,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     }
 
     @PostMapping("/order-no")
+    @Override
     public ApiResponse<OrderV1Dto.Response.IssueOrderNo> issueOrderNo(
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestBody OrderV1Dto.Request.IssueOrderNo request
@@ -81,6 +83,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     }
     
     @PostMapping("/{orderNo}/ready")
+    @Override
     public ApiResponse<OrderV1Dto.Response.Ready> ready(
             @PathVariable("orderNo") String orderNo,
             @RequestHeader(ApiHeaders.USER_ID) String userId,
@@ -101,6 +104,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
     }
     
     @PostMapping("/payment-session")
+    @Override
     public ApiResponse<OrderV1Dto.Response.PaymentSession> paymentSession(
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestBody OrderV1Dto.Request.PaymentSession request

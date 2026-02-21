@@ -155,7 +155,7 @@ public class OrderV1Dto {
         public record OrderForm(Member member, java.util.List<CartItem> cartItems, Long totalAmount) {
             public static OrderForm from(OrderResult.OrderForm result) {
                 return new OrderForm(
-                        new Member(result.getMember().getName(), result.getMember().getEmail()),
+                        new Member(result.getMember().getUserId(), result.getMember().getEmail()),
                         result.getCartItems().stream()
                                 .map(item -> new CartItem(
                                         item.getCartId(),
@@ -170,7 +170,7 @@ public class OrderV1Dto {
                 );
             }
             
-            public record Member(String name, String email) {}
+            public record Member(String userId, String email) {}
             public record CartItem(Long cartId, Long productId, String productName, Long quantity, Long price, String imageUrl) {}
         }
     }

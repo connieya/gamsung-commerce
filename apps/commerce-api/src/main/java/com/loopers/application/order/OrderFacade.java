@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,16 +74,22 @@ public class  OrderFacade {
                 ? cartRepository.findItemsByIdsAndUserId(cartItemIds, user.getId())
                 : cartRepository.findItemsByUserId(user.getId());
 
+        List<Long> productIds = cartItems.stream()
+                .map(CartItem::getProductId)
+                .toList();
+        Map<Long, Product> productMap = productService.findAllById(productIds).stream()
+                .collect(Collectors.toMap(Product::getId, Function.identity()));
+
         List<OrderResult.OrderForm.CartItemInfo> cartItemInfos = cartItems.stream()
                 .map(item -> {
-                    com.loopers.domain.product.ProductDetailInfo product = productService.getProductDetail(item.getProductId());
+                    Product product = productMap.get(item.getProductId());
                     return OrderResult.OrderForm.CartItemInfo.builder()
                             .cartId(item.getId())
                             .productId(item.getProductId())
-                            .productName(product.getProductName())
+                            .productName(product != null ? product.getName() : null)
                             .quantity(item.getQuantity())
                             .price(item.getPrice())
-                            .imageUrl(product.getImageUrl())
+                            .imageUrl(product != null ? product.getImageUrl() : null)
                             .build();
                 })
                 .toList();
@@ -91,7 +100,7 @@ public class  OrderFacade {
 
         return OrderResult.OrderForm.builder()
                 .member(OrderResult.OrderForm.Member.builder()
-                        .name(user.getUserId())
+                        .userId(user.getUserId())
                         .email(user.getEmail())
                         .build())
                 .cartItems(cartItemInfos)

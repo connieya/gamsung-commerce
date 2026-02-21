@@ -39,6 +39,7 @@ public class PaymentFacade {
     private final CouponService couponService;
     private final OrderNoIssuer orderNoIssuer;
 
+    @Transactional
     public void pay(PaymentCriteria.Pay criteria) {
         Order order = orderService.getOrder(criteria.orderId());
         order.validatePay();

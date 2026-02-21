@@ -126,7 +126,7 @@ public class OrderResult {
         @Getter
         @Builder
         public static class Member {
-            private final String name;
+            private final String userId;
             private final String email;
         }
         

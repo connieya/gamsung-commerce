@@ -2,7 +2,6 @@ package com.loopers.infrastructure.payment.client;
 
 import com.loopers.domain.payment.*;
 import com.loopers.domain.payment.exception.PaymentException;
-import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.support.error.ErrorType;
 import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -26,7 +25,7 @@ public class PgSimulator implements PaymentClient {
         PgSimulatorRequest.RequestTransaction requestTransaction = PgSimulatorRequest.RequestTransaction.of(
                 paymentCommand.orderNumber(), paymentCommand.cardNumber(), paymentCommand.amount(), CALLBACK_URL, paymentCommand.cardType());
 
-        ApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
+        PgApiResponse<PgSimulatorResponse.RequestTransaction> response = client.request("12345", requestTransaction);
         PgSimulatorResponse.RequestTransaction data = response.data();
         return new PaymentRequestResult(data.transactionKey(), data.status(), data.reason());
     }
@@ -45,7 +44,7 @@ public class PgSimulator implements PaymentClient {
 
     @Override
     public PaymentTransactionDetail getTransactionDetail(PaymentCommand.Search paymentCommand) {
-        ApiResponse<PgSimulatorResponse.TransactionDetail> response = client.getTransaction("12345", paymentCommand.transactionKey());
+        PgApiResponse<PgSimulatorResponse.TransactionDetail> response = client.getTransaction("12345", paymentCommand.transactionKey());
         PgSimulatorResponse.TransactionDetail data = response.data();
         return new PaymentTransactionDetail(
                 data.transactionKey(),

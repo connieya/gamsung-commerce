@@ -18,7 +18,7 @@ apps/commerce-api/src/main/java/com/loopers/
 ```
 
 ## 아키텍처 패턴
-- **레이어드 아키텍처**: interfaces → domain → infrastructure
+- **레이어드 아키텍처**: interfaces → application → domain ← infrastructure
 - **도메인 서비스**: `XxxService`는 domain 패키지에 위치
 - **Repository 패턴**: domain에 인터페이스, infrastructure에 구현체
 - **캐시 패턴**: Redis 캐시 우선 조회 후 DB fallback (`BrandCacheRepository` 참고)
@@ -27,6 +27,25 @@ apps/commerce-api/src/main/java/com/loopers/
 - **DTO 패턴**: `XxxV1Dto` 내부에 record로 Request/Response 정의
 - **도메인 정보 객체**: `XxxInfo` record로 도메인 데이터 전달
 - **커맨드 객체**: `XxxCommand` 내부에 요청 데이터 정의
+
+## 레이어 의존성 규칙 (필수)
+각 레이어는 아래 방향으로만 의존할 수 있다. **역방향 import는 절대 금지.**
+
+```
+interfaces/api  →  application  →  domain  ←  infrastructure
+```
+
+| 레이어 | import 가능 | import 금지 |
+|--------|------------|-------------|
+| `domain` | `domain`, `support` | `interfaces`, `application`, `infrastructure` |
+| `application` | `application`, `domain`, `support` | `interfaces` |
+| `infrastructure` | `infrastructure`, `domain`, `support` | `interfaces`, `application` |
+| `interfaces/api` | 모든 레이어 | — |
+
+### 실수하기 쉬운 케이스
+- `application` 패키지의 Criteria/Facade에서 `interfaces.api.XxxV1Dto`를 import하면 **위반**
+- 대신 `application` 레이어 전용 타입(예: `PaymentCriteria.OrderItem`)을 정의하고, Controller에서 Dto → Criteria 변환
+- `domain`에서 `application`의 Facade나 Criteria를 import하면 **위반**
 
 ## 연관 프로젝트
 - 프론트엔드: `/Users/cony/Desktop/workspace/gamsung-web` (Next.js)

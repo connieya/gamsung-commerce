@@ -29,4 +29,7 @@ dependencies {
     testImplementation(testFixtures(project(":modules:kafka")))
     testImplementation("org.wiremock:wiremock-jetty12:3.12.1")
     testImplementation("org.wiremock:wiremock-standalone:3.9.1")
+
+    // archunit
+    testImplementation("com.tngtech.archunit:archunit-junit5:${project.properties["archunitVersion"]}")
 }

@@ -79,6 +79,29 @@ interfaces/api  →  application  →  domain  ←  infrastructure
 ## 연관 프로젝트
 - 프론트엔드: `/Users/cony/Desktop/workspace/gamsung-web` (Next.js)
 
+## 개발 워크플로우 (필수)
+
+### 브랜치 전략
+- **main 직접 push 금지** — 모든 변경은 PR을 통해서만 merge
+- 브랜치 네이밍: `{type}/GS-{issue번호}-{간단설명}`
+  - 예: `feature/GS-42-cart-domain`, `fix/GS-55-point-restore`, `refactor/GS-60-cache-ttl`
+- PR merge 방식: **Squash Merge** (히스토리 깔끔하게 유지)
+
+### Issue 기반 개발
+- 모든 작업은 **GitHub Issue 등록**으로 시작한다
+- Issue 템플릿: feature(기능), bug(버그), task(리팩토링/인프라)
+- PR 생성 시 본문에 `Closes #이슈번호`로 자동 연결
+
+### 작업 흐름
+```
+1. Issue 등록 (요구사항 + 인수 조건)
+2. feature 브랜치 생성
+3. 도메인 스펙 문서 작성 (해당 시)
+4. 구현 + 테스트
+5. PR 생성 → 리뷰
+6. Squash Merge → main
+```
+
 ## Git 커밋 메시지 규칙
 
 ### 형식

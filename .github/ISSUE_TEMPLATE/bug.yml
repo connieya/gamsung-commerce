@@ -1,0 +1,81 @@
+name: "Bug Report"
+description: "버그 리포트"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 버그 리포트
+        재현 가능한 버그를 보고할 때 사용합니다.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "버그 요약"
+      description: "어떤 문제가 발생하는지 한 줄로 요약해주세요."
+      placeholder: "주문 취소 시 사용한 포인트가 복원되지 않음"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: "재현 단계"
+      description: "버그를 재현할 수 있는 단계를 순서대로 작성해주세요."
+      placeholder: |
+        1. 포인트 1,000원을 사용하여 주문
+        2. 주문 상세에서 '주문 취소' 클릭
+        3. 취소 완료 후 마이페이지에서 포인트 확인
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "기대 결과"
+      description: "정상적으로 동작했을 때 예상되는 결과"
+      placeholder: "사용한 1,000 포인트가 복원되어야 함"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "실제 결과"
+      description: "현재 실제로 발생하는 결과"
+      placeholder: "포인트가 복원되지 않고 0원으로 유지됨"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "에러 로그 / 스택 트레이스"
+      description: "관련 에러 메시지나 로그가 있다면 첨부해주세요."
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "심각도"
+      options:
+        - "Critical — 서비스 장애, 데이터 유실"
+        - "Major — 핵심 기능 오동작"
+        - "Minor — 부가 기능 오동작, 우회 가능"
+        - "Low — UI 깨짐, 오타 등"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "환경 정보"
+      description: "버그가 발생한 환경"
+      placeholder: |
+        - Profile: local
+        - Java: 17
+        - DB: MySQL 8.0 (Docker)
+    validations:
+      required: false

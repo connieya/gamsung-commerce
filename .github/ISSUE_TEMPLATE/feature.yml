@@ -1,0 +1,86 @@
+name: "Feature Request"
+description: "새로운 기능 요청"
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 기능 요청
+        PM 또는 개발자가 새로운 기능을 정의할 때 사용합니다.
+
+  - type: textarea
+    id: background
+    attributes:
+      label: "배경 및 목적"
+      description: "이 기능이 필요한 이유와 비즈니스 맥락을 설명해주세요."
+      placeholder: "예: 사용자가 장바구니에 상품을 담아두고 한번에 주문할 수 있어야 합니다."
+    validations:
+      required: true
+
+  - type: textarea
+    id: happy-path
+    attributes:
+      label: "Happy Path (정상 시나리오)"
+      description: "사용자 관점에서 정상적인 흐름을 단계별로 작성해주세요."
+      placeholder: |
+        1. 사용자가 상품 상세에서 '장바구니 담기' 버튼을 누른다
+        2. 수량과 옵션을 선택한다
+        3. 장바구니에 상품이 추가되고, 헤더 뱃지 숫자가 갱신된다
+    validations:
+      required: true
+
+  - type: textarea
+    id: fail-path
+    attributes:
+      label: "Fail Path (예외 시나리오)"
+      description: "실패하거나 예외적인 상황을 나열해주세요."
+      placeholder: |
+        - 품절 상품을 담으려 하면 '품절된 상품입니다' 안내
+        - 장바구니 최대 수량(100개) 초과 시 안내
+    validations:
+      required: true
+
+  - type: textarea
+    id: edge-cases
+    attributes:
+      label: "Edge Cases"
+      description: "동시성, 데이터 정합성, 경계값 등 기술적 엣지 케이스를 정리해주세요."
+      placeholder: |
+        - 동시에 같은 상품을 담을 때 수량 합산 처리
+        - 담은 상품의 가격이 변경되었을 때 반영 시점
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "인수 조건 (Acceptance Criteria)"
+      description: "이 기능이 '완료'되었다고 판단할 수 있는 조건을 체크리스트로 작성해주세요."
+      placeholder: |
+        - [ ] 상품을 장바구니에 담을 수 있다
+        - [ ] 장바구니에서 수량을 변경할 수 있다
+        - [ ] 단위 테스트가 작성되었다
+        - [ ] 통합 테스트가 작성되었다
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-spec
+    attributes:
+      label: "API 스펙 (해당 시)"
+      description: "엔드포인트, 메서드, 요청/응답 형식을 정의해주세요."
+      placeholder: |
+        ### `POST /api/v1/cart/items`
+        - Request: `{ productId, optionId, quantity }`
+        - Response: `{ cartItemId, totalCount }`
+    validations:
+      required: false
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "참고 자료"
+      description: "관련 문서, 도메인 스펙, 디자인 링크 등"
+      placeholder: "docs/domain-spec/cart.md 참고"
+    validations:
+      required: false

@@ -9,6 +9,8 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +40,9 @@ class ProductLikeRepositoryTest {
     BrandRepository brandRepository;
 
     @Autowired
+    private CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -52,9 +57,10 @@ class ProductLikeRepositoryTest {
     void getLikeCount() {
         // given
         Brand brand = brandRepository.save(BrandFixture.complete().create());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product product = ProductFixture.complete().create();
-        Product savedProduct = productRepository.save(product, brand.getId());
+        Product product = ProductFixture.create().brand(brand).categoryId(category.getId()).build();
+        Product savedProduct = productRepository.save(product);
 
         User user = UserFixture.complete().create();
         User savedUser = userRepository.save(user);
@@ -74,7 +80,8 @@ class ProductLikeRepositoryTest {
         // given
         User user = userRepository.save(UserFixture.complete().create());
         Brand brand = brandRepository.save(BrandFixture.complete().create());
-        Product product = productRepository.save(ProductFixture.complete().create(), brand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+        Product product = productRepository.save(ProductFixture.create().brand(brand).categoryId(category.getId()).build());
 
         productLikeRepository.save(user.getId(), product.getId());
 
@@ -90,7 +97,8 @@ class ProductLikeRepositoryTest {
         // given
         User user = userRepository.save(UserFixture.complete().create());
         Brand brand = brandRepository.save(BrandFixture.complete().create());
-        Product product = productRepository.save(ProductFixture.complete().create(), brand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+        Product product = productRepository.save(ProductFixture.create().brand(brand).categoryId(category.getId()).build());
 
         productLikeRepository.save(user.getId(), product.getId());
 

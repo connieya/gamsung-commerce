@@ -14,20 +14,23 @@ public class ProductCommand {
         private String name;
         private Long price;
         private Long brandId;
+        private Long categoryId;
 
         @Builder
-        private Register(String name, Long price, Long brandId) {
+        private Register(String name, Long price, Long brandId, Long categoryId) {
             this.name = name;
             this.price = price;
             this.brandId = brandId;
+            this.categoryId = categoryId;
         }
 
-        public static Register create(String name, Long price, Long brandId) {
+        public static Register create(String name, Long price, Long brandId, Long categoryId) {
             return Register
                     .builder()
                     .name(name)
                     .price(price)
                     .brandId(brandId)
+                    .categoryId(categoryId)
                     .build();
         }
     }

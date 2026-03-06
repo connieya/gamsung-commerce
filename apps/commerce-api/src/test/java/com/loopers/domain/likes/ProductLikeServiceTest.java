@@ -1,6 +1,7 @@
 package com.loopers.domain.likes;
 
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.likes.event.LikeEventListener;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.fixture.BrandFixture;
@@ -10,7 +11,7 @@ import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.infrastructure.likes.LikeSummaryJpaRepository;
 import com.loopers.infrastructure.likes.ProductLikeJpaRepository;
-import com.loopers.infrastructure.product.ProductEntity;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.infrastructure.product.ProductJpaRepository;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.infrastructure.user.UserJpaRepository;
@@ -56,6 +57,9 @@ class ProductLikeServiceTest {
     LikeEventListener likeEventListener;
 
     @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -72,18 +76,19 @@ class ProductLikeServiceTest {
         UserEntity userEntity = UserEntity.fromDomain(user);
         UserEntity savedUser = userJpaRepository.save(userEntity);
 
-        Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
-        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+        Category category = Category.createRoot("상의", 1);
+        categoryJpaRepository.save(category);
+        Product product = Product.create("테스트상품", 10000L, savedBrand, category.getId(), null, java.time.ZonedDateTime.now());
+        Product savedProduct = productJpaRepository.save(product);
 
         // when
         doReturn(Optional.of(userEntity))
                 .when(userJpaRepository)
                 .findById(savedUser.getId());
 
-        doReturn(Optional.of(productEntity))
+        doReturn(Optional.of(savedProduct))
                 .when(productJpaRepository)
                 .findById(savedProduct.getId());
 
@@ -107,18 +112,19 @@ class ProductLikeServiceTest {
         UserEntity userEntity = UserEntity.fromDomain(user);
         UserEntity savedUser = userJpaRepository.save(userEntity);
 
-        Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
-        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+        Category category = Category.createRoot("상의", 1);
+        categoryJpaRepository.save(category);
+        Product product = Product.create("테스트상품", 10000L, savedBrand, category.getId(), null, java.time.ZonedDateTime.now());
+        Product savedProduct = productJpaRepository.save(product);
 
         // when
         doReturn(Optional.of(userEntity))
                 .when(userJpaRepository)
                 .findById(savedUser.getId());
 
-        doReturn(Optional.of(productEntity))
+        doReturn(Optional.of(savedProduct))
                 .when(productJpaRepository)
                 .findById(savedProduct.getId());
 
@@ -140,18 +146,19 @@ class ProductLikeServiceTest {
         UserEntity userEntity = UserEntity.fromDomain(user);
         UserEntity savedUser = userJpaRepository.save(userEntity);
 
-        Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
-        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+        Category category = Category.createRoot("상의", 1);
+        categoryJpaRepository.save(category);
+        Product product = Product.create("테스트상품", 10000L, savedBrand, category.getId(), null, java.time.ZonedDateTime.now());
+        Product savedProduct = productJpaRepository.save(product);
 
         // when
         doReturn(Optional.of(userEntity))
                 .when(userJpaRepository)
                 .findById(savedUser.getId());
 
-        doReturn(Optional.of(productEntity))
+        doReturn(Optional.of(savedProduct))
                 .when(productJpaRepository)
                 .findById(savedProduct.getId());
 
@@ -183,11 +190,12 @@ class ProductLikeServiceTest {
         UserEntity userEntity = UserEntity.fromDomain(user);
         UserEntity savedUser = userJpaRepository.save(userEntity);
 
-        Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
-        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+        Category category = Category.createRoot("상의", 1);
+        categoryJpaRepository.save(category);
+        Product product = Product.create("테스트상품", 10000L, savedBrand, category.getId(), null, java.time.ZonedDateTime.now());
+        Product savedProduct = productJpaRepository.save(product);
 
         // when
         doThrow(new RuntimeException("boom"))
@@ -211,11 +219,12 @@ class ProductLikeServiceTest {
         UserEntity userEntity1 = UserEntity.fromDomain(user1);
         UserEntity savedUser1 = userJpaRepository.save(userEntity1);
 
-        Product product = ProductFixture.complete().create();
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandJpaRepository.save(brand);
-        ProductEntity productEntity = ProductEntity.fromDomain(product, savedBrand);
-        ProductEntity savedProduct = productJpaRepository.save(productEntity);
+        Category category = Category.createRoot("상의", 1);
+        categoryJpaRepository.save(category);
+        Product product = Product.create("테스트상품", 10000L, savedBrand, category.getId(), null, java.time.ZonedDateTime.now());
+        Product savedProduct = productJpaRepository.save(product);
 
         // when
         productLikeJpaRepository.save(ProductLike.create(savedUser1.getId(), savedProduct.getId()));

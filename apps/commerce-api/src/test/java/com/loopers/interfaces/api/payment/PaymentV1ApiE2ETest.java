@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.payment;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.coupon.CouponType;
 import com.loopers.domain.coupon.UserCoupon;
@@ -14,11 +15,9 @@ import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.infrastructure.point.PointEntity;
-import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
@@ -38,6 +37,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,16 +70,15 @@ public class PaymentV1ApiE2ETest {
         Brand brand = Brand.create("nike", "just do it!");
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
+        Category category = Category.createRoot("상의", 1);
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
         Point point = Point.create("gunny", 100000L);
         PointEntity pointEntity = PointEntity.from(point);
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(pointEntity));
 
-        Product product = ProductFixture.complete()
-                .set(Select.field(Product::getName), "foo")
-                .set(Select.field(Product::getPrice), 5000L)
-                .create();
-        ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+        Product product = Product.create("foo", 5000L, brand, category.getId(), null, ZonedDateTime.now());
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
         OrderCommand.OrderItem orderItem = OrderCommand.OrderItem.builder()
                 .productId(product.getId())
@@ -147,12 +146,11 @@ public class PaymentV1ApiE2ETest {
         Brand brand = Brand.create("nike", "just do it!");
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-        Product product = ProductFixture.complete()
-                .set(Select.field(Product::getName), "foo")
-                .set(Select.field(Product::getPrice), 5000L)
-                .create();
-        ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+        Category category = Category.createRoot("상의", 1);
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+        Product product = Product.create("foo", 5000L, brand, category.getId(), null, ZonedDateTime.now());
+        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
         OrderCommand.OrderItem orderItem = OrderCommand.OrderItem.builder()
                 .productId(product.getId())

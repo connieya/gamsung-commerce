@@ -9,8 +9,8 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
-import com.loopers.infrastructure.product.ProductEntity;
-import com.loopers.infrastructure.user.UserEntity;
+import com.loopers.domain.category.Category;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +28,6 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
 
 
 @SpringBootTest
@@ -52,10 +50,13 @@ class ProductLikeServiceIntegrationTest {
 
     @Autowired
     LikeSummaryRepository likeSummaryRepository;
-    
+
+    @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
     @Autowired
     DatabaseCleanUp databaseCleanUp;
-    
+
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
@@ -72,8 +73,10 @@ class ProductLikeServiceIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().create();
-        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+
+        Product product = ProductFixture.create().brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct = productRepository.save(product);
 
         // when
         productLikeService.add(savedUser.getId(), savedProduct.getId());
@@ -97,8 +100,10 @@ class ProductLikeServiceIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().create();
-        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+
+        Product product = ProductFixture.create().brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct = productRepository.save(product);
 
         // when
         productLikeService.add(savedUser.getId(), savedProduct.getId());
@@ -119,8 +124,10 @@ class ProductLikeServiceIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().create();
-        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+
+        Product product = ProductFixture.create().brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct = productRepository.save(product);
 
         likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT));
 
@@ -150,9 +157,11 @@ class ProductLikeServiceIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct = productRepository.save(product, savedBrand.getId());
+        Product product = ProductFixture.create().name("foo1").brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct = productRepository.save(product);
         likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT));
 
         // when
@@ -197,8 +206,10 @@ class ProductLikeServiceIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
-        Product savedProduct = productRepository.save(product, savedBrand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+
+        Product product = ProductFixture.create().name("foo1").brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct = productRepository.save(product);
         likeSummaryRepository.save(LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT));
         // when
         for (User user : users) {

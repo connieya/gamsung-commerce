@@ -2,11 +2,10 @@ package com.loopers.interfaces.api.order;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
-import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
@@ -27,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,17 +66,16 @@ class OrderV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product = ProductFixture.complete()
-                    .set(Select.field(Product::getName) ,"foo")
-                    .set(Select.field(Product::getPrice) ,5000L)
-                    .create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+            Product product = Product.create("foo", 5000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
             // when
             OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
                     null, null, null, 1L,
-                    List.of(OrderV1Dto.OrderItem.builder().productId(productEntity.getId()).quantity(2L).build())
+                    List.of(OrderV1Dto.OrderItem.builder().productId(product.getId()).quantity(2L).build())
             );
 
             HttpHeaders headers = new HttpHeaders();
@@ -102,16 +101,15 @@ class OrderV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo")
-                    .set(Select.field(Product::getPrice), 5000L)
-                    .create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+            Product product = Product.create("foo", 5000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
             OrderV1Dto.Request.Place requestBody = new OrderV1Dto.Request.Place(
                     null, null, null, 1L,
-                    List.of(OrderV1Dto.OrderItem.builder().productId(productEntity.getId()).quantity(2L).build())
+                    List.of(OrderV1Dto.OrderItem.builder().productId(product.getId()).quantity(2L).build())
             );
             HttpHeaders headers = new HttpHeaders();
             headers.add(ApiHeaders.USER_ID, "nonexistentUser");

@@ -2,6 +2,7 @@ package com.loopers.domain.metric;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.likes.ProductLikeService;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
@@ -11,6 +12,7 @@ import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,9 @@ public class MetricServiceTest {
     ProductService productService;
 
     @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -52,14 +57,16 @@ public class MetricServiceTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().create();
-        Product savedProduct = productRepository.save(product ,savedBrand.getId());
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product product2 = ProductFixture.complete().create();
-        Product savedProduct2 = productRepository.save(product2 ,savedBrand.getId());
+        Product product = ProductFixture.create().brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct = productRepository.save(product);
 
-        Product product3 = ProductFixture.complete().create();
-        Product savedProduct3 = productRepository.save(product3 ,savedBrand.getId());
+        Product product2 = ProductFixture.create().brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct2 = productRepository.save(product2);
+
+        Product product3 = ProductFixture.create().brand(savedBrand).categoryId(category.getId()).build();
+        Product savedProduct3 = productRepository.save(product3);
 
 
 //        productLikeService.add(savedUser.getId(), savedProduct.getId());

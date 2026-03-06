@@ -9,7 +9,6 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserService;
 import com.loopers.domain.user.exception.UserException;
 import com.loopers.domain.user.fixture.UserFixture;
-import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.support.error.ErrorType;
 import org.instancio.Select;
 import org.junit.jupiter.api.DisplayName;
@@ -88,10 +87,9 @@ class OrderFacadeTest {
                     .build();
 
             User user = UserFixture.complete().set(Select.field(User::getId), 1L).create();
-            Product product = ProductFixture.complete()
-                    .set(Select.field(Product::getId), 1L)
-                    .set(Select.field(Product::getPrice), 10_000L)
-                    .create();
+            Product product = mock(Product.class);
+            when(product.getId()).thenReturn(1L);
+            when(product.getPrice()).thenReturn(10_000L);
             List<Product> products = List.of(product);
 
             long totalAmount = 100_000L;

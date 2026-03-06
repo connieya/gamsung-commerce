@@ -1,5 +1,6 @@
 package com.loopers.infrastructure.product;
 
+import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductInfo;
 import com.loopers.domain.brand.Brand;
@@ -12,9 +13,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long> {
+public interface ProductJpaRepository extends JpaRepository<Product, Long> {
 
-    List<ProductEntity> findByBrand(Brand brand);
+    List<Product> findByBrand(Brand brand);
 
     @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
             "p.id," +
@@ -24,7 +25,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.imageUrl," +
             "cast(count(pl.id) as long) as likeCount," +
             "p.releasedAt" +
-            ") from ProductEntity p " +
+            ") from Product p " +
             "left join p.brand b " +
             "left join ProductLike  pl on p.id = pl.productId " +
             "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt "
@@ -39,7 +40,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.imageUrl, " +
             "cast((SELECT COUNT(l) FROM ProductLike l WHERE l.productId = p.id) as long )as likeCount, " +
             "p.releasedAt" +
-            ") FROM ProductEntity p " +
+            ") FROM Product p " +
             "LEFT JOIN p.brand b"
     )
     Page<ProductInfo> findProductDetailsOptimized(Pageable pageable);
@@ -53,7 +54,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.imageUrl, " +
             "s.likeCount, " +
             "p.releasedAt" +
-            ") FROM ProductEntity p " +
+            ") FROM Product p " +
             "LEFT JOIN p.brand b " +
             "LEFT JOIN LikeSummary s on s.target.id = p.id and s.target.type = 'PRODUCT'" +
             "WHERE (:brandId IS NULL OR b.id = :brandId)"
@@ -71,7 +72,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "s.likeCount, " +
             "p.releasedAt" +
             ") FROM LikeSummary s " +
-            "JOIN ProductEntity p ON s.target.id = p.id " +
+            "JOIN Product p ON s.target.id = p.id " +
             "LEFT JOIN p.brand b " +
             "WHERE s.target.type = 'PRODUCT'"
     )
@@ -86,13 +87,28 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "p.imageUrl," +
             "cast(count(pl.id) as long) as likeCount," +
             "p.releasedAt" +
-            ") from ProductEntity p " +
+            ") from Product p " +
             "left join p.brand b " +
             "left join ProductLike  pl on p.id = pl.productId " +
             "where p.id in :rankingInfo " +
             "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt"
     )
     List<ProductInfo> findRankByIds(@Param("rankingInfo") List<Long> rankingInfo);
+
+    @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
+            "p.id, " +
+            "p.price, " +
+            "p.name, " +
+            "b.name, " +
+            "p.imageUrl, " +
+            "s.likeCount, " +
+            "p.releasedAt" +
+            ") FROM Product p " +
+            "LEFT JOIN p.brand b " +
+            "LEFT JOIN LikeSummary s on s.target.id = p.id and s.target.type = 'PRODUCT' " +
+            "WHERE p.categoryId = :categoryId"
+    )
+    Page<ProductInfo> findByCategoryId(Pageable pageable, @Param("categoryId") Long categoryId);
 
     @Query("SELECT new com.loopers.domain.product.ProductDetailInfo(" +
             "p.id," +
@@ -102,7 +118,7 @@ public interface ProductJpaRepository extends JpaRepository<ProductEntity, Long>
             "b.id, " +
             "p.imageUrl, " +
             "l.likeCount" +
-            ") from ProductEntity p " +
+            ") from Product p " +
             "left join p.brand b " +
             "left join LikeSummary l on p.id = l.target.id " +
             "where p.id = :productId"

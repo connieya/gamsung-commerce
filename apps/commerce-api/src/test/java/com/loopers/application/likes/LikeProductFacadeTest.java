@@ -9,6 +9,8 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import org.instancio.Select;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,9 @@ class LikeProductFacadeTest {
     @Autowired
     BrandRepository brandRepository;
 
+    @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
     @DisplayName("내가 좋아요 한 상품 목록을 조회한다.")
     @Transactional
     @Test
@@ -56,13 +61,15 @@ class LikeProductFacadeTest {
 
         Brand savedBrand = brandRepository.save(Brand.create("nike", "just do it"));
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getName), "foo2").create();
-        Product product3 = ProductFixture.complete().set(Select.field(Product::getName), "foo3").create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
-        Product savedProduct3 = productRepository.save(product3, savedBrand.getId());
+        Product product1 = ProductFixture.create().name("foo1").brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().name("foo2").brand(savedBrand).categoryId(category.getId()).build();
+        Product product3 = ProductFixture.create().name("foo3").brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
+        Product savedProduct3 = productRepository.save(product3);
 
 
         // "gunny" 라는 아이디를 가진 유저가 상품1, 상품2, 상품 3에 좋아요 등록

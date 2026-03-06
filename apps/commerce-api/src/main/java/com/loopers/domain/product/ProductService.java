@@ -1,5 +1,8 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.brand.Brand;
+import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.likes.LikeSummary;
 import com.loopers.domain.likes.LikeSummaryRepository;
 import com.loopers.domain.likes.LikeTargetType;
@@ -23,20 +26,24 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductCacheRepository productCacheRepository;
     private final LikeSummaryRepository likeSummaryRepository;
+    private final BrandRepository brandRepository;
 
     @Transactional
     public Product register(ProductCommand.Register register) {
+        Brand brand = brandRepository.findBrand(register.getBrandId())
+                .orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
+
         Product product = Product.create(
-                register.getName()
-                , register.getPrice()
-                , register.getBrandId()
-                , null
-                , ZonedDateTime.now()
+                register.getName(),
+                register.getPrice(),
+                brand,
+                register.getCategoryId(),
+                null,
+                ZonedDateTime.now()
         );
-        Product save = productRepository.save(product, register.getBrandId());
+        Product save = productRepository.save(product);
         likeSummaryRepository.save(LikeSummary.create(save.getId(), LikeTargetType.PRODUCT));
         return save;
-
     }
 
 
@@ -86,6 +93,13 @@ public class ProductService {
     public ProductsInfo getProductsDenormalized(int size, int page, ProductSort sortType) {
         Pageable pageable = PageRequest.of(page, size, sortType.toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable);
+        return ProductsInfo.create(productDetails);
+    }
+
+    @Transactional(readOnly = true)
+    public ProductsInfo getProductsByCategoryId(Long categoryId, int page, int size, ProductSort sortType) {
+        Pageable pageable = PageRequest.of(page, size, sortType.toSort());
+        Page<ProductInfo> productDetails = productRepository.findByCategoryId(pageable, categoryId);
         return ProductsInfo.create(productDetails);
     }
 

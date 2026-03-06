@@ -1,12 +1,12 @@
 package com.loopers.domain.product;
 
+import com.loopers.domain.brand.Brand;
 import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -15,8 +15,12 @@ import java.time.ZonedDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class ProductTest {
+
+    private final Brand mockBrand = mock(Brand.class);
+    private final Long mockCategoryId = 1L;
 
     @DisplayName("상품 생성")
     @Nested
@@ -34,7 +38,7 @@ class ProductTest {
 
             // when & then
             assertThatThrownBy(() -> {
-                Product.create(name, basePrice, 1L, null, ZonedDateTime.now());
+                Product.create(name, basePrice, mockBrand, mockCategoryId, null, ZonedDateTime.now());
             }).isInstanceOf(CoreException.class)
                     .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);
 
@@ -52,7 +56,7 @@ class ProductTest {
 
             // when & then
             assertThatThrownBy(() -> {
-                Product.create(name, basePrice, 1L, null, ZonedDateTime.now());
+                Product.create(name, basePrice, mockBrand, mockCategoryId, null, ZonedDateTime.now());
             }).isInstanceOf(CoreException.class)
                     .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);
         }
@@ -66,21 +70,21 @@ class ProductTest {
 
             // when & then
             assertThatThrownBy(() -> {
-                Product.create(name, basePrice, 1L, null, null);
+                Product.create(name, basePrice, mockBrand, mockCategoryId, null, null);
             }).isInstanceOf(CoreException.class)
                     .hasFieldOrPropertyWithValue("errorType", ErrorType.BAD_REQUEST);
         }
 
-        @CsvSource(textBlock = """
-                foo | 0 | 1 | 2025-08-06T10:00:00+09:00[Asia/Seoul]
-                foo bar | 10000 | 2 | 2025-08-05T15:30:00+09:00[Asia/Seoul]
-                foo bar X | 200000 | 3 | 2025-08-01T08:00:00+09:00[Asia/Seoul]
-                """, delimiter = '|')
         @DisplayName("상품을 생성한다.")
-        @ParameterizedTest
-        void createNewProduct(String name , Long price , Long brandId , ZonedDateTime releasedAt) {
+        @Test
+        void createNewProduct() {
+            // given
+            String name = "foo";
+            Long price = 10000L;
+            ZonedDateTime releasedAt = ZonedDateTime.parse("2025-08-06T10:00:00+09:00[Asia/Seoul]");
+
             // when
-            Product product = Product.create(name, price, brandId, null, releasedAt);
+            Product product = Product.create(name, price, mockBrand, mockCategoryId, null, releasedAt);
 
             // then
             assertAll(

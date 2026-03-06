@@ -2,8 +2,6 @@ package com.loopers.application.order;
 
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.fixture.ProductFixture;
-import org.instancio.Select;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +10,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class OrderCriteriaTest {
 
@@ -35,18 +35,15 @@ class OrderCriteriaTest {
                 .build();
 
         // when
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getId), 1L)
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 5000L)
-                .create();
+        Product productA = mock(Product.class);
+        when(productA.getId()).thenReturn(1L);
+        when(productA.getName()).thenReturn("상품A");
+        when(productA.getPrice()).thenReturn(5000L);
 
-
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getId), 2L)
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 2000L)
-                .create();
+        Product productB = mock(Product.class);
+        when(productB.getId()).thenReturn(2L);
+        when(productB.getName()).thenReturn("상품B");
+        when(productB.getPrice()).thenReturn(2000L);
 
         OrderCommand command = OrderCommandMapper.map(1L, orderCriteria, List.of(productA, productB) ,10000L);
 

@@ -3,6 +3,7 @@ package com.loopers.application.payment;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
@@ -18,6 +19,7 @@ import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import feign.Request;
 import org.instancio.Select;
@@ -71,6 +73,9 @@ class PaymentFacadePgTest {
     UserCouponRepository userCouponRepository;
 
     @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @BeforeEach
@@ -96,11 +101,13 @@ class PaymentFacadePgTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
 
         OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
@@ -170,11 +177,13 @@ class PaymentFacadePgTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
 
         OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()

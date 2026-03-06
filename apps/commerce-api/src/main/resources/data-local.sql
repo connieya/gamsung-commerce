@@ -96,6 +96,7 @@ INSERT INTO users (user_id, email, birth_date, gender, created_at, updated_at, d
 --                메신저크로스29 숄더30 백팩31 토트32 에코33 보스턴34 웨이스트35 파우치36 브리프37 캐리어38
 --                모자머플러39 주얼리40 양말41 선글라스42 시계43 벨트44
 INSERT INTO product (name, price, ref_brand_id, ref_category_id, image_url, released_at, created_at, updated_at, deleted_at) VALUES
+-- 기존 상품 (id 1~17)
 ('오버핏 맨투맨 그레이',      39000, 1, 8,  'https://picsum.photos/seed/musinsa-mtm/400/533',       '2024-09-01 00:00:00', NOW(), NOW(), NULL),
 ('오버핏 후드 네이비',        59000, 1, 10, 'https://picsum.photos/seed/musinsa-hood/400/533',      '2024-10-01 00:00:00', NOW(), NOW(), NULL),
 ('와이드 슬랙스 베이지',      79000, 1, 21, 'https://picsum.photos/seed/musinsa-slacks/400/533',    '2024-09-15 00:00:00', NOW(), NOW(), NULL),
@@ -112,7 +113,40 @@ INSERT INTO product (name, price, ref_brand_id, ref_category_id, image_url, rele
 ('울 싱글 코트 체크',        279000, 5, 15, 'https://picsum.photos/seed/wool-coat-check/400/533',   '2024-11-10 00:00:00', NOW(), NOW(), NULL),
 ('스톤아일랜드 후드 스웨트',  329000, 6, 10, 'https://picsum.photos/seed/stoneisland-hood/400/533',  '2024-08-20 00:00:00', NOW(), NOW(), NULL),
 ('무인양품 울 블렌드 코트',   199000, 7, 16, 'https://picsum.photos/seed/muji-woolcoat/400/533',     '2024-11-01 00:00:00', NOW(), NOW(), NULL),
-('무인양품 캐시미어 스웨터',   89000, 7, 7,  'https://picsum.photos/seed/muji-cashmere/400/533',     '2024-10-01 00:00:00', NOW(), NOW(), NULL);
+('무인양품 캐시미어 스웨터',   89000, 7, 7,  'https://picsum.photos/seed/muji-cashmere/400/533',     '2024-10-01 00:00:00', NOW(), NOW(), NULL),
+-- 추가 상품: 빈 카테고리 채우기 (id 18~43)
+-- 상의
+('오버핏 옥스포드 셔츠 화이트', 49000, 1, 9,  'https://picsum.photos/seed/musinsa-shirt/400/533',     '2024-09-10 00:00:00', NOW(), NOW(), NULL),
+('에센셜 반소매 티 블랙',      19000, 1, 11, 'https://picsum.photos/seed/musinsa-tee/400/533',       '2024-06-01 00:00:00', NOW(), NOW(), NULL),
+-- 아우터
+('나이키 테크 플리스 풀짚',   179000, 2, 12, 'https://picsum.photos/seed/nike-techfleece/400/533',   '2024-10-01 00:00:00', NOW(), NOW(), NULL),
+('싱글 라이더스 재킷 블랙',   199000, 1, 14, 'https://picsum.photos/seed/musinsa-rider/400/533',     '2024-09-15 00:00:00', NOW(), NOW(), NULL),
+('디스커버리 경량 패딩 베스트', 129000, 4, 17, 'https://picsum.photos/seed/discovery-vest/400/533',    '2024-11-15 00:00:00', NOW(), NOW(), NULL),
+-- 바지
+('레귤러 데님 팬츠 인디고',    59000, 1, 18, 'https://picsum.photos/seed/musinsa-denim/400/533',     '2024-08-20 00:00:00', NOW(), NOW(), NULL),
+('나이키 스포츠웨어 숏 팬츠',   45000, 2, 22, 'https://picsum.photos/seed/nike-shorts/400/533',       '2024-05-15 00:00:00', NOW(), NOW(), NULL),
+('아디다스 3S 레깅스 블랙',     39000, 3, 23, 'https://picsum.photos/seed/adidas-leggings/400/533',   '2024-06-01 00:00:00', NOW(), NOW(), NULL),
+-- 신발
+('나이키 에어 줌 페가수스 41',  159000, 2, 25, 'https://picsum.photos/seed/nike-pegasus/400/533',      '2024-07-01 00:00:00', NOW(), NOW(), NULL),
+('클래식 더비 슈즈 브라운',     89000, 1, 26, 'https://picsum.photos/seed/musinsa-derby/400/533',     '2024-09-01 00:00:00', NOW(), NOW(), NULL),
+('사이드짚 첼시 부츠 블랙',     99000, 1, 27, 'https://picsum.photos/seed/musinsa-chelsea/400/533',   '2024-10-20 00:00:00', NOW(), NOW(), NULL),
+('나이키 빅토리 원 슬라이드',    39000, 2, 28, 'https://picsum.photos/seed/nike-slide/400/533',        '2024-05-01 00:00:00', NOW(), NOW(), NULL),
+-- 가방
+('캔버스 숄더백 네이비',        35000, 1, 30, 'https://picsum.photos/seed/musinsa-shoulder/400/533',  '2024-08-10 00:00:00', NOW(), NOW(), NULL),
+('나이키 헤리티지 백팩',        69000, 2, 31, 'https://picsum.photos/seed/nike-backpack/400/533',     '2024-07-15 00:00:00', NOW(), NOW(), NULL),
+('무인양품 캔버스 토트백',      25000, 7, 32, 'https://picsum.photos/seed/muji-tote/400/533',         '2024-06-01 00:00:00', NOW(), NOW(), NULL),
+('로고 에코백 아이보리',        15000, 1, 33, 'https://picsum.photos/seed/musinsa-eco/400/533',       '2024-04-01 00:00:00', NOW(), NOW(), NULL),
+('아디다스 리니어 더플백',      59000, 3, 34, 'https://picsum.photos/seed/adidas-duffle/400/533',     '2024-08-01 00:00:00', NOW(), NOW(), NULL),
+('나이키 헤리티지 웨이스트백',   35000, 2, 35, 'https://picsum.photos/seed/nike-waist/400/533',        '2024-07-01 00:00:00', NOW(), NOW(), NULL),
+('무인양품 나일론 파우치',      12000, 7, 36, 'https://picsum.photos/seed/muji-pouch/400/533',        '2024-05-01 00:00:00', NOW(), NOW(), NULL),
+('노트북 브리프케이스 블랙',    69000, 1, 37, 'https://picsum.photos/seed/musinsa-brief/400/533',     '2024-09-01 00:00:00', NOW(), NOW(), NULL),
+('무인양품 하드 캐리어 36L',   129000, 7, 38, 'https://picsum.photos/seed/muji-carrier/400/533',      '2024-03-01 00:00:00', NOW(), NOW(), NULL),
+-- 소품
+('실버 체인 목걸이',           25000, 1, 40, 'https://picsum.photos/seed/musinsa-necklace/400/533',  '2024-07-01 00:00:00', NOW(), NOW(), NULL),
+('베이직 크루삭스 3팩',        12000, 1, 41, 'https://picsum.photos/seed/musinsa-socks/400/533',     '2024-04-01 00:00:00', NOW(), NOW(), NULL),
+('보스턴 라운드 안경테',       35000, 1, 42, 'https://picsum.photos/seed/musinsa-glasses/400/533',   '2024-06-15 00:00:00', NOW(), NOW(), NULL),
+('미니멀 메탈 워치 실버',      59000, 1, 43, 'https://picsum.photos/seed/musinsa-watch/400/533',     '2024-08-01 00:00:00', NOW(), NOW(), NULL),
+('레더 캐주얼 벨트 브라운',     29000, 1, 44, 'https://picsum.photos/seed/musinsa-belt/400/533',      '2024-07-15 00:00:00', NOW(), NOW(), NULL);
 
 -- 5. 상품 좋아요 (user id 1~20, product id 1~17)
 -- 인기 상품일수록 좋아요 多 — 나이키/아디다스 신발류 인기, 무신사스탠다드 중간, 기타 적음
@@ -195,4 +229,30 @@ INSERT INTO like_summary (like_count, target_id, target_type, created_at, update
 ( 3, 13, 'PRODUCT', NOW(), NOW(), NULL),
 ( 3, 17, 'PRODUCT', NOW(), NOW(), NULL),
 ( 2, 5,  'PRODUCT', NOW(), NOW(), NULL),
-( 1, 6,  'PRODUCT', NOW(), NOW(), NULL);
+( 1, 6,  'PRODUCT', NOW(), NOW(), NULL),
+( 0, 18, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 19, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 20, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 21, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 22, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 23, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 24, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 25, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 26, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 27, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 28, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 29, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 30, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 31, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 32, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 33, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 34, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 35, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 36, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 37, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 38, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 39, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 40, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 41, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 42, 'PRODUCT', NOW(), NOW(), NULL),
+( 0, 43, 'PRODUCT', NOW(), NOW(), NULL);

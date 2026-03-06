@@ -1,7 +1,6 @@
 package com.loopers.infrastructure.likes;
 
 import com.loopers.domain.likes.ProductLike;
-import com.loopers.infrastructure.product.ProductEntity;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

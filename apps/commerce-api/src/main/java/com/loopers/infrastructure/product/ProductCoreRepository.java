@@ -2,10 +2,10 @@ package com.loopers.infrastructure.product;
 
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductInfo;
+import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.exception.BrandException;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
-import com.loopers.domain.brand.Brand;
 import com.loopers.infrastructure.brand.BrandJpaRepository;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Repository
@@ -26,21 +25,18 @@ public class ProductCoreRepository implements ProductRepository {
 
     @Override
     public Optional<Product> findById(Long productId) {
-        return productJpaRepository.findById(productId).map(ProductEntity::toDomain);
+        return productJpaRepository.findById(productId);
     }
 
     @Override
-    public Product save(Product product, Long brandId) {
-        Brand brand = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-        ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-        return productJpaRepository.save(productEntity).toDomain();
+    public Product save(Product product) {
+        return productJpaRepository.save(product);
     }
 
     @Override
     public List<Product> findByBrandId(Long brandId) {
         Brand brand = brandJpaRepository.findById(brandId).orElseThrow(() -> new BrandException.BrandNotFoundException(ErrorType.BRAND_NOT_FOUND));
-        return productJpaRepository.findByBrand(brand)
-                .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
+        return productJpaRepository.findByBrand(brand);
     }
 
     @Override
@@ -55,9 +51,8 @@ public class ProductCoreRepository implements ProductRepository {
 
     @Override
     public Page<ProductInfo> findProductDetailsDenormalizedLikeCount(Pageable pageable, Long brandId) {
-        return productJpaRepository.findProductDetailsDenormalizedLikeCount(pageable , brandId);
+        return productJpaRepository.findProductDetailsDenormalizedLikeCount(pageable, brandId);
     }
-
 
     @Override
     public Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable, Long brandId) {
@@ -67,6 +62,11 @@ public class ProductCoreRepository implements ProductRepository {
     @Override
     public Page<ProductInfo> findProductDetailsDenormalizedLikeCountOptimized(Pageable pageable) {
         return productJpaRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable);
+    }
+
+    @Override
+    public Page<ProductInfo> findByCategoryId(Pageable pageable, Long categoryId) {
+        return productJpaRepository.findByCategoryId(pageable, categoryId);
     }
 
     @Override
@@ -81,9 +81,6 @@ public class ProductCoreRepository implements ProductRepository {
 
     @Override
     public List<Product> findAllById(List<Long> productIds) {
-        return productJpaRepository.findAllById(productIds)
-                .stream().map(ProductEntity::toDomain).collect(Collectors.toList());
+        return productJpaRepository.findAllById(productIds);
     }
-
-
 }

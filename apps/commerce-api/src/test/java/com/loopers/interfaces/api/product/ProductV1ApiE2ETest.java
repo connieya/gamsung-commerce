@@ -5,12 +5,11 @@ import com.loopers.domain.likes.LikeSummary;
 import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.ProductSort;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.likes.ProductLike;
-import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;
@@ -29,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,17 +62,14 @@ class ProductV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product1 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo1")
-                    .set(Select.field(Product::getPrice), 10000L)
-                    .create();
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(ProductEntity.fromDomain(product1, brand)));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
 
-            Product product2 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo2")
-                    .set(Select.field(Product::getPrice), 20000L)
-                    .create();
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(ProductEntity.fromDomain(product2, brand)));
+            Product product1 = Product.create("foo1", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product1));
+
+            Product product2 = Product.create("foo2", 20000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product2));
 
             // when
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
@@ -109,17 +106,14 @@ class ProductV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product1 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo1")
-                    .set(Select.field(Product::getPrice), 10000L)
-                    .create();
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(ProductEntity.fromDomain(product1, brand)));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
 
-            Product product2 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo2")
-                    .set(Select.field(Product::getPrice), 20000L)
-                    .create();
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(ProductEntity.fromDomain(product2, brand)));
+            Product product1 = Product.create("foo1", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product1));
+
+            Product product2 = Product.create("foo2", 20000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product2));
 
             // when
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
@@ -156,33 +150,22 @@ class ProductV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product1 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo1")
-                    .set(Select.field(Product::getPrice), 10000L)
-                    .create();
-            ProductEntity productEntity1 = ProductEntity.fromDomain(product1, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity1));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
 
-            Product product2 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo2")
-                    .set(Select.field(Product::getPrice), 20000L)
-                    .create();
+            Product product1 = Product.create("foo1", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product1));
 
-            ProductEntity productEntity2 = ProductEntity.fromDomain(product2, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity2));
+            Product product2 = Product.create("foo2", 20000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product2));
 
-            Product product3 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo3")
-                    .set(Select.field(Product::getPrice), 30000L)
-                    .create();
-
-            ProductEntity productEntity3 = ProductEntity.fromDomain(product3, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity3));
+            Product product3 = Product.create("foo3", 30000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product3));
 
 
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(1L, productEntity1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(2L, productEntity1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(1L, productEntity2.getId())));
+            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(1L, product1.getId())));
+            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(2L, product1.getId())));
+            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(1L, product2.getId())));
 
             // when
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
@@ -227,33 +210,22 @@ class ProductV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product1 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo1")
-                    .set(Select.field(Product::getPrice), 10000L)
-                    .create();
-            ProductEntity productEntity1 = ProductEntity.fromDomain(product1, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity1));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
 
-            Product product2 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo2")
-                    .set(Select.field(Product::getPrice), 20000L)
-                    .create();
+            Product product1 = Product.create("foo1", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product1));
 
-            ProductEntity productEntity2 = ProductEntity.fromDomain(product2, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity2));
+            Product product2 = Product.create("foo2", 20000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product2));
 
-            Product product3 = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo3")
-                    .set(Select.field(Product::getPrice), 30000L)
-                    .create();
-
-            ProductEntity productEntity3 = ProductEntity.fromDomain(product3, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity3));
+            Product product3 = Product.create("foo3", 30000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product3));
 
 
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity1.getId(), productEntity1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity2.getId(), productEntity1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity1.getId(), productEntity2.getId())));
+            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity1.getId(), product1.getId())));
+            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity2.getId(), product1.getId())));
+            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity1.getId(), product2.getId())));
 
             // when
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
@@ -298,8 +270,7 @@ class ProductV1ApiE2ETest {
         void getProductDetail() {
             // given
             Brand brand = Brand.create("nike", "just do it!");
-            Product product = ProductFixture.complete().set(Select.field(Product::getPrice), 10000L).create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
+            Category category = Category.createRoot("상의", 1);
 
             User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
             User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
@@ -308,12 +279,15 @@ class ProductV1ApiE2ETest {
 
 
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+            Product product = Product.create("테스트상품", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
             transactionTemplate.executeWithoutResult(status -> List.of(
                     userEntity1, userEntity2).forEach(testEntityManager::persist)
             );
 
-            LikeSummary likeSummary = LikeSummary.create(productEntity.getId(), LikeTargetType.PRODUCT);
+            LikeSummary likeSummary = LikeSummary.create(product.getId(), LikeTargetType.PRODUCT);
             likeSummary.increase();
             likeSummary.increase();
 
@@ -321,7 +295,7 @@ class ProductV1ApiE2ETest {
 
             // when
             String url = UriComponentsBuilder.fromPath(REQUEST_URL)
-                    .buildAndExpand(productEntity.getId())
+                    .buildAndExpand(product.getId())
                     .toUriString();
 
             ParameterizedTypeReference<ApiResponse<ProductV1Dto.Response.Detail>> responseType = new ParameterizedTypeReference<ApiResponse<ProductV1Dto.Response.Detail>>() {
@@ -334,7 +308,7 @@ class ProductV1ApiE2ETest {
                     () -> assertTrue(response.getStatusCode().is2xxSuccessful()),
                     () -> assertThat(response.getBody().data().brandName()).isEqualTo("nike"),
                     () -> assertThat(response.getBody().data().price()).isEqualTo(10000L),
-                    () -> assertThat(response.getBody().data().productId()).isEqualTo(productEntity.getId()),
+                    () -> assertThat(response.getBody().data().productId()).isEqualTo(product.getId()),
                     () -> assertThat(response.getBody().data().likeCount()).isEqualTo(2)
 
             );

@@ -4,10 +4,12 @@ import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.likes.*;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.*;
@@ -41,6 +43,9 @@ class ProductServiceIntegrationTest {
     UserRepository userRepository;
 
     @Autowired
+    private CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -59,7 +64,9 @@ class ProductServiceIntegrationTest {
             Brand brand = BrandFixture.complete().create();
             Brand savedBrand = brandRepository.save(brand);
 
-            ProductCommand.Register productCommand = ProductCommand.Register.create("상품1", 100000L, savedBrand.getId());
+            categoryJpaRepository.save(Category.createRoot("상의", 1));
+
+            ProductCommand.Register productCommand = ProductCommand.Register.create("상품1", 100000L, savedBrand.getId(), 1L);
 
             // when
             productService.register(productCommand);
@@ -93,12 +100,16 @@ class ProductServiceIntegrationTest {
                     .set(Select.field(Brand::getName), "nike").create();
             Brand savedBrand = brandRepository.save(brand);
 
-            Product product = ProductFixture.complete()
-                    .set(Select.field(Product::getName), "foo1")
-                    .set(Select.field(Product::getPrice), 10000L)
-                    .create();
+            Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-            Product savedProduct = productRepository.save(product, savedBrand.getId());
+            Product product = ProductFixture.create()
+                    .name("foo1")
+                    .price(10000L)
+                    .brand(savedBrand)
+                    .categoryId(category.getId())
+                    .build();
+
+            Product savedProduct = productRepository.save(product);
 
             LikeSummary likeSummary = LikeSummary.create(savedProduct.getId(), LikeTargetType.PRODUCT);
             likeSummary.increase();
@@ -128,24 +139,15 @@ class ProductServiceIntegrationTest {
                         .set(Select.field(Brand::getName), "nike").create();
                 Brand savedBrand = brandRepository.save(brand);
 
-                Product product1 = ProductFixture.complete()
-                        .set(Select.field(Product::getName), "foo1")
-                        .set(Select.field(Product::getPrice), 10000L)
-                        .create();
+                Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-                Product product2 = ProductFixture.complete()
-                        .set(Select.field(Product::getName), "foo2")
-                        .set(Select.field(Product::getPrice), 20000L)
-                        .create();
-
-                Product product3 = ProductFixture.complete()
-                        .set(Select.field(Product::getName), "foo3")
-                        .set(Select.field(Product::getPrice), 30000L)
-                        .create();
+                Product product1 = ProductFixture.create().name("foo1").price(10000L).brand(savedBrand).categoryId(category.getId()).build();
+                Product product2 = ProductFixture.create().name("foo2").price(20000L).brand(savedBrand).categoryId(category.getId()).build();
+                Product product3 = ProductFixture.create().name("foo3").price(30000L).brand(savedBrand).categoryId(category.getId()).build();
 
                 List.of(product1, product2, product3)
                         .forEach(product -> {
-                            productRepository.save(product, savedBrand.getId());
+                            productRepository.save(product);
                         });
             }
 
@@ -208,26 +210,17 @@ class ProductServiceIntegrationTest {
                         .set(Select.field(Brand::getName), "nike").create();
                 Brand savedBrand = brandRepository.save(brand);
 
+                Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
+
                 // 3. Product 영속화
-                Product product1 = ProductFixture.complete()
-                        .set(Select.field(Product::getName), "foo1")
-                        .set(Select.field(Product::getPrice), 10000L)
-                        .create();
-
-                Product product2 = ProductFixture.complete()
-                        .set(Select.field(Product::getName), "foo2")
-                        .set(Select.field(Product::getPrice), 20000L)
-                        .create();
-
-                Product product3 = ProductFixture.complete()
-                        .set(Select.field(Product::getName), "foo3")
-                        .set(Select.field(Product::getPrice), 30000L)
-                        .create();
+                Product product1 = ProductFixture.create().name("foo1").price(10000L).brand(savedBrand).categoryId(category.getId()).build();
+                Product product2 = ProductFixture.create().name("foo2").price(20000L).brand(savedBrand).categoryId(category.getId()).build();
+                Product product3 = ProductFixture.create().name("foo3").price(30000L).brand(savedBrand).categoryId(category.getId()).build();
 
                 // Product를 영속화하고 저장된 객체를 필드에 저장
-                Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-                Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
-                productRepository.save(product3, savedBrand.getId());
+                Product savedProduct1 = productRepository.save(product1);
+                Product savedProduct2 = productRepository.save(product2);
+                productRepository.save(product3);
 
                 // 4. 좋아요 데이터 추가
                 // 위에서 저장한 User와 Product의 ID를 사용합니다.

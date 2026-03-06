@@ -11,6 +11,8 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -47,6 +49,9 @@ class ProductRepositoryTest {
     LikeSummaryRepository likeSummaryRepository;
 
     @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -68,18 +73,13 @@ class ProductRepositoryTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 50000L)
-                .create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 70000L)
-                .create();
+        Product productA = ProductFixture.create().name("상품A").price(50000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productB = ProductFixture.create().name("상품B").price(70000L).brand(savedBrand).categoryId(category.getId()).build();
 
-        Product savedProductA = productRepository.save(productA, savedBrand.getId());
-        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+        Product savedProductA = productRepository.save(productA);
+        Product savedProductB = productRepository.save(productB);
 
 
         productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
@@ -115,18 +115,13 @@ class ProductRepositoryTest {
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 50000L)
-                .create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 70000L)
-                .create();
+        Product productA = ProductFixture.create().name("상품A").price(50000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productB = ProductFixture.create().name("상품B").price(70000L).brand(savedBrand).categoryId(category.getId()).build();
 
-        Product savedProductA = productRepository.save(productA, savedBrand.getId());
-        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+        Product savedProductA = productRepository.save(productA);
+        Product savedProductB = productRepository.save(productB);
 
 
         productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
@@ -162,18 +157,13 @@ class ProductRepositoryTest {
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 50000L)
-                .create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 70000L)
-                .create();
+        Product productA = ProductFixture.create().name("상품A").price(50000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productB = ProductFixture.create().name("상품B").price(70000L).brand(savedBrand).categoryId(category.getId()).build();
 
-        Product savedProductA = productRepository.save(productA, savedBrand.getId());
-        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+        Product savedProductA = productRepository.save(productA);
+        Product savedProductB = productRepository.save(productB);
 
 
         productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
@@ -219,18 +209,13 @@ class ProductRepositoryTest {
         Brand savedBrand = brandRepository.save(brand);
         Brand savedBrand2 = brandRepository.save(brand2);
 
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 50000L)
-                .create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 70000L)
-                .create();
+        Product productA = ProductFixture.create().name("상품A").price(50000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productB = ProductFixture.create().name("상품B").price(70000L).brand(savedBrand).categoryId(category.getId()).build();
 
-        Product savedProductA = productRepository.save(productA, savedBrand.getId());
-        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+        Product savedProductA = productRepository.save(productA);
+        Product savedProductB = productRepository.save(productB);
 
 
         productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
@@ -272,24 +257,15 @@ class ProductRepositoryTest {
         Brand savedBrand = brandRepository.save(brand);
         Brand savedBrand2 = brandRepository.save(brand2);
 
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 50000L)
-                .create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 70000L)
-                .create();
+        Product productA = ProductFixture.create().name("상품A").price(50000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productB = ProductFixture.create().name("상품B").price(70000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productC = ProductFixture.create().name("상품C").price(90000L).brand(savedBrand2).categoryId(category.getId()).build();
 
-        Product productC = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품C")
-                .set(Select.field(Product::getPrice), 90000L)
-                .create();
-
-        Product savedProductA = productRepository.save(productA, savedBrand.getId());
-        Product savedProductB = productRepository.save(productB, savedBrand.getId());
-        Product savedProductC = productRepository.save(productC, savedBrand2.getId());
+        Product savedProductA = productRepository.save(productA);
+        Product savedProductB = productRepository.save(productB);
+        Product savedProductC = productRepository.save(productC);
 
 
         productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
@@ -341,18 +317,13 @@ class ProductRepositoryTest {
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product productA = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품A")
-                .set(Select.field(Product::getPrice), 50000L)
-                .create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product productB = ProductFixture.complete()
-                .set(Select.field(Product::getName), "상품B")
-                .set(Select.field(Product::getPrice), 70000L)
-                .create();
+        Product productA = ProductFixture.create().name("상품A").price(50000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product productB = ProductFixture.create().name("상품B").price(70000L).brand(savedBrand).categoryId(category.getId()).build();
 
-        Product savedProductA = productRepository.save(productA, savedBrand.getId());
-        Product savedProductB = productRepository.save(productB, savedBrand.getId());
+        Product savedProductA = productRepository.save(productA);
+        Product savedProductB = productRepository.save(productB);
 
 
         productLikeRepository.save(savedUser1.getId(), savedProductA.getId());

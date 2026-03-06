@@ -1,24 +1,55 @@
 package com.loopers.domain.product.fixture;
 
+import com.loopers.domain.brand.Brand;
 import com.loopers.domain.product.Product;
-import org.instancio.Instancio;
-import org.instancio.InstancioApi;
-import org.instancio.Select;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 public class ProductFixture {
 
-    public static InstancioApi<Product> complete() {
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault()); // 시스템 기본 타임존 사용
-        ZonedDateTime thirtyDaysAgo = now.minusDays(30);
+    private String name = "테스트 상품";
+    private Long price = 10000L;
+    private Brand brand;
+    private Long categoryId = 1L;
+    private String imageUrl = null;
+    private ZonedDateTime releasedAt = ZonedDateTime.now(ZoneId.systemDefault());
 
-        return Instancio.of(Product.class)
-                .generate(Select.field(Product::getName), generators -> generators.string().length(2,20))
-                .generate(Select.field(Product::getPrice), generators -> generators.longs().range(1000L,5000_000L))
-                .generate(Select.field(Product::getReleasedAt), generators ->
-                        generators.temporal().zonedDateTime().range(thirtyDaysAgo, now)
-                );
+    public static ProductFixture create() {
+        return new ProductFixture();
+    }
+
+    public ProductFixture name(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public ProductFixture price(Long price) {
+        this.price = price;
+        return this;
+    }
+
+    public ProductFixture brand(Brand brand) {
+        this.brand = brand;
+        return this;
+    }
+
+    public ProductFixture categoryId(Long categoryId) {
+        this.categoryId = categoryId;
+        return this;
+    }
+
+    public ProductFixture imageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+        return this;
+    }
+
+    public ProductFixture releasedAt(ZonedDateTime releasedAt) {
+        this.releasedAt = releasedAt;
+        return this;
+    }
+
+    public Product build() {
+        return Product.create(name, price, brand, categoryId, imageUrl, releasedAt);
     }
 }

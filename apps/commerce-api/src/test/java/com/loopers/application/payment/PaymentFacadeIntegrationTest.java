@@ -1,6 +1,7 @@
 package com.loopers.application.payment;
 
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.coupon.*;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderRepository;
@@ -21,6 +22,7 @@ import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.stock.Stock;
 import com.loopers.domain.brand.Brand;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -72,6 +74,9 @@ class PaymentFacadeIntegrationTest {
     PaymentRepository paymentRepository;
 
     @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
 
@@ -93,11 +98,13 @@ class PaymentFacadeIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
         Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
         Stock stock2 = Stock.create(savedProduct2.getId(), 10L);
@@ -157,11 +164,13 @@ class PaymentFacadeIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
         Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
         Stock stock2 = Stock.create(savedProduct2.getId(), 150L);
@@ -214,11 +223,13 @@ class PaymentFacadeIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
         Stock stock1 = Stock.create(savedProduct1.getId(), 5L);
         Stock stock2 = Stock.create(savedProduct2.getId(), 150L);
@@ -271,11 +282,13 @@ class PaymentFacadeIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
         Stock stock1 = Stock.create(savedProduct1.getId(), 50L);
         Stock stock2 = Stock.create(savedProduct2.getId(), 50L);
@@ -348,11 +361,13 @@ class PaymentFacadeIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
         Stock stock1 = Stock.create(savedProduct1.getId(), 50L);
         Stock stock2 = Stock.create(savedProduct2.getId(), 50L);

@@ -357,7 +357,36 @@ PREPARE migration FROM @stmt;
 EXECUTE migration;
 DEALLOCATE PREPARE migration;
 
--- 18. idempotency_keys
+-- 18. category
+SET @table_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'category');
+SET @stmt = IF(@table_exists = 0,
+    'CREATE TABLE `category` (
+      `id` BIGINT NOT NULL AUTO_INCREMENT,
+      `created_at` DATETIME(6) NOT NULL,
+      `updated_at` DATETIME(6) NOT NULL,
+      `deleted_at` DATETIME(6) DEFAULT NULL,
+      `name` VARCHAR(255) NOT NULL,
+      `parent_id` BIGINT DEFAULT NULL,
+      `depth` INT NOT NULL,
+      `display_order` INT NOT NULL,
+      PRIMARY KEY (`id`),
+      KEY `idx_parent_id` (`parent_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+    'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: product 테이블에 ref_category_id 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'product' AND COLUMN_NAME = 'ref_category_id');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE product ADD COLUMN ref_category_id BIGINT DEFAULT NULL', 'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 19. idempotency_keys
 SET @table_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'idempotency_keys');
 SET @stmt = IF(@table_exists = 0,
@@ -383,6 +412,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE product_like;
 TRUNCATE TABLE like_summary;
 TRUNCATE TABLE product;
+TRUNCATE TABLE category;
 TRUNCATE TABLE users;
 TRUNCATE TABLE brand;
 TRUNCATE TABLE view_product;

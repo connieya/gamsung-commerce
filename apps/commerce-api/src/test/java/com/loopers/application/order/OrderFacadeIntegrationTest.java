@@ -1,6 +1,7 @@
 package com.loopers.application.order;
 
 import com.loopers.domain.brand.BrandRepository;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.coupon.*;
 import com.loopers.domain.coupon.exception.CouponException;
 import com.loopers.domain.product.Product;
@@ -13,6 +14,7 @@ import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.coupon.UserCoupon;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
@@ -54,6 +56,9 @@ class OrderFacadeIntegrationTest {
     UserCouponRepository userCouponRepository;
 
     @Autowired
+    CategoryJpaRepository categoryJpaRepository;
+
+    @Autowired
     DatabaseCleanUp databaseCleanUp;
 
     @AfterEach
@@ -68,15 +73,16 @@ class OrderFacadeIntegrationTest {
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gh").create();
         userRepository.save(user);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getName), "foo1").create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getName), "foo2").create();
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "nike").create();
         Brand savedBrand = brandRepository.save(brand);
 
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().name("foo1").brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().name("foo2").brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
 
         OrderCriteria.OrderItem orderItem1 = OrderCriteria.OrderItem
@@ -113,21 +119,16 @@ class OrderFacadeIntegrationTest {
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         User savedUser = userRepository.save(user);
 
-        Product product1 = ProductFixture.complete()
-                .set(Select.field(Product::getName), "foo1")
-                .set(Select.field(Product::getPrice), 3000L)
-                .create();
-        Product product2 = ProductFixture.complete()
-                .set(Select.field(Product::getName), "foo2")
-                .set(Select.field(Product::getPrice), 2000L)
-                .create();
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "nike").create();
         Brand savedBrand = brandRepository.save(brand);
 
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().name("foo1").price(3000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().name("foo2").price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
 
         OrderCriteria.OrderItem orderItem1 = OrderCriteria.OrderItem
@@ -171,21 +172,16 @@ class OrderFacadeIntegrationTest {
         User user = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
         userRepository.save(user);
 
-        Product product1 = ProductFixture.complete()
-                .set(Select.field(Product::getName), "foo1")
-                .set(Select.field(Product::getPrice), 3000L)
-                .create();
-        Product product2 = ProductFixture.complete()
-                .set(Select.field(Product::getName), "foo2")
-                .set(Select.field(Product::getPrice), 2000L)
-                .create();
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "nike").create();
         Brand savedBrand = brandRepository.save(brand);
 
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().name("foo1").price(3000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().name("foo2").price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
 
         OrderCriteria.OrderItem orderItem1 = OrderCriteria.OrderItem
@@ -231,11 +227,13 @@ class OrderFacadeIntegrationTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product1 = ProductFixture.complete().set(Select.field(Product::getPrice), 1000L).create();
-        Product product2 = ProductFixture.complete().set(Select.field(Product::getPrice), 2000L).create();
+        Category category = categoryJpaRepository.save(Category.createRoot("상의", 1));
 
-        Product savedProduct1 = productRepository.save(product1, savedBrand.getId());
-        Product savedProduct2 = productRepository.save(product2, savedBrand.getId());
+        Product product1 = ProductFixture.create().price(1000L).brand(savedBrand).categoryId(category.getId()).build();
+        Product product2 = ProductFixture.create().price(2000L).brand(savedBrand).categoryId(category.getId()).build();
+
+        Product savedProduct1 = productRepository.save(product1);
+        Product savedProduct2 = productRepository.save(product2);
 
 
         Coupon savedCoupon = couponRepository.save(Coupon.create("여름 이벤트", CouponType.FIXED_AMOUNT, 1000L));

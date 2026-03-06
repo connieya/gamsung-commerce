@@ -2,12 +2,11 @@ package com.loopers.interfaces.api.likes;
 
 import com.loopers.annotation.SprintE2ETest;
 import com.loopers.domain.product.Product;
-import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.likes.ProductLike;
-import com.loopers.infrastructure.product.ProductEntity;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
@@ -26,6 +25,7 @@ import org.springframework.http.*;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -64,13 +64,15 @@ class ProductLikeV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product = ProductFixture.complete().create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+            Product product = Product.create("테스트상품", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
             // when
             String url = UriComponentsBuilder.fromPath(REQUEST_URL)
-                    .buildAndExpand(productEntity.getId())
+                    .buildAndExpand(product.getId())
                     .toUriString();
 
             HttpHeaders headers = new HttpHeaders();
@@ -130,9 +132,11 @@ class ProductLikeV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            Product product = ProductFixture.complete().create();
-            ProductEntity productEntity = ProductEntity.fromDomain(product, brand);
-            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(productEntity));
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+            Product product = Product.create("테스트상품", 10000L, brand, category.getId(), null, ZonedDateTime.now());
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
             // when
             String url = UriComponentsBuilder.fromPath(REQUEST_URL)
@@ -168,24 +172,22 @@ class ProductLikeV1ApiE2ETest {
             Brand brand = Brand.create("nike", "just do it!");
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(brand));
 
-            List<ProductEntity> productEntities = IntStream.range(0, initialLikeCount)
+            Category category = Category.createRoot("상의", 1);
+            transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(category));
+
+            List<Product> products = IntStream.range(0, initialLikeCount)
                     .mapToObj(i ->
-                            ProductEntity.fromDomain(
-                                    ProductFixture.complete()
-                                            .set(Select.field(Product::getName), "product" + i)
-                                            .create(),
-                                    brand
-                            )
+                            Product.create("product" + i, 10000L, brand, category.getId(), null, ZonedDateTime.now())
                     )
                     .toList();
 
             transactionTemplate.executeWithoutResult(status ->
-                    productEntities.forEach(testEntityManager::persist)
+                    products.forEach(testEntityManager::persist)
             );
 
             transactionTemplate.executeWithoutResult(status ->
-                    productEntities.forEach(productEntity -> {
-                        ProductLike productLike = ProductLike.create(userEntity.getId(), productEntity.getId());
+                    products.forEach(product -> {
+                        ProductLike productLike = ProductLike.create(userEntity.getId(), product.getId());
                         testEntityManager.persist(productLike);
                     })
             );
@@ -229,7 +231,7 @@ class ProductLikeV1ApiE2ETest {
 
             // then: 첫 번째 항목이 저장한 값과 일치
             LikedProductItemBody first = items.get(0);
-            assertThat(first.productId()).isEqualTo(productEntities.get(0).getId());
+            assertThat(first.productId()).isEqualTo(products.get(0).getId());
             assertThat(first.productName()).isEqualTo("product0");
             assertThat(first.brandName()).isEqualTo("nike");
         }

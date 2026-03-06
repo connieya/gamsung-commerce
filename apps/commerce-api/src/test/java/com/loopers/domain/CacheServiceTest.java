@@ -3,12 +3,13 @@ package com.loopers.domain;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.likes.ProductLikeService;
+import com.loopers.domain.category.Category;
 import com.loopers.domain.product.*;
 import com.loopers.domain.product.fixture.BrandFixture;
-import com.loopers.domain.product.fixture.ProductFixture;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.UserRepository;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.infrastructure.category.CategoryJpaRepository;
 import com.loopers.utils.DatabaseCleanUp;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ public class CacheServiceTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryJpaRepository categoryJpaRepository;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -54,8 +58,9 @@ public class CacheServiceTest {
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
-        Product product = ProductFixture.complete().create();
-        Product register = productService.register(ProductCommand.Register.create(product.getName(), product.getPrice(), savedBrand.getId()));
+        categoryJpaRepository.save(Category.createRoot("상의", 1));
+
+        Product register = productService.register(ProductCommand.Register.create("테스트 상품", 10000L, savedBrand.getId(), 1L));
 
         // when
         ProductDetailInfo productDetailInfo = productService.getProductDetail(register.getId());

@@ -70,7 +70,7 @@ public class PaymentService {
 
 
     @Transactional
-    public PaymentSessionResult createPaymentSession(PaymentCommand.Transaction transaction, String orderKey) {
+    public PaymentInfo.SessionResult createPaymentSession(PaymentCommand.Transaction transaction, String orderKey) {
         // 멱등성 체크: 이미 처리된 경우 기존 결과 반환
         Optional<IdempotencyKey> existingKey = idempotencyKeyRepository.findByOrderNoAndOrderKeyAndOperationType(
                 transaction.orderNumber(), 
@@ -82,7 +82,7 @@ public class PaymentService {
             try {
                 return objectMapper.readValue(
                         existingKey.get().getResultData(),
-                        PaymentSessionResult.class
+                        PaymentInfo.SessionResult.class
                 );
             } catch (JsonProcessingException e) {
                 log.error("[멱등성] PaymentSession 캐시 결과 역직렬화 실패. orderNo={}", transaction.orderNumber(), e);
@@ -96,7 +96,7 @@ public class PaymentService {
             // paymentUrl 생성 (pg-simulator가 제공하지 않으면 우리가 생성)
             String paymentUrl = String.format("http://localhost:8082/payment/%s", requestResult.transactionKey());
 
-            PaymentSessionResult result = new PaymentSessionResult(
+            PaymentInfo.SessionResult result = new PaymentInfo.SessionResult(
                     transaction.orderNumber(),
                     requestResult.transactionKey(),
                     transaction.amount(),
@@ -128,14 +128,6 @@ public class PaymentService {
         }
     }
     
-    public record PaymentSessionResult(
-            String orderNo,
-            String paymentKey,
-            Long amount,
-            String paymentUrl,
-            String pgKind
-    ) {}
-
     @Transactional
     public Payment ensurePendingPayment(PaymentCommand.Ready ready) {
         Optional<Payment> existingPayment = paymentRepository.findByOrderNumber(ready.orderNumber());
@@ -158,7 +150,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentReadyResult ready(PaymentCommand.Ready ready, String orderKey) {
+    public PaymentInfo.ReadyResult ready(PaymentCommand.Ready ready, String orderKey) {
         // 멱등성 체크: 이미 처리된 경우 기존 결과 반환
         Optional<IdempotencyKey> existingKey = idempotencyKeyRepository.findByOrderNoAndOrderKeyAndOperationType(
                 ready.orderNumber(), 
@@ -170,7 +162,7 @@ public class PaymentService {
             try {
                 return objectMapper.readValue(
                         existingKey.get().getResultData(),
-                        PaymentReadyResult.class
+                        PaymentInfo.ReadyResult.class
                 );
             } catch (JsonProcessingException e) {
                 log.error("[멱등성] PaymentReady 캐시 결과 역직렬화 실패. orderNo={}", ready.orderNumber(), e);
@@ -178,7 +170,7 @@ public class PaymentService {
         }
 
         Payment savedPayment = ensurePendingPayment(ready);
-        PaymentReadyResult result = new PaymentReadyResult(savedPayment.getId(), savedPayment.getPaymentStatus());
+        PaymentInfo.ReadyResult result = new PaymentInfo.ReadyResult(savedPayment.getId(), savedPayment.getPaymentStatus());
         if (orderKey != null) {
             saveIdempotencyKey(ready.orderNumber(), orderKey, IdempotencyKey.OperationType.READY, result);
         }
@@ -197,6 +189,4 @@ public class PaymentService {
             log.warn("[멱등성] 동시 요청으로 중복 키 저장 시도. orderNo={}, operationType={}", orderNo, operationType);
         }
     }
-
-    public record PaymentReadyResult(Long paymentId, PaymentStatus paymentStatus) {}
 }

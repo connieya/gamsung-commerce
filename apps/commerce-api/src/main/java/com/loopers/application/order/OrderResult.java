@@ -13,23 +13,6 @@ import java.util.List;
 
 public class OrderResult {
 
-    @Getter
-    @Builder
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Create {
-        private final Long orderId;
-        private final Long totalAmount;
-        private final Long discountAmount;
-
-        public static Create from(OrderInfo orderInfo) {
-            return Create.builder()
-                    .orderId(orderInfo.getOrderId())
-                    .totalAmount(orderInfo.getTotalAmount())
-                    .discountAmount(orderInfo.getDiscountAmount())
-                    .build();
-        }
-    }
-
     @Builder
     @Getter
     public static class GetDetail {

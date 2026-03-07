@@ -148,7 +148,15 @@ INSERT INTO product (name, price, ref_brand_id, ref_category_id, image_url, rele
 ('미니멀 메탈 워치 실버',      59000, 1, 43, 'https://picsum.photos/seed/musinsa-watch/400/533',     '2024-08-01 00:00:00', NOW(), NOW(), NULL),
 ('레더 캐주얼 벨트 브라운',     29000, 1, 44, 'https://picsum.photos/seed/musinsa-belt/400/533',      '2024-07-15 00:00:00', NOW(), NOW(), NULL);
 
--- 5. 상품 좋아요 (user id 1~20, product id 1~17)
+-- 5. 쿠폰 (받기 가능한 쿠폰)
+INSERT INTO coupon (coupon_name, coupon_code, coupon_type, value, valid_from, valid_to, valid_days, created_at, updated_at, deleted_at) VALUES
+('신규 가입 축하 3,000원 할인', '3C9504A7BEF01', 'FIXED_AMOUNT', 3000,  DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 180 DAY), NULL, NOW(), NOW(), NULL),
+('여름 시즌 5,000원 할인',      '7D2E18F3CA502', 'FIXED_AMOUNT', 5000,  DATE_SUB(NOW(), INTERVAL 7 DAY),  DATE_ADD(NOW(), INTERVAL 60 DAY),  NULL, NOW(), NOW(), NULL),
+('첫 구매 10% 할인',            'A1B904C8DE703', 'PERCENTAGE',   10,    DATE_SUB(NOW(), INTERVAL 14 DAY), DATE_ADD(NOW(), INTERVAL 90 DAY),  7,   NOW(), NOW(), NULL),
+('브랜드위크 15% 할인',         'E5F610D2AB804', 'PERCENTAGE',   15,    DATE_SUB(NOW(), INTERVAL 3 DAY),  DATE_ADD(NOW(), INTERVAL 14 DAY),  NULL, NOW(), NOW(), NULL),
+('VIP 전용 10,000원 할인',      'B8C723E9F1A05', 'FIXED_AMOUNT', 10000, DATE_SUB(NOW(), INTERVAL 1 DAY),  DATE_ADD(NOW(), INTERVAL 30 DAY),  14,  NOW(), NOW(), NULL);
+
+-- 6. 상품 좋아요 (user id 1~20, product id 1~17)
 -- 인기 상품일수록 좋아요 多 — 나이키/아디다스 신발류 인기, 무신사스탠다드 중간, 기타 적음
 INSERT INTO product_like (ref_user_id, ref_product_id, created_at, updated_at, deleted_at) VALUES
 -- 상품 7 (나이키 에어맥스 90) — 15명

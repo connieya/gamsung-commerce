@@ -22,4 +22,16 @@ public class CouponException {
             super(errorType);
         }
     }
+
+    public static class CouponExpiredException extends CoreException {
+        public CouponExpiredException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
+
+    public static class CouponAlreadyIssuedException extends CoreException {
+        public CouponAlreadyIssuedException(ErrorType errorType) {
+            super(errorType);
+        }
+    }
 }

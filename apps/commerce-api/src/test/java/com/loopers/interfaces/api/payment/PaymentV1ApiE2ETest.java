@@ -95,10 +95,12 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
 
 
-        Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
+        Coupon coupon = Coupon.create("쿠폰1", "E2E-COUPON-1", CouponType.PERCENTAGE, 10L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null);
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(coupon));
 
-        UserCoupon userCoupon = UserCoupon.create(userEntity.getId(), coupon.getId());
+        UserCoupon userCoupon = UserCoupon.create(userEntity.getId(), coupon.getId(),
+                java.time.ZonedDateTime.now().plusDays(30));
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userCoupon));
 
 

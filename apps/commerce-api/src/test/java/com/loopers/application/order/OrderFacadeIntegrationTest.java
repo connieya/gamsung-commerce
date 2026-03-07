@@ -97,7 +97,8 @@ class OrderFacadeIntegrationTest {
                 .quantity(2L)
                 .build();
 
-        Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
+        Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", "EVENT-PCT-1", CouponType.PERCENTAGE, 10L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null));
 
         OrderCriteria orderCriteria = OrderCriteria.builder()
                 .userId("gh")
@@ -143,8 +144,10 @@ class OrderFacadeIntegrationTest {
                 .quantity(1L)
                 .build();
 
-        Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", CouponType.PERCENTAGE, 10L));
-        userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId()));
+        Coupon savedCoupon = couponRepository.save(Coupon.create("이벤트", "EVENT-PCT-2", CouponType.PERCENTAGE, 10L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null));
+        userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId(),
+                java.time.ZonedDateTime.now().plusDays(30)));
 
         OrderCriteria orderCriteria = OrderCriteria.builder()
                 .userId("gunny")
@@ -236,8 +239,10 @@ class OrderFacadeIntegrationTest {
         Product savedProduct2 = productRepository.save(product2);
 
 
-        Coupon savedCoupon = couponRepository.save(Coupon.create("여름 이벤트", CouponType.FIXED_AMOUNT, 1000L));
-        userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId()));
+        Coupon savedCoupon = couponRepository.save(Coupon.create("여름 이벤트", "SUMMER-FIXED-1", CouponType.FIXED_AMOUNT, 1000L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null));
+        userCouponRepository.save(UserCoupon.create(savedUser.getId(), savedCoupon.getId(),
+                java.time.ZonedDateTime.now().plusDays(30)));
 
         OrderCriteria.OrderItem orderItem1 = OrderCriteria.OrderItem.builder()
                 .productId(savedProduct1.getId())

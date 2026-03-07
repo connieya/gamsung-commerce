@@ -39,6 +39,8 @@ public enum ErrorType {
     COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "Coupon Not Found", "존재하지 않는 쿠폰입니다."),
     USER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "UserCoupon Not Found", "존재하지 않는 사용자 쿠폰입니다."),
     USER_COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "UserCoupon Already Used", "이미 사용된 쿠폰입니다."),
+    COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "Coupon Expired", "만료된 쿠폰입니다."),
+    COUPON_ALREADY_ISSUED(HttpStatus.CONFLICT, "Coupon Already Issued", "이미 발급받은 쿠폰입니다."),
 
 
     LIKE_SUMMARY_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Summary Not Found", "좋아요 요약 정보를 찾을 수 없습니다."),

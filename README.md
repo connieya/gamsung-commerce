@@ -81,7 +81,7 @@ docker-compose -f ./docker/monitoring-compose.yml up
 ```
 Root
 ├── apps ( Spring Boot 애플리케이션 )
-│   ├── commerce-api      # 메인 API (상품, 주문, 결제, 좋아요 등)
+│   ├── commerce-api      # 메인 API (상품, 주문, 결제, 쿠폰, 좋아요 등)
 │   ├── commerce-collector # 이벤트 수집·메트릭
 │   ├── commerce-batch    # 배치 작업
 │   └── pg-simulator      # PG 결제 시뮬레이터 (Kotlin)

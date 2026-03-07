@@ -127,10 +127,12 @@ class PaymentFacadePgTest {
 
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.CARD, PayKind.CARD, CardType.HYUNDAI, "1234-1234-1234-1234",1L);
 
-        Coupon coupon = Coupon.create("쿠폰1", CouponType.PERCENTAGE, 10L);
+        Coupon coupon = Coupon.create("쿠폰1", "PG-COUPON-1", CouponType.PERCENTAGE, 10L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null);
         Coupon savedCoupon = couponRepository.save(coupon);
 
-        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId(),
+                java.time.ZonedDateTime.now().plusDays(30));
         userCouponRepository.save(userCoupon);
 
 

@@ -106,7 +106,7 @@ public class PaymentService {
 
             saveIdempotencyKey(transaction.orderNumber(), orderKey, IdempotencyKey.OperationType.PAYMENT_SESSION, result);
 
-            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId()));
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId(), transaction.userId()));
 
             return result;
         } catch (CoreException e) {
@@ -120,7 +120,7 @@ public class PaymentService {
     public void requestPayment(PaymentCommand.Transaction transaction) {
         try {
             PaymentRequestResult requestResult = paymentClient.request(transaction);
-            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId()));
+            applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId(), transaction.userId()));
         } catch (CoreException e) {
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
             applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));

@@ -286,11 +286,48 @@ SET @stmt = IF(@table_exists = 0,
       `updated_at` DATETIME(6) NOT NULL,
       `deleted_at` DATETIME(6) DEFAULT NULL,
       `coupon_name` VARCHAR(255) NOT NULL,
+      `coupon_code` VARCHAR(255) NOT NULL,
       `coupon_type` VARCHAR(255) DEFAULT NULL,
       `value` BIGINT DEFAULT NULL,
-      PRIMARY KEY (`id`)
+      `valid_from` DATETIME(6) NOT NULL,
+      `valid_to` DATETIME(6) NOT NULL,
+      `valid_days` INT DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `UK_coupon_code` (`coupon_code`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
     'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: coupon 테이블에 coupon_code 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'coupon' AND COLUMN_NAME = 'coupon_code');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE coupon ADD COLUMN coupon_code VARCHAR(255) NOT NULL DEFAULT ""', 'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: coupon 테이블에 valid_from 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'coupon' AND COLUMN_NAME = 'valid_from');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE coupon ADD COLUMN valid_from DATETIME(6) NOT NULL DEFAULT NOW(6)', 'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: coupon 테이블에 valid_to 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'coupon' AND COLUMN_NAME = 'valid_to');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE coupon ADD COLUMN valid_to DATETIME(6) NOT NULL DEFAULT NOW(6)', 'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: coupon 테이블에 valid_days 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'coupon' AND COLUMN_NAME = 'valid_days');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE coupon ADD COLUMN valid_days INT DEFAULT NULL', 'SELECT 1');
 PREPARE migration FROM @stmt;
 EXECUTE migration;
 DEALLOCATE PREPARE migration;
@@ -307,11 +344,20 @@ SET @stmt = IF(@table_exists = 0,
       `coupon_id` BIGINT DEFAULT NULL,
       `user_id` BIGINT DEFAULT NULL,
       `used` BIT(1) NOT NULL,
+      `expired_at` DATETIME(6) NOT NULL,
       `version` BIGINT DEFAULT NULL,
       PRIMARY KEY (`id`),
       UNIQUE KEY `UK_coupon_user` (`coupon_id`, `user_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
     'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: user_coupon 테이블에 expired_at 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'user_coupon' AND COLUMN_NAME = 'expired_at');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE user_coupon ADD COLUMN expired_at DATETIME(6) NOT NULL DEFAULT NOW(6)', 'SELECT 1');
 PREPARE migration FROM @stmt;
 EXECUTE migration;
 DEALLOCATE PREPARE migration;

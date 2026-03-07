@@ -112,10 +112,12 @@ class PaymentFacadeIntegrationTest {
         Stock savedStock = stockRepository.save(stock1);
         stockRepository.save(stock2);
 
-        Coupon coupon = Coupon.create("쿠폰1", CouponType.FIXED_AMOUNT, 10000L);
+        Coupon coupon = Coupon.create("쿠폰1", "PAY-COUPON-1", CouponType.FIXED_AMOUNT, 10000L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null);
         Coupon savedCoupon = couponRepository.save(coupon);
 
-        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId(),
+                java.time.ZonedDateTime.now().plusDays(30));
         userCouponRepository.save(userCoupon);
 
         OrderCommand.OrderItem orderItem1 = OrderCommand.OrderItem.builder()
@@ -193,10 +195,12 @@ class PaymentFacadeIntegrationTest {
         Order order = Order.create(orderCommand);
         Order savedOrder = orderRepository.save(order);
 
-        Coupon coupon = Coupon.create("쿠폰1", CouponType.FIXED_AMOUNT, 10000L);
+        Coupon coupon = Coupon.create("쿠폰1", "PAY-COUPON-2", CouponType.FIXED_AMOUNT, 10000L,
+                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null);
         Coupon savedCoupon = couponRepository.save(coupon);
 
-        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId());
+        UserCoupon userCoupon = UserCoupon.create(savedUser.getId(), savedCoupon.getId(),
+                java.time.ZonedDateTime.now().plusDays(30));
         userCouponRepository.save(userCoupon);
 
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay("gunny", savedOrder.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234",1L);

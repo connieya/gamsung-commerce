@@ -147,7 +147,7 @@ public class PaymentFacade {
                 .mapToLong(item -> item.getPrice() * item.getQuantity())
                 .sum();
 
-        Long discountAmount = couponService.calculateDiscountAmount(couponId, totalAmount);
+        Long discountAmount = couponService.calculateDiscountAmount(user.getId(), couponId, totalAmount);
 
         OrderCommand command = OrderCommand.of(user.getId(), orderCommandItems, discountAmount);
         orderService.place(command, orderNo);

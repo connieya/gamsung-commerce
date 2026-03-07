@@ -15,6 +15,7 @@ import org.instancio.Select;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 import java.util.List;
 
@@ -48,9 +49,13 @@ class ProductServiceIntegrationTest {
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
+    @Autowired
+    private RedisConnectionFactory redisConnectionFactory;
+
     @AfterEach
     void tearDown() {
         databaseCleanUp.truncateAllTables();
+        redisConnectionFactory.getConnection().serverCommands().flushDb();
     }
 
 
@@ -122,8 +127,6 @@ class ProductServiceIntegrationTest {
             assertThat(productDetailInfo.getLikeCount()).isEqualTo(1L);
             assertThat(productDetailInfo.getBrandName()).isEqualTo("nike");
         }
-
-
     }
 
     @Nested

@@ -97,7 +97,7 @@ class OrderFacadeTest {
 
             when(userService.findByUserId("gunny")).thenReturn(user);
             when(productService.findAllById(List.of(1L))).thenReturn(products);
-            when(couponService.calculateDiscountAmount(eq(1L), eq(totalAmount))).thenReturn(discountAmount);
+            when(couponService.calculateDiscountAmount(eq(1L), eq(1L), eq(totalAmount))).thenReturn(discountAmount);
 
             OrderInfo orderInfo = mock(OrderInfo.class);
             when(orderInfo.getOrderId()).thenReturn(1L);

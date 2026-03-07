@@ -27,7 +27,7 @@ public class PointPaymentProcessor implements PaymentProcessor {
 
         pointService.deduct(create.userId(), order.getFinalAmount());
 
-        applicationEventPublisher.publishEvent(PaymentEvent.Success.of(order.getId(), order.getOrderNumber(), paymentProcessContext.getUserId(), PaymentMethod.POINT, order.getFinalAmount(), order.getOrderLines(), paymentProcessContext.getCouponId()));
+        applicationEventPublisher.publishEvent(PaymentEvent.Success.of(order.getId(), order.getOrderNumber(), order.getUserId(), PaymentMethod.POINT, order.getFinalAmount(), order.getOrderLines(), paymentProcessContext.getCouponId()));
 
     }
 }

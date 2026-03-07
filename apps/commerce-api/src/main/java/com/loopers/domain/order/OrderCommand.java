@@ -12,7 +12,6 @@ public class OrderCommand {
     private List<OrderItem> orderItems;
     private Long discountAmount;
 
-
     @Getter
     @Builder
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)

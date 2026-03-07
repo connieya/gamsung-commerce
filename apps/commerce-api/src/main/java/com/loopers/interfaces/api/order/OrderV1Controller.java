@@ -5,15 +5,13 @@ import com.loopers.application.order.OrderFacade;
 import com.loopers.application.order.OrderResult;
 import com.loopers.application.payment.PaymentCriteria;
 import com.loopers.application.payment.PaymentFacade;
-import com.loopers.domain.payment.PaymentService;
+import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 
 @RestController
@@ -23,28 +21,6 @@ public class OrderV1Controller implements OrderV1ApiSpec {
 
     private final OrderFacade orderFacade;
     private final PaymentFacade paymentFacade;
-
-    @PostMapping
-    @Override
-    public ApiResponse<OrderV1Dto.Response.Place> place(@RequestHeader(ApiHeaders.USER_ID) String userId, @RequestBody OrderV1Dto.Request.Place request) {
-        OrderCriteria orderCriteria = OrderCriteria.builder()
-                .orderNo(request.orderNo())
-                .orderSignature(request.orderSignature())
-                .orderKey(request.orderKey())
-                .couponId(request.couponId())
-                .orderItems(request.orderItems()
-                        .stream()
-                        .map(o -> OrderCriteria.OrderItem.builder()
-                                .productId(o.getProductId())
-                                .quantity(o.getQuantity())
-                                .build()
-                        ).toList())
-                .userId(userId)
-                .build();
-
-        OrderResult.Create place = orderFacade.place(orderCriteria);
-        return ApiResponse.success(OrderV1Dto.Response.Place.from(place));
-    }
 
     @GetMapping("/order-form")
     @Override
@@ -81,7 +57,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
         OrderResult.GetDetail orderDetail = orderFacade.getOrderDetail(orderId);
         return ApiResponse.success(OrderV1Dto.Response.Detail.from(orderDetail));
     }
-    
+
     @PostMapping("/{orderNo}/ready")
     @Override
     public ApiResponse<OrderV1Dto.Response.Ready> ready(
@@ -89,20 +65,20 @@ public class OrderV1Controller implements OrderV1ApiSpec {
             @RequestHeader(ApiHeaders.USER_ID) String userId,
             @RequestBody OrderV1Dto.Request.Ready request
     ) {
-        List<PaymentCriteria.OrderItem> orderItems = request.orderItems().stream()
-                .map(item -> new PaymentCriteria.OrderItem(item.getProductId(), item.getQuantity()))
+        List<OrderCriteria.OrderItem> orderItems = request.orderItems().stream()
+                .map(item -> new OrderCriteria.OrderItem(item.getProductId(), item.getQuantity()))
                 .toList();
-        PaymentCriteria.Ready criteria = new PaymentCriteria.Ready(
+        OrderCriteria.Ready criteria = new OrderCriteria.Ready(
                 request.paymentMethod(),
                 request.payKind(),
                 userId,
                 orderItems,
                 request.couponId()
         );
-        PaymentService.PaymentReadyResult result = paymentFacade.ready(orderNo, request.orderKey(), criteria);
+        PaymentInfo.ReadyResult result = orderFacade.ready(orderNo, request.orderKey(), criteria);
         return ApiResponse.success(OrderV1Dto.Response.Ready.from(result));
     }
-    
+
     @PostMapping("/payment-session")
     @Override
     public ApiResponse<OrderV1Dto.Response.PaymentSession> paymentSession(
@@ -121,7 +97,7 @@ public class OrderV1Controller implements OrderV1ApiSpec {
                 request.cardNumber(),
                 request.couponId()
         );
-        PaymentService.PaymentSessionResult result = paymentFacade.createPaymentSession(
+        PaymentInfo.SessionResult result = paymentFacade.createPaymentSession(
                 request.orderNo(),
                 request.orderKey(),
                 criteria

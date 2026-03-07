@@ -1,54 +1,19 @@
 package com.loopers.application.order;
 
-import com.loopers.domain.product.Product;
-import lombok.*;
+import com.loopers.domain.payment.PayKind;
+import com.loopers.domain.payment.PaymentMethod;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-@Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OrderCriteria {
 
-    private String userId;
-    private List<OrderItem> orderItems;
-    private Long couponId;
-    private String orderNo;
-    private String orderSignature;
-    private String orderKey;
+    public record OrderItem(Long productId, Long quantity) {}
 
-    @Builder
-    public OrderCriteria(String userId, List<OrderItem> orderItems, Long couponId, String orderNo, String orderSignature, String orderKey) {
-        this.userId = userId;
-        this.orderItems = orderItems;
-        this.couponId = couponId;
-        this.orderNo = orderNo;
-        this.orderSignature = orderSignature;
-        this.orderKey = orderKey;
-    }
-
-    @Getter
-    @Builder
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class OrderItem {
-        private final Long productId;
-        private final Long quantity;
-    }
-
-    public List<Long> getProductIds() {
-        return orderItems.stream().map(OrderItem::getProductId).collect(Collectors.toList());
-    }
-
-    public Long getTotalAmount(List<Product> products) {
-        Map<Long, Product> productMap = products.stream()
-                .collect(Collectors.toMap(Product::getId, product -> product));
-
-        return orderItems.stream()
-                .mapToLong(item -> {
-                    Product product = productMap.get(item.getProductId());
-                    return product.getPrice() * item.getQuantity();
-                }).sum();
-    }
-
+    public record Ready(
+            PaymentMethod paymentMethod,
+            PayKind payKind,
+            String userId,
+            List<OrderItem> orderItems,
+            Long couponId
+    ) {}
 }

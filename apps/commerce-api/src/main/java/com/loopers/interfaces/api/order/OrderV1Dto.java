@@ -5,7 +5,7 @@ import com.loopers.domain.order.OrderStatus;
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentMethod;
-import com.loopers.domain.payment.PaymentService;
+import com.loopers.domain.payment.PaymentInfo;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,10 +15,6 @@ import java.util.List;
 public class OrderV1Dto {
 
     public static class Request {
-        public record Place(String orderNo, String orderSignature, String orderKey, Long couponId, List<OrderItem> orderItems) {
-
-        }
-
         public record IssueOrderNo(boolean isNewOrderForm) {
         }
         
@@ -52,12 +48,6 @@ public class OrderV1Dto {
 
 
     public static class Response {
-        public record Place(Long orderId ,Long totalAmount , Long discountAmount) {
-            public static Place from(OrderResult.Create create) {
-                return new Place(create.getOrderId(), create.getTotalAmount(), create.getDiscountAmount());
-            }
-        }
-
         public record IssueOrderNo(
                 String orderNo,
                 String orderSignature,
@@ -129,7 +119,7 @@ public class OrderV1Dto {
         }
         
         public record Ready(Long paymentId, String paymentStatus) {
-            public static Ready from(PaymentService.PaymentReadyResult result) {
+            public static Ready from(PaymentInfo.ReadyResult result) {
                 return new Ready(result.paymentId(), result.paymentStatus().toString());
             }
         }
@@ -141,7 +131,7 @@ public class OrderV1Dto {
                 String paymentUrl,
                 String pgKind
         ) {
-            public static PaymentSession from(PaymentService.PaymentSessionResult result) {
+            public static PaymentSession from(PaymentInfo.SessionResult result) {
                 return new PaymentSession(
                         result.orderNo(),
                         result.paymentKey(),

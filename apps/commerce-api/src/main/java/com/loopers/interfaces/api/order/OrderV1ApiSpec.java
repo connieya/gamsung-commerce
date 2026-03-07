@@ -14,12 +14,6 @@ import java.util.List;
 @Tag(name = "Order V1 API", description = "주문 관련 API 입니다.")
 public interface OrderV1ApiSpec {
 
-    @Operation(summary = "주문 요청", description = "상품을 주문합니다.")
-    ApiResponse<OrderV1Dto.Response.Place> place(
-            @RequestHeader(ApiHeaders.USER_ID) String userId,
-            @RequestBody OrderV1Dto.Request.Place request
-    );
-
     @Operation(summary = "유저의 주문 목록 조회", description = "유저 ID로 주문 목록을 조회합니다.")
     ApiResponse<OrderV1Dto.Response.List> getOrders(
             @RequestHeader(ApiHeaders.USER_ID) String userId

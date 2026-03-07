@@ -33,14 +33,6 @@ public class PaymentCriteria {
         }
     }
 
-    public record Ready(
-            PaymentMethod paymentMethod,
-            PayKind payKind,
-            String userId,
-            List<OrderItem> orderItems,
-            Long couponId
-    ) {}
-
     public record PaymentSession(
             PaymentMethod paymentMethod,
             PayKind payKind,

@@ -36,7 +36,7 @@ spring.config.activate.on-profile: local, test
 
 management:
   server:
-    port: 8085
+    port: 18084
 
 ---
 
@@ -47,7 +47,7 @@ server:
 
 management:
   server:
-    port: 8085
+    port: 18084
 
 ---
 

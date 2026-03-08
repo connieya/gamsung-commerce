@@ -2,6 +2,7 @@ rootProject.name = "e-commerce"
 
 include(
     ":apps:commerce-api",
+    ":apps:order-api",
     ":apps:commerce-collector",
     ":apps:commerce-batch",
     ":apps:pg-simulator",

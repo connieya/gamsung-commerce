@@ -6,17 +6,17 @@ import com.loopers.domain.category.Category;
 import com.loopers.domain.coupon.Coupon;
 import com.loopers.domain.coupon.CouponType;
 import com.loopers.domain.coupon.UserCoupon;
-import com.loopers.domain.order.Order;
-import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.payment.CardType;
-import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PayKind;
+import com.loopers.domain.payment.Payment;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.PaymentStatus;
 import com.loopers.domain.point.Point;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
+import com.loopers.infrastructure.feign.order.OrderApiClient;
+import com.loopers.infrastructure.feign.order.OrderApiDto;
 import com.loopers.infrastructure.point.PointEntity;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiHeaders;
@@ -35,6 +35,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.ZonedDateTime;
@@ -42,6 +43,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.when;
 
 @RequiredArgsConstructor
 @SprintE2ETest
@@ -53,6 +55,9 @@ public class PaymentV1ApiE2ETest {
     private final TestRestTemplate testRestTemplate;
     private final TestEntityManager testEntityManager;
     private final TransactionTemplate transactionTemplate;
+
+    @MockitoBean
+    private OrderApiClient orderApiClient;
 
     @AfterEach
     void tearDown() {
@@ -80,33 +85,24 @@ public class PaymentV1ApiE2ETest {
         Product product = Product.create("foo", 5000L, brand, category.getId(), null, ZonedDateTime.now());
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
-        OrderCommand.OrderItem orderItem = OrderCommand.OrderItem.builder()
-                .productId(product.getId())
-                .price(product.getPrice())
-                .quantity(2L)
-                .build();
-        OrderCommand orderCommand = OrderCommand.builder()
-                .userId(userEntity.getId())
-                .orderItems(List.of(orderItem))
-                .discountAmount(0L)
-                .build();
-        Order order = Order.create(orderCommand);
-
-        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
-
-
         Coupon coupon = Coupon.create("쿠폰1", "E2E-COUPON-1", CouponType.PERCENTAGE, 10L,
-                java.time.ZonedDateTime.now().minusDays(30), java.time.ZonedDateTime.now().plusDays(30), null);
+                ZonedDateTime.now().minusDays(30), ZonedDateTime.now().plusDays(30), null);
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(coupon));
 
         UserCoupon userCoupon = UserCoupon.create(userEntity.getId(), coupon.getId(),
-                java.time.ZonedDateTime.now().plusDays(30));
+                ZonedDateTime.now().plusDays(30));
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(userCoupon));
 
+        // Mock: OrderApiClient 응답
+        Long orderId = 1L;
+        String orderNumber = "ORD-E2E-001";
+        OrderApiDto.OrderResponse orderResponse = new OrderApiDto.OrderResponse(
+                orderId, orderNumber, 10000L, 0L, 10000L, "INIT", userEntity.getId(),
+                List.of(new OrderApiDto.OrderLineResponse(product.getId(), 2L, 5000L))
+        );
+        when(orderApiClient.getOrder(orderId)).thenReturn(ApiResponse.success(orderResponse));
 
-        Payment.create(10000L,order.getId(),order.getOrderNumber(),user.getId(),PaymentMethod.CARD , PaymentStatus.PAID);
-
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(orderId, PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-5678-9012-3456", 1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
@@ -114,7 +110,6 @@ public class PaymentV1ApiE2ETest {
         // when
         ResponseEntity<ApiResponse<Void>> response = testRestTemplate.exchange(BASE_URL, HttpMethod.POST, new HttpEntity<>(requestBody, headers), new ParameterizedTypeReference<>() {
         });
-
 
         Thread.sleep(2000);
 
@@ -126,16 +121,12 @@ public class PaymentV1ApiE2ETest {
         transactionTemplate.executeWithoutResult(status -> {
             Payment payment = testEntityManager.getEntityManager()
                     .createQuery("select p from Payment p where p.orderNumber = :orderNumber", Payment.class)
-                    .setParameter("orderNumber", order.getOrderNumber())
+                    .setParameter("orderNumber", orderNumber)
                     .getSingleResult();
             assertThat(payment.getPaymentStatus()).isEqualTo(PaymentStatus.PAID);
-
         });
-
     }
 
-
-        // FIXME PG Simulator 호출을 위한 임시 테스트
     @Disabled
     @Test
     @DisplayName("카드 결제 요청 시 PG사 처리를 위해 PENDING 상태를 반환한다.")
@@ -154,22 +145,15 @@ public class PaymentV1ApiE2ETest {
         Product product = Product.create("foo", 5000L, brand, category.getId(), null, ZonedDateTime.now());
         transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product));
 
-        OrderCommand.OrderItem orderItem = OrderCommand.OrderItem.builder()
-                .productId(product.getId())
-                .price(product.getPrice())
-                .quantity(2L)
-                .build();
-        OrderCommand orderCommand = OrderCommand.builder()
-                .userId(userEntity.getId())
-                .orderItems(List.of(orderItem))
-                .discountAmount(0L)
-                .build();
-        Order order = Order.create(orderCommand);
+        // Mock: OrderApiClient 응답
+        Long orderId = 1L;
+        OrderApiDto.OrderResponse orderResponse = new OrderApiDto.OrderResponse(
+                orderId, "ORD-E2E-002", 10000L, 0L, 10000L, "INIT", userEntity.getId(),
+                List.of(new OrderApiDto.OrderLineResponse(product.getId(), 2L, 5000L))
+        );
+        when(orderApiClient.getOrder(orderId)).thenReturn(ApiResponse.success(orderResponse));
 
-        transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(order));
-
-
-        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(order.getId(), PaymentMethod.CARD, PayKind.CARD, CardType.HYUNDAI, "1234-5678-9012-3456",1L);
+        PaymentV1Dto.Request.Pay requestBody = new PaymentV1Dto.Request.Pay(orderId, PaymentMethod.CARD, PayKind.CARD, CardType.HYUNDAI, "1234-5678-9012-3456", 1L);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(ApiHeaders.USER_ID, "gunny");
@@ -182,7 +166,5 @@ public class PaymentV1ApiE2ETest {
         assertAll(
                 () -> assertThat(response.getStatusCode().is2xxSuccessful()).isTrue()
         );
-
     }
-
 }

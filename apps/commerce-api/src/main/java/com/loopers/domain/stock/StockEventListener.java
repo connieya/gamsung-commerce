@@ -1,6 +1,5 @@
 package com.loopers.domain.stock;
 
-import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.payment.event.PaymentEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -17,12 +16,12 @@ public class StockEventListener {
 
     @EventListener
     public void onPaymentSuccess(PaymentEvent.Success event) {
-        List<OrderLine> orderLines = event.orderLines();
+        List<PaymentEvent.OrderLineSnapshot> orderLines = event.orderLines();
         List<StockCommand.DeductStocks.Item> items = orderLines.stream()
                 .map(orderLine -> StockCommand.DeductStocks.Item
                         .builder()
-                        .productId(orderLine.getProductId())
-                        .quantity(orderLine.getQuantity())
+                        .productId(orderLine.productId())
+                        .quantity(orderLine.quantity())
                         .build()
                 ).toList();
 

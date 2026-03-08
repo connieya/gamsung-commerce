@@ -8,5 +8,6 @@ public enum PayKind {
     KAKAOPAY,
     TOSSPAY,
     NAVERPAY,
-    PAYCO
+    PAYCO,
+    MUSINSA_PAY
 }

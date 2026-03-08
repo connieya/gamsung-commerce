@@ -26,7 +26,9 @@ docker-compose -f ./docker/monitoring-compose.yml up
 ## Development
 
 - **빌드**: `./gradlew build`
-- **실행**: 각 앱별로 `./gradlew :apps:<app-name>:bootRun` (예: `./gradlew :apps:commerce-api:bootRun`)
+- **실행**: 각 앱별로 `./gradlew :apps:<app-name>:bootRun`
+  - commerce-api (포트 8080): `./gradlew :apps:commerce-api:bootRun`
+  - order-api (포트 8081): `./gradlew :apps:order-api:bootRun`
 - **API 테스트**: `http/` 디렉터리의 `.http` 파일과 `http-client.env.json`을 사용합니다.
 
 ### 시드 데이터 (local)
@@ -48,7 +50,7 @@ docker-compose -f ./docker/monitoring-compose.yml up
 
 ## Architecture
 
-앱 모듈(commerce-api, commerce-collector 등)은 **클린 아키텍처**를 따릅니다.
+앱 모듈(commerce-api, order-api, commerce-collector 등)은 **클린 아키텍처**를 따릅니다.
 
 - **interfaces** → HTTP·메시지 진입 (컨트롤러, DTO)
 - **application** → 유스케이스 조합 (Facade, UseCase)
@@ -56,8 +58,17 @@ docker-compose -f ./docker/monitoring-compose.yml up
 - **infrastructure** → JPA·캐시·외부 API 구현체
 - **support** → 공통 예외·에러 처리
 
-의존성은 domain ← application ← interfaces, domain ← infrastructure 방향만 허용합니다.  
+의존성은 domain ← application ← interfaces, domain ← infrastructure 방향만 허용합니다.
 자세한 패키지·네이밍 규칙은 `.cursor/rules/clean-architecture-conventions.mdc`를 참고하세요.
+
+### 서비스 간 통신
+
+commerce-api와 order-api는 **REST(Feign)** 으로 통신합니다. 서비스별 Internal API(`/internal/v1/*`)를 통해 데이터를 주고받습니다.
+
+| 방향 | 호출 목적 |
+|------|----------|
+| order-api → commerce-api | 사용자 조회, 상품 목록 조회, 쿠폰 할인 계산, 결제 준비 |
+| commerce-api → order-api | 주문 조회(ID/번호), 주문 완료 처리 |
 
 ## Documentation
 
@@ -81,7 +92,8 @@ docker-compose -f ./docker/monitoring-compose.yml up
 ```
 Root
 ├── apps ( Spring Boot 애플리케이션 )
-│   ├── commerce-api      # 메인 API (상품, 주문, 결제, 쿠폰, 좋아요 등)
+│   ├── commerce-api      # 상품, 결제, 쿠폰, 좋아요, 랭킹 등 (포트 8080)
+│   ├── order-api         # 주문, 장바구니 (포트 8081)
 │   ├── commerce-collector # 이벤트 수집·메트릭
 │   ├── commerce-batch    # 배치 작업
 │   └── pg-simulator      # PG 결제 시뮬레이터 (Kotlin)

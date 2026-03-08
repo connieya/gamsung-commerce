@@ -18,6 +18,9 @@ public class CouponService {
 
     @Transactional(readOnly = true)
     public Long calculateDiscountAmount(Long userId, Long couponId, Long orderAmount) {
+        if (couponId == null) {
+            return 0L;
+        }
         return couponRepository.findById(couponId)
                 .map(coupon -> {
                     if (!coupon.isWithinValidPeriod()) {

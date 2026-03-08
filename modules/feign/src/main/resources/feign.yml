@@ -12,6 +12,22 @@ resilience4j:
         retry-exceptions:
           - feign.RetryableException
           - feign.FeignException
+      orderApiRetry:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - feign.RetryableException
+          - feign.FeignException
+      commerceApiRetry:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - feign.RetryableException
+          - feign.FeignException
 
   circuitbreaker:
     instances:

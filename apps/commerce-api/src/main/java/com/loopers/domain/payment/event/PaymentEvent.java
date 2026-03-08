@@ -1,6 +1,5 @@
 package com.loopers.domain.payment.event;
 
-import com.loopers.domain.order.OrderLine;
 import com.loopers.domain.payment.PaymentMethod;
 import com.loopers.domain.payment.TransactionStatus;
 import com.loopers.domain.payment.attempt.AttemptStatus;
@@ -21,12 +20,13 @@ public class PaymentEvent {
         }
     }
 
+    public record OrderLineSnapshot(Long productId, Long quantity, Long price) {}
+
     public record Success(Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod,
                           Long finalAmount,
-                          List<OrderLine> orderLines, Long couponId) {
-        public static Success of(Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLine> orderLines, Long couponId) {
+                          List<OrderLineSnapshot> orderLines, Long couponId) {
+        public static Success of(Long orderId, String orderNumber, Long userId, PaymentMethod paymentMethod, Long finalAmount, List<OrderLineSnapshot> orderLines, Long couponId) {
             return new Success(orderId, orderNumber, userId, paymentMethod, finalAmount, orderLines, couponId);
         }
-
     }
 }

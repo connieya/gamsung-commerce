@@ -2,6 +2,7 @@ package com.loopers.interfaces.api.payment;
 
 import com.loopers.application.payment.PaymentCriteria;
 import com.loopers.application.payment.PaymentFacade;
+import com.loopers.domain.payment.PaymentInfo;
 import com.loopers.interfaces.api.ApiHeaders;
 import com.loopers.interfaces.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,30 @@ public class PaymentV1Controller {
         );
         paymentFacade.pay(criteria);
         return ApiResponse.success(null);
+    }
+
+    @PostMapping("/session")
+    public ApiResponse<PaymentV1Dto.Response.PaymentSession> paymentSession(
+            @RequestHeader(ApiHeaders.USER_ID) String userId,
+            @RequestBody PaymentV1Dto.Request.PaymentSession request
+    ) {
+        PaymentCriteria.PaymentSession criteria = new PaymentCriteria.PaymentSession(
+                request.paymentMethod(),
+                request.payKind(),
+                userId,
+                request.orderItems().stream()
+                        .map(item -> new PaymentCriteria.OrderItem(item.productId(), item.quantity()))
+                        .toList(),
+                request.cardType(),
+                request.cardNumber(),
+                request.couponId()
+        );
+        PaymentInfo.SessionResult result = paymentFacade.createPaymentSession(
+                request.orderNo(),
+                request.orderKey(),
+                criteria
+        );
+        return ApiResponse.success(PaymentV1Dto.Response.PaymentSession.from(result));
     }
 
     @PostMapping("/callback")

@@ -1,9 +1,9 @@
 package com.loopers.application.payment;
 
 import com.loopers.application.payment.processor.PaymentProcessContext;
-import com.loopers.domain.order.OrderService;
+import com.loopers.infrastructure.feign.order.OrderApiClient;
+import com.loopers.infrastructure.feign.order.OrderApiDto;
 import com.loopers.application.payment.processor.PaymentProcessor;
-import com.loopers.domain.order.Order;
 import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentCommand;
 import com.loopers.domain.payment.PaymentMethod;
@@ -21,17 +21,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentFacade {
 
-    private final OrderService orderService;
+    private final OrderApiClient orderApiClient;
     private final Map<String, PaymentProcessor> paymentProcessorMap;
     private final PaymentService paymentService;
 
     @Transactional
     public void pay(PaymentCriteria.Pay criteria) {
-        Order order = orderService.getOrder(criteria.orderId());
-        order.validatePay();
+        OrderApiDto.OrderResponse order = orderApiClient.getOrder(criteria.orderId()).data();
+        validatePay(order);
 
         PayKind resolvedPayKind = resolvePayKind(criteria.paymentMethod(), criteria.payKind());
-        paymentService.ready(PaymentCommand.Ready.of(order.getId(), order.getOrderNumber(), order.getUserId(), order.getFinalAmount(), criteria.paymentMethod(), resolvedPayKind), null);
+        paymentService.ready(PaymentCommand.Ready.of(order.orderId(), order.orderNumber(), order.userId(), order.finalAmount(), criteria.paymentMethod(), resolvedPayKind), null);
 
         PaymentProcessor paymentProcessor = paymentProcessorMap.get(criteria.paymentMethod().toString());
         paymentProcessor.pay(PaymentProcessContext.of(criteria));
@@ -39,30 +39,30 @@ public class PaymentFacade {
 
     @Transactional
     public PaymentInfo.SessionResult createPaymentSession(String orderNo, String orderKey, PaymentCriteria.PaymentSession criteria) {
-        Order order = orderService.getOrderByOrderNumber(orderNo);
-        order.validatePay();
+        OrderApiDto.OrderResponse order = orderApiClient.getOrderByOrderNumber(orderNo).data();
+        validatePay(order);
 
         PayKind resolvedPayKind = resolvePayKind(criteria.paymentMethod(), criteria.payKind());
         paymentService.ensurePendingPayment(
                 PaymentCommand.Ready.of(
-                        order.getId(),
-                        order.getOrderNumber(),
-                        order.getUserId(),
-                        order.getFinalAmount(),
+                        order.orderId(),
+                        order.orderNumber(),
+                        order.userId(),
+                        order.finalAmount(),
                         criteria.paymentMethod(),
                         resolvedPayKind
                 )
         );
 
         PaymentCommand.Transaction transactionCommand = PaymentCommand.Transaction.of(
-                order.getId(),
-                order.getOrderNumber(),
+                order.orderId(),
+                order.orderNumber(),
                 criteria.paymentMethod(),
                 resolvedPayKind,
                 criteria.cardType(),
                 criteria.cardNumber(),
-                order.getFinalAmount(),
-                order.getUserId(),
+                order.finalAmount(),
+                order.userId(),
                 criteria.couponId()
         );
 
@@ -73,6 +73,15 @@ public class PaymentFacade {
     public void complete(PaymentCriteria.Complete complete) {
         PaymentCommand.Search search = PaymentCommand.Search.of(complete.transactionKey(), complete.orderNumber());
         paymentService.complete(search);
+    }
+
+    private void validatePay(OrderApiDto.OrderResponse order) {
+        if (!"INIT".equals(order.orderStatus())) {
+            throw new PaymentException.InvalidPayKindException(ErrorType.ORDER_INVALID_STATUS);
+        }
+        if (order.finalAmount() <= 0) {
+            throw new PaymentException.InvalidPayKindException(ErrorType.ORDER_INVALID_AMOUNT);
+        }
     }
 
     private PayKind resolvePayKind(PaymentMethod paymentMethod, PayKind payKind) {

@@ -1,0 +1,8 @@
+### 현재 로그 모드 조회
+GET {{order-api}}/api/internal/log-mode
+
+### VERBOSE 모드 전환 (Hibernate SQL, 바인딩 값, 트랜잭션 로그 출력)
+PUT {{order-api}}/api/internal/log-mode/VERBOSE
+
+### BUSINESS 모드 전환 (비즈니스 로직 로그만 출력)
+PUT {{order-api}}/api/internal/log-mode/BUSINESS

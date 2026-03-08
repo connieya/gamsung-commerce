@@ -1,4 +1,4 @@
-package com.loopers.support.config;
+package com.loopers.support.logging;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -25,9 +25,13 @@ public class LayerLoggingAspect {
     private static final String GREEN = "\u001B[32m";
     private static final String YELLOW = "\u001B[33m";
     private static final String BLUE = "\u001B[34m";
+    private static final String MAGENTA = "\u001B[35m";
     private static final String CYAN = "\u001B[36m";
     private static final String RED = "\u001B[31m";
     private static final String GRAY = "\u001B[90m";
+
+    @Pointcut("execution(* com.loopers.interfaces..*Controller.*(..))")
+    private void controllerLayer() {}
 
     @Pointcut("execution(* com.loopers.application..*(..))")
     private void applicationLayer() {}
@@ -37,6 +41,11 @@ public class LayerLoggingAspect {
 
     @Pointcut("execution(* *..*.repository..*(..))")
     private void repositoryMethods() {}
+
+    @Around("controllerLayer()")
+    public Object logControllerLayer(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecution(joinPoint, "CONTROLLER", MAGENTA);
+    }
 
     @Around("applicationLayer()")
     public Object logApplicationLayer(ProceedingJoinPoint joinPoint) throws Throwable {

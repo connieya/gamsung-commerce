@@ -1,4 +1,4 @@
-package com.loopers.support.config;
+package com.loopers.support.logging;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;

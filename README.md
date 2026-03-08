@@ -92,6 +92,6 @@ Root
 │   └── redis   # Redis 캐시/세션
 └── supports ( 부가 기능 )
     ├── jackson   # JSON 직렬화 설정
-    ├── logging   # Logback (JSON/Plain, Slack)
+    ├── logging   # Logback (JSON/Plain, Slack), AOP 레이어 로깅, 런타임 로그 모드 전환
     └── monitoring # Actuator, Prometheus
 ```

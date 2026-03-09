@@ -1,7 +1,7 @@
 package com.loopers.domain.likes;
 
 import com.loopers.domain.BaseEntity;
-import com.loopers.domain.likes.exception.LikeException;
+import com.loopers.support.error.CoreException;
 import com.loopers.support.error.ErrorType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -52,7 +52,7 @@ public class LikeSummary extends BaseEntity {
 
     public void decrease() {
         if (this.likeCount <= MIN_LIKE_COUNT) {
-            throw new LikeException.LikeCountCannotBeNegativeException(ErrorType.LIKE_COUNT_CANNOT_BE_NEGATIVE);
+            throw new CoreException(ErrorType.LIKE_COUNT_CANNOT_BE_NEGATIVE);
         }
         this.likeCount--;
     }

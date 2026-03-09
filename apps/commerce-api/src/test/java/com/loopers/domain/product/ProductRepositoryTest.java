@@ -3,7 +3,6 @@ package com.loopers.domain.product;
 import com.loopers.domain.likes.LikeSummary;
 import com.loopers.domain.likes.LikeSummaryRepository;
 import com.loopers.domain.likes.LikeTargetType;
-import com.loopers.domain.likes.ProductLikeRepository;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.product.fixture.ProductFixture;
@@ -43,9 +42,6 @@ class ProductRepositoryTest {
     UserRepository userRepository;
 
     @Autowired
-    ProductLikeRepository productLikeRepository;
-
-    @Autowired
     LikeSummaryRepository likeSummaryRepository;
 
     @Autowired
@@ -64,12 +60,6 @@ class ProductRepositoryTest {
     @Transactional
     void findProductDetails() {
         // given
-        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
-        User savedUser1 = userRepository.save(user1);
-        User savedUser2 = userRepository.save(user2);
-
-
         Brand brand = BrandFixture.complete().create();
         Brand savedBrand = brandRepository.save(brand);
 
@@ -81,13 +71,16 @@ class ProductRepositoryTest {
         Product savedProductA = productRepository.save(productA);
         Product savedProductB = productRepository.save(productB);
 
-
-        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
-        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
+        LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
+        likeSummary1.increase();
+        LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
+        likeSummary2.increase();
+        likeSummary2.increase();
+        likeSummaryRepository.save(likeSummary1);
+        likeSummaryRepository.save(likeSummary2);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10 , ProductSort.LIKES_DESC.toSort());
+        Pageable pageable = PageRequest.of(0, 10, ProductSort.DENORMALIZED_LIKES_DESC.toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetails(pageable);
         List<ProductInfo> content = productDetails.getContent();
 
@@ -106,12 +99,6 @@ class ProductRepositoryTest {
     @Transactional
     void findProductDetailsOptimized() {
         // given
-        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
-        User savedUser1 = userRepository.save(user1);
-        User savedUser2 = userRepository.save(user2);
-
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand savedBrand = brandRepository.save(brand);
 
@@ -123,13 +110,16 @@ class ProductRepositoryTest {
         Product savedProductA = productRepository.save(productA);
         Product savedProductB = productRepository.save(productB);
 
-
-        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
-        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
+        LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
+        likeSummary1.increase();
+        LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
+        likeSummary2.increase();
+        likeSummary2.increase();
+        likeSummaryRepository.save(likeSummary1);
+        likeSummaryRepository.save(likeSummary2);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10 ,ProductSort.PRICE_ASC.toSort());
+        Pageable pageable = PageRequest.of(0, 10, ProductSort.PRICE_ASC.toSort());
         Page<ProductInfo> productDetails = productRepository.findProductDetailsOptimized(pageable);
         List<ProductInfo> content = productDetails.getContent();
 
@@ -148,12 +138,6 @@ class ProductRepositoryTest {
     @Transactional
     void findProductDetails_denormalized_byBrandId_sortedByLikesDesc_returnsCorrectOrder() {
         // given
-        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
-        User savedUser1 = userRepository.save(user1);
-        User savedUser2 = userRepository.save(user2);
-
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand savedBrand = brandRepository.save(brand);
 
@@ -165,11 +149,6 @@ class ProductRepositoryTest {
         Product savedProductA = productRepository.save(productA);
         Product savedProductB = productRepository.save(productB);
 
-
-        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
-        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
-
         LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
         likeSummary1.increase();
         LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
@@ -180,8 +159,8 @@ class ProductRepositoryTest {
         likeSummaryRepository.save(likeSummary2);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10 , ProductSort.DENORMALIZED_LIKES_DESC.toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable , savedBrand.getId());
+        Pageable pageable = PageRequest.of(0, 10, ProductSort.DENORMALIZED_LIKES_DESC.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable, savedBrand.getId());
         List<ProductInfo> content = productDetails.getContent();
 
         // then
@@ -198,12 +177,6 @@ class ProductRepositoryTest {
     @Transactional
     void findProductDetails_denormalized_byNonExistingBrandId_returnsEmptyList() {
         // given
-        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
-        User savedUser1 = userRepository.save(user1);
-        User savedUser2 = userRepository.save(user2);
-
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand brand2 = BrandFixture.complete().set(Select.field(Brand::getName), "nike").create();
         Brand savedBrand = brandRepository.save(brand);
@@ -217,11 +190,6 @@ class ProductRepositoryTest {
         Product savedProductA = productRepository.save(productA);
         Product savedProductB = productRepository.save(productB);
 
-
-        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
-        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
-
         LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
         likeSummary1.increase();
         LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
@@ -232,13 +200,12 @@ class ProductRepositoryTest {
         likeSummaryRepository.save(likeSummary2);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10 , ProductSort.DENORMALIZED_LIKES_DESC.toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable , savedBrand2.getId());
+        Pageable pageable = PageRequest.of(0, 10, ProductSort.DENORMALIZED_LIKES_DESC.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable, savedBrand2.getId());
         List<ProductInfo> content = productDetails.getContent();
 
         // then
         assertThat(content).hasSize(0);
-
     }
 
     @Test
@@ -246,12 +213,6 @@ class ProductRepositoryTest {
     @Transactional
     void findProductDetails_denormalized_withoutBrandId_returnsAllProductsSortedByLikesDesc() {
         // given
-        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
-        User savedUser1 = userRepository.save(user1);
-        User savedUser2 = userRepository.save(user2);
-
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand brand2 = BrandFixture.complete().set(Select.field(Brand::getName), "nike").create();
         Brand savedBrand = brandRepository.save(brand);
@@ -267,12 +228,6 @@ class ProductRepositoryTest {
         Product savedProductB = productRepository.save(productB);
         Product savedProductC = productRepository.save(productC);
 
-
-        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
-        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductC.getId());
-
         LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
         likeSummary1.increase();
         LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
@@ -287,8 +242,8 @@ class ProductRepositoryTest {
         likeSummaryRepository.save(likeSummary3);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10 , ProductSort.DENORMALIZED_LIKES_DESC.toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable , null);
+        Pageable pageable = PageRequest.of(0, 10, ProductSort.DENORMALIZED_LIKES_DESC.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCount(pageable, null);
         List<ProductInfo> content = productDetails.getContent();
 
         // then
@@ -299,7 +254,6 @@ class ProductRepositoryTest {
                         tuple(savedProductB.getId(), "상품B", 70000L, "adidas", 2L),
                         tuple(savedProductA.getId(), "상품A", 50000L, "adidas", 1L)
                 );
-
     }
 
 
@@ -308,12 +262,6 @@ class ProductRepositoryTest {
     @Transactional
     void findProductDetailsDenormalizedLikeCountOptimized() {
         // given
-        User user1 = UserFixture.complete().set(Select.field(User::getUserId), "gunny").create();
-        User user2 = UserFixture.complete().set(Select.field(User::getUserId), "cony").create();
-        User savedUser1 = userRepository.save(user1);
-        User savedUser2 = userRepository.save(user2);
-
-
         Brand brand = BrandFixture.complete().set(Select.field(Brand::getName), "adidas").create();
         Brand savedBrand = brandRepository.save(brand);
 
@@ -325,11 +273,6 @@ class ProductRepositoryTest {
         Product savedProductA = productRepository.save(productA);
         Product savedProductB = productRepository.save(productB);
 
-
-        productLikeRepository.save(savedUser1.getId(), savedProductA.getId());
-        productLikeRepository.save(savedUser1.getId(), savedProductB.getId());
-        productLikeRepository.save(savedUser2.getId(), savedProductB.getId());
-
         LikeSummary likeSummary1 = LikeSummary.create(savedProductA.getId(), LikeTargetType.PRODUCT);
         likeSummary1.increase();
         LikeSummary likeSummary2 = LikeSummary.create(savedProductB.getId(), LikeTargetType.PRODUCT);
@@ -340,8 +283,8 @@ class ProductRepositoryTest {
         likeSummaryRepository.save(likeSummary2);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10 , ProductSort.LIKES_DESC.toSort());
-        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable , savedBrand.getId());
+        Pageable pageable = PageRequest.of(0, 10, ProductSort.LIKES_DESC.toSort());
+        Page<ProductInfo> productDetails = productRepository.findProductDetailsDenormalizedLikeCountOptimized(pageable, savedBrand.getId());
         List<ProductInfo> content = productDetails.getContent();
 
         // then

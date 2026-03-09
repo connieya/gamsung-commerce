@@ -9,11 +9,12 @@ public record LikeCommand() {
     ) {
         public record Item(
                 String eventId,
-                Long productId,
+                Long targetId,
+                LikeTargetType targetType,
                 LikeUpdateType updateType
         ) {
-            public static Item of(String eventId , Long productId , LikeUpdateType updateType) {
-                return  new Item(eventId, productId, updateType);
+            public static Item of(String eventId, Long targetId, LikeTargetType targetType, LikeUpdateType updateType) {
+                return new Item(eventId, targetId, targetType, updateType);
             }
         }
     }

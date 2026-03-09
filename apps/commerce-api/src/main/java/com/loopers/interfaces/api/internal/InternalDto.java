@@ -8,7 +8,7 @@ public class InternalDto {
 
     public record ProductBulkRequest(List<Long> productIds) {}
 
-    public record ProductResponse(Long id, String name, Long price, String imageUrl) {}
+    public record ProductResponse(Long id, String name, Long price, String imageUrl, String brandName) {}
 
     public record CouponDiscountRequest(Long userId, Long couponId, Long totalAmount) {}
 

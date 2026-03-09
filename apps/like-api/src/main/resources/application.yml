@@ -1,0 +1,70 @@
+server:
+  port: 8083
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    connection-timeout: 1m
+    max-connections: 8192
+    accept-count: 100
+    keep-alive-timeout: 60s
+  max-http-request-header-size: 8KB
+
+management:
+  server:
+    port: 18083
+
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: like-api
+  profiles:
+    active: local
+  config:
+    import:
+      - jpa.yml
+      - logging.yml
+      - redis.yml
+      - feign.yml
+      - kafka.yml
+      - monitoring.yml
+  datasource:
+    hikari:
+      connection-timeout: 3000
+      validation-timeout: 2000
+
+service:
+  commerce-api:
+    url: http://localhost:8080
+
+logging:
+  level:
+    io.github.resilience4j.retry: DEBUG
+    org.springframework.transaction.interceptor: WARN
+    org.springframework.orm.jpa.JpaTransactionManager: WARN
+    org.springframework.jdbc.datasource.DataSourceTransactionManager: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
+
+springdoc:
+  use-fqn: true
+  swagger-ui:
+    path: /swagger-ui.html
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local, test
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prd
+
+springdoc:
+  api-docs:
+    enabled: false

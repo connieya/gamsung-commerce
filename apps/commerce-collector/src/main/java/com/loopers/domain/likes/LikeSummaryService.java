@@ -21,23 +21,29 @@ public class LikeSummaryService {
     @Transactional
     public void update(LikeCommand.Update command) {
         List<LikeCommand.Update.Item> items = command.items();
-        Map<Long, Long> countChanges = items.stream()
+
+        record TargetKey(Long targetId, LikeTargetType targetType) {}
+
+        Map<TargetKey, Long> countChanges = items.stream()
                 .collect(Collectors.groupingBy(
-                        LikeCommand.Update.Item::productId,
+                        item -> new TargetKey(item.targetId(), item.targetType()),
                         Collectors.summingLong(item -> item.updateType() == LikeUpdateType.INCREMENT ? 1L : -1L)
                 ));
-        log.info("countChanges = {}", countChanges);
-        for (Long productId : countChanges.keySet()) {
-            Long likeChanged = countChanges.get(productId);
-            String key = "product-like:" + productId;
-            log.info("productId = {} , likeChanged = {} ", productId, likeChanged);
 
-            LikeTarget target = LikeTarget.create(productId, LikeTargetType.PRODUCT);
+        log.info("countChanges = {}", countChanges);
+
+        for (Map.Entry<TargetKey, Long> entry : countChanges.entrySet()) {
+            TargetKey key = entry.getKey();
+            Long likeChanged = entry.getValue();
+            String redisKey = "product-like:" + key.targetId();
+            log.info("targetId = {} , targetType = {} , likeChanged = {} ", key.targetId(), key.targetType(), likeChanged);
+
+            LikeTarget target = LikeTarget.create(key.targetId(), key.targetType());
             if (likeSummaryRepository.findByTarget(target).isEmpty()) {
-                likeSummaryRepository.save(LikeSummary.create(productId, LikeTargetType.PRODUCT));
+                likeSummaryRepository.save(LikeSummary.create(key.targetId(), key.targetType()));
             }
-            likeSummaryRepository.updateLikeCountBy(productId, LikeTargetType.PRODUCT, likeChanged);
-            objectRedisTemplate.opsForHash().increment(key, "likeCount", likeChanged);
+            likeSummaryRepository.updateLikeCountBy(key.targetId(), key.targetType(), likeChanged);
+            objectRedisTemplate.opsForHash().increment(redisKey, "likeCount", likeChanged);
         }
     }
 }

@@ -3,9 +3,6 @@ package com.loopers.domain.product;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.brand.exception.BrandException;
-import com.loopers.domain.likes.LikeSummary;
-import com.loopers.domain.likes.LikeSummaryRepository;
-import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.exception.ProductException;
 import com.loopers.support.error.ErrorType;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +22,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCacheRepository productCacheRepository;
-    private final LikeSummaryRepository likeSummaryRepository;
     private final BrandRepository brandRepository;
 
     @Transactional
@@ -41,9 +37,7 @@ public class ProductService {
                 null,
                 ZonedDateTime.now()
         );
-        Product save = productRepository.save(product);
-        likeSummaryRepository.save(LikeSummary.create(save.getId(), LikeTargetType.PRODUCT));
-        return save;
+        return productRepository.save(product);
     }
 
 

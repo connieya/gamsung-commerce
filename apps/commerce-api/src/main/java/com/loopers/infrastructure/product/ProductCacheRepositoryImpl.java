@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.config.RedisCacheConfig;
 import com.loopers.config.RedisKeyManager;
-import com.loopers.domain.likes.LikeUpdateType;
 import com.loopers.domain.product.ProductCacheRepository;
 import com.loopers.domain.product.ProductDetailInfo;
 import com.loopers.domain.product.ProductInfo;
@@ -105,30 +104,5 @@ public class ProductCacheRepositoryImpl implements ProductCacheRepository {
         objectRedisTemplate.opsForHash().putAll(key, cache);
         objectRedisTemplate.expire(key, ttl);
     }
-
-    @Override
-    public void updateLikeCount(Long productId, LikeUpdateType updateType) {
-        Optional<ProductDetailInfo> cached = findProductDetailById(productId);
-        if (cached.isEmpty()) {
-            return;
-        }
-        ProductDetailInfo info = cached.get();
-        if (info == ProductDetailInfo.EMPTY || info.getProductId() == null) {
-            return;
-        }
-        long current = info.getLikeCount() != null ? info.getLikeCount() : 0L;
-        long next = updateType == LikeUpdateType.INCREMENT ? current + 1 : Math.max(0, current - 1);
-        ProductDetailInfo updated = ProductDetailInfo.builder()
-                .productId(info.getProductId())
-                .productName(info.getProductName())
-                .productPrice(info.getProductPrice())
-                .brandName(info.getBrandName())
-                .brandId(info.getBrandId())
-                .imageUrl(info.getImageUrl())
-                .likeCount(next)
-                .build();
-        saveProductDetail(updated);
-    }
-
 
 }

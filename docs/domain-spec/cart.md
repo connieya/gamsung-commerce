@@ -1,5 +1,55 @@
 # 장바구니 (Cart) Specification
 
+## 문서 목적
+- 무신사 장바구니 흐름을 **레퍼런스**로 삼되, 우리 프로젝트에서 실제로 유지하는 최소 스펙을 정의한다.
+- 아래 "프로젝트 구현 스펙" 섹션이 실제 코드 기준이며, 그 뒤의 "무신사 레퍼런스"는 참고용이다.
+
+---
+
+## 프로젝트 구현 스펙
+
+### 도메인 모델
+
+#### Cart (Aggregate Root)
+- `userId` 기반 1:1 매핑 (`userId` unique)
+- `CartItem`과 1:N 관계 (`cascade = ALL`, `orphanRemoval = true`)
+- `getTotalAmount()`: 전체 아이템 소계 합산
+
+#### CartItem
+- `productId`, `quantity`, `price` 필드
+- `getSubtotal()`: `price * quantity` 계산
+- `updateQuantity()`: 수량 변경
+
+#### ProductPort
+- 외부 상품 서비스(commerce-api) 연동 포트
+- `getProduct(productId)` → `ProductInfo(id, name, price, imageUrl)` 반환
+- 상품 추가 시 상품 존재 여부 + 가격 검증에 사용
+
+### API
+
+| Method | Endpoint | 설명 |
+|--------|----------|------|
+| GET | `/api/v1/cart` | 장바구니 조회 |
+| POST | `/api/v1/cart/items` | 상품 추가 |
+| PUT | `/api/v1/cart/items/{itemId}` | 수량 변경 |
+| DELETE | `/api/v1/cart/items/{itemId}` | 상품 삭제 |
+| DELETE | `/api/v1/cart` | 장바구니 비우기 |
+| GET | `/api/v1/cart/count` | 장바구니 수량 조회 |
+
+### 비즈니스 규칙
+- **동일 상품 수량 합산**: 이미 장바구니에 있는 상품을 추가하면 기존 아이템의 수량에 합산 (중복 아이템 방지)
+- **상품 검증**: 상품 추가 시 `ProductPort.getProduct()`로 상품 존재 여부 및 가격 조회
+- **사용자당 하나의 Cart**: `userId` unique 제약으로 보장
+- **Cart 자동 생성**: 장바구니가 없는 사용자가 조회/추가 시 자동 생성
+
+### 주문서 연동
+- 주문서 진입 시 `cartItemIds`로 장바구니 아이템 선택 가능
+- `CartService.getCartItemsByIds(cartItemIds, userId)`로 선택된 아이템만 조회
+
+---
+
+## 무신사 레퍼런스
+
 ## 장바구니 페이지 진입
 
 ### 페이지 URL

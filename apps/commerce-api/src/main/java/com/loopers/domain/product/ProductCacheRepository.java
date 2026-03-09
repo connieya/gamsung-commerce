@@ -1,6 +1,5 @@
 package com.loopers.domain.product;
 
-import com.loopers.domain.likes.LikeUpdateType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,6 +14,4 @@ public interface ProductCacheRepository {
     Optional<ProductDetailInfo> findProductDetailById(Long productId);
 
     void saveProductDetail(ProductDetailInfo productDetailInfo);
-
-    void updateLikeCount(Long productId, LikeUpdateType updateType);
 }

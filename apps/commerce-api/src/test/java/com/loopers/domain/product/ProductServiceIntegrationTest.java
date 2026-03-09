@@ -1,7 +1,9 @@
 package com.loopers.domain.product;
 
 import com.loopers.domain.brand.BrandRepository;
-import com.loopers.domain.likes.*;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.fixture.BrandFixture;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.category.Category;
@@ -36,9 +38,6 @@ class ProductServiceIntegrationTest {
 
     @Autowired
     LikeSummaryRepository likeSummaryRepository;
-
-    @Autowired
-    ProductLikeRepository productLikeRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -225,12 +224,15 @@ class ProductServiceIntegrationTest {
                 Product savedProduct2 = productRepository.save(product2);
                 productRepository.save(product3);
 
-                // 4. 좋아요 데이터 추가
-                // 위에서 저장한 User와 Product의 ID를 사용합니다.
-                // product1에 대한 좋아요를 생성합니다.
-                productLikeRepository.save(savedUser1.getId(), savedProduct1.getId());
-                productLikeRepository.save(savedUser2.getId(), savedProduct1.getId());
-                productLikeRepository.save(savedUser1.getId(), savedProduct2.getId());
+                // 4. LikeSummary 데이터 추가
+                LikeSummary summary1 = LikeSummary.create(savedProduct1.getId(), LikeTargetType.PRODUCT);
+                summary1.increase();
+                summary1.increase();
+                likeSummaryRepository.save(summary1);
+
+                LikeSummary summary2 = LikeSummary.create(savedProduct2.getId(), LikeTargetType.PRODUCT);
+                summary2.increase();
+                likeSummaryRepository.save(summary2);
             }
 
 

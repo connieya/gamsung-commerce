@@ -3,7 +3,9 @@ package com.loopers.domain.metric;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.category.Category;
-import com.loopers.domain.likes.ProductLikeService;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.product.Product;
 import com.loopers.domain.product.ProductRepository;
 import com.loopers.domain.product.ProductService;
@@ -23,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class MetricServiceTest {
 
     @Autowired
-    ProductLikeService productLikeService;
+    LikeSummaryRepository likeSummaryRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -69,9 +71,9 @@ public class MetricServiceTest {
         Product savedProduct3 = productRepository.save(product3);
 
 
-//        productLikeService.add(savedUser.getId(), savedProduct.getId());
-//        productLikeService.add(savedUser.getId(), savedProduct2.getId());
-        productLikeService.add(savedUser.getId(), savedProduct3.getId());
+        LikeSummary ls = LikeSummary.create(savedProduct3.getId(), LikeTargetType.PRODUCT);
+        ls.increase();
+        likeSummaryRepository.save(ls);
 
         productService.getProductDetail(savedProduct3.getId());
     }

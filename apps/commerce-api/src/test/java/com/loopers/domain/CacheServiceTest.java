@@ -2,7 +2,9 @@ package com.loopers.domain;
 
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
-import com.loopers.domain.likes.ProductLikeService;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.category.Category;
 import com.loopers.domain.product.*;
 import com.loopers.domain.product.fixture.BrandFixture;
@@ -35,7 +37,7 @@ public class CacheServiceTest {
     private DatabaseCleanUp databaseCleanUp;
 
     @Autowired
-    private ProductLikeService productLikeService;
+    private LikeSummaryRepository likeSummaryRepository;
 
     @Autowired
     private ProductService productService;
@@ -65,8 +67,8 @@ public class CacheServiceTest {
         // when
         ProductDetailInfo productDetailInfo = productService.getProductDetail(register.getId());
 
-        productLikeService.add(savedUser1.getId(), register.getId());
-        productLikeService.add(savedUser2.getId(), register.getId());
-        productLikeService.remove(savedUser2.getId(), register.getId());
+        LikeSummary ls = LikeSummary.create(register.getId(), LikeTargetType.PRODUCT);
+        ls.increase();
+        likeSummaryRepository.save(ls);
     }
 }

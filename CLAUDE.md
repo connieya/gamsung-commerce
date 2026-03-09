@@ -76,6 +76,11 @@ interfaces/api  →  application  →  domain  ←  infrastructure
 - `domain`에서 `application`의 Facade나 Criteria를 import하면 **위반**
 - `application`(Facade)에서 `Repository`를 직접 호출하면 **위반** — 반드시 `XxxService`를 통해 호출 (Facade → Service → Repository)
 
+## Git Remote 구성
+- `origin`: `connieya/gamsung-commerce` (fork, push 대상)
+- `upstream`: `Loopers-dev-lab/loopers-spring-java-template` (원본)
+- PR 생성 시: `gh pr create --repo connieya/gamsung-commerce` 사용
+
 ## 연관 프로젝트
 - 프론트엔드: `/Users/cony/Desktop/workspace/gamsung-web` (Next.js)
 

@@ -18,19 +18,18 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
     List<Product> findByBrand(Brand brand);
 
     @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
-            "p.id," +
-            "p.price," +
-            "p.name," +
-            "b.name," +
-            "p.imageUrl," +
-            "cast(count(pl.id) as long) as likeCount," +
+            "p.id, " +
+            "p.price, " +
+            "p.name, " +
+            "b.name, " +
+            "p.imageUrl, " +
+            "s.likeCount, " +
             "p.releasedAt" +
-            ") from Product p " +
-            "left join p.brand b " +
-            "left join ProductLike  pl on p.id = pl.productId " +
-            "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt "
+            ") FROM Product p " +
+            "LEFT JOIN p.brand b " +
+            "LEFT JOIN LikeSummary s on s.target.id = p.id and s.target.type = 'PRODUCT'"
     )
-    Page<ProductInfo>  findProductDetails(Pageable pageable);
+    Page<ProductInfo> findProductDetails(Pageable pageable);
 
     @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
             "p.id, " +
@@ -38,10 +37,11 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
             "p.name, " +
             "b.name, " +
             "p.imageUrl, " +
-            "cast((SELECT COUNT(l) FROM ProductLike l WHERE l.productId = p.id) as long )as likeCount, " +
+            "s.likeCount, " +
             "p.releasedAt" +
             ") FROM Product p " +
-            "LEFT JOIN p.brand b"
+            "LEFT JOIN p.brand b " +
+            "LEFT JOIN LikeSummary s on s.target.id = p.id and s.target.type = 'PRODUCT'"
     )
     Page<ProductInfo> findProductDetailsOptimized(Pageable pageable);
 
@@ -80,18 +80,17 @@ public interface ProductJpaRepository extends JpaRepository<Product, Long> {
 
 
     @Query("SELECT new com.loopers.domain.product.ProductInfo(" +
-            "p.id," +
-            "p.price," +
-            "p.name," +
-            "b.name," +
-            "p.imageUrl," +
-            "cast(count(pl.id) as long) as likeCount," +
+            "p.id, " +
+            "p.price, " +
+            "p.name, " +
+            "b.name, " +
+            "p.imageUrl, " +
+            "s.likeCount, " +
             "p.releasedAt" +
-            ") from Product p " +
-            "left join p.brand b " +
-            "left join ProductLike  pl on p.id = pl.productId " +
-            "where p.id in :rankingInfo " +
-            "group by p.id, p.price, p.name, b.name, p.imageUrl, p.releasedAt"
+            ") FROM Product p " +
+            "LEFT JOIN p.brand b " +
+            "LEFT JOIN LikeSummary s on s.target.id = p.id and s.target.type = 'PRODUCT' " +
+            "WHERE p.id in :rankingInfo"
     )
     List<ProductInfo> findRankByIds(@Param("rankingInfo") List<Long> rankingInfo);
 

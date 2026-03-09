@@ -7,7 +7,9 @@ import com.loopers.application.product.ProductFacade;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.brand.BrandRepository;
 import com.loopers.domain.category.Category;
-import com.loopers.domain.likes.ProductLikeService;
+import com.loopers.domain.likes.LikeSummary;
+import com.loopers.domain.likes.LikeSummaryRepository;
+import com.loopers.domain.likes.LikeTargetType;
 import com.loopers.domain.payment.CardType;
 import com.loopers.domain.payment.PayKind;
 import com.loopers.domain.payment.PaymentMethod;
@@ -65,7 +67,7 @@ class RankingServiceTest {
     private DatabaseCleanUp databaseCleanUp;
 
     @Autowired
-    private ProductLikeService productLikeService;
+    private LikeSummaryRepository likeSummaryRepository;
 
     @Autowired
     private ProductService productService;
@@ -104,7 +106,9 @@ class RankingServiceTest {
         Product product1 = ProductFixture.create().name("product1").price(1000L).brand(savedBrand).categoryId(category.getId()).build();
         Product savedProduct1 = productRepository.save(product1);
 
-        productLikeService.add(savedUser.getId(), savedProduct1.getId());
+        LikeSummary ls1 = LikeSummary.create(savedProduct1.getId(), LikeTargetType.PRODUCT);
+        ls1.increase();
+        likeSummaryRepository.save(ls1);
         productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct1.getId()));
 
         Product product2 = ProductFixture.create().name("product2").price(2000L).brand(savedBrand).categoryId(category.getId()).build();
@@ -119,7 +123,9 @@ class RankingServiceTest {
 
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), 100L, PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
         paymentFacade.pay(criteria);
-        productLikeService.add(savedUser.getId(), savedProduct2.getId());
+        LikeSummary ls2 = LikeSummary.create(savedProduct2.getId(), LikeTargetType.PRODUCT);
+        ls2.increase();
+        likeSummaryRepository.save(ls2);
 
         Product product3 = ProductFixture.create().name("product3").price(3000L).brand(savedBrand).categoryId(category.getId()).build();
         Product savedProduct3 = productRepository.save(product3);
@@ -141,7 +147,9 @@ class RankingServiceTest {
 
         Product product5 = ProductFixture.create().name("product5").price(5000L).brand(savedBrand).categoryId(category.getId()).build();
         Product savedProduct5 = productRepository.save(product5);
-        productLikeService.add(savedUser.getId(), savedProduct5.getId());
+        LikeSummary ls5 = LikeSummary.create(savedProduct5.getId(), LikeTargetType.PRODUCT);
+        ls5.increase();
+        likeSummaryRepository.save(ls5);
 
         Thread.sleep(3000);
 
@@ -184,7 +192,9 @@ class RankingServiceTest {
         Product product1 = ProductFixture.create().name("product1").price(1000L).brand(savedBrand).categoryId(category.getId()).build();
         Product savedProduct1 = productRepository.save(product1);
 
-        productLikeService.add(savedUser.getId(), savedProduct1.getId());
+        LikeSummary rankLs1 = LikeSummary.create(savedProduct1.getId(), LikeTargetType.PRODUCT);
+        rankLs1.increase();
+        likeSummaryRepository.save(rankLs1);
         productFacade.getProductDetail(new ProductCriteria.GetDetail(savedProduct1.getId()));
 
         Product product2 = ProductFixture.create().name("product2").price(2000L).brand(savedBrand).categoryId(category.getId()).build();
@@ -198,7 +208,9 @@ class RankingServiceTest {
 
         PaymentCriteria.Pay criteria = new PaymentCriteria.Pay(savedUser.getUserId(), 100L, PaymentMethod.POINT, PayKind.POINT, CardType.HYUNDAI, "1234-1234-1234-1234", 1L);
         paymentFacade.pay(criteria);
-        productLikeService.add(savedUser.getId(), savedProduct2.getId());
+        LikeSummary rankLs2 = LikeSummary.create(savedProduct2.getId(), LikeTargetType.PRODUCT);
+        rankLs2.increase();
+        likeSummaryRepository.save(rankLs2);
 
         Product product3 = ProductFixture.create().name("product3").price(3000L).brand(savedBrand).categoryId(category.getId()).build();
         Product savedProduct3 = productRepository.save(product3);

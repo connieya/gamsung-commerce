@@ -9,7 +9,6 @@ import com.loopers.domain.user.User;
 import com.loopers.domain.user.fixture.UserFixture;
 import com.loopers.domain.brand.Brand;
 import com.loopers.domain.category.Category;
-import com.loopers.domain.likes.ProductLike;
 import com.loopers.infrastructure.user.UserEntity;
 import com.loopers.interfaces.api.ApiResponse;
 import com.loopers.utils.DatabaseCleanUp;
@@ -163,9 +162,15 @@ class ProductV1ApiE2ETest {
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product3));
 
 
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(1L, product1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(2L, product1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(1L, product2.getId())));
+            transactionTemplate.executeWithoutResult(status -> {
+                LikeSummary ls1 = LikeSummary.create(product1.getId(), LikeTargetType.PRODUCT);
+                ls1.increase();
+                ls1.increase();
+                testEntityManager.persist(ls1);
+                LikeSummary ls2 = LikeSummary.create(product2.getId(), LikeTargetType.PRODUCT);
+                ls2.increase();
+                testEntityManager.persist(ls2);
+            });
 
             // when
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)
@@ -223,9 +228,15 @@ class ProductV1ApiE2ETest {
             transactionTemplate.executeWithoutResult(status -> testEntityManager.persist(product3));
 
 
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity1.getId(), product1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity2.getId(), product1.getId())));
-            transactionTemplate.executeWithoutResult(staus -> testEntityManager.persist(ProductLike.create(userEntity1.getId(), product2.getId())));
+            transactionTemplate.executeWithoutResult(status -> {
+                LikeSummary ls1 = LikeSummary.create(product1.getId(), LikeTargetType.PRODUCT);
+                ls1.increase();
+                ls1.increase();
+                testEntityManager.persist(ls1);
+                LikeSummary ls2 = LikeSummary.create(product2.getId(), LikeTargetType.PRODUCT);
+                ls2.increase();
+                testEntityManager.persist(ls2);
+            });
 
             // when
             String url = UriComponentsBuilder.fromPath(BASE_ENDPOINT)

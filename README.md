@@ -69,7 +69,7 @@ docker-compose -f ./docker/monitoring-compose.yml up
 | 방향 | 호출 목적 |
 |------|----------|
 | order-api → commerce-api | 사용자 조회, 상품 목록 조회, 쿠폰 할인 계산, 결제 준비 |
-| commerce-api → order-api | 주문 조회(ID/번호), 주문 완료 처리 |
+| commerce-api → order-api | 주문 조회(ID/번호), 주문 완료 처리, 리뷰 구매 검증 |
 | like-api → commerce-api | 사용자 검증, 상품 정보 벌크 조회 |
 
 좋아요 데이터는 **CQRS** 패턴으로 관리합니다. like-api가 원본 데이터(Like, LikeSummary)를 소유하고, Kafka(`like-update-topic-v1`)를 통해 commerce-collector가 commerce-api DB의 LikeSummary 읽기 모델을 동기화합니다.
@@ -86,6 +86,7 @@ docker-compose -f ./docker/monitoring-compose.yml up
 - [결제 (Payment)](docs/domain-spec/payment.md) : 결제 승인 플로우, 멱등성 보장
 - [장바구니 (Cart)](docs/domain-spec/cart.md) : 장바구니 도메인 모델, API 스펙
 - [주문 취소 (Order Cancel)](docs/domain-spec/order-cancel.md) : 주문 취소 플로우 (무신사 레퍼런스)
+- [리뷰 (Review)](docs/domain-spec/review.md) : 리뷰 CRUD, 구매 검증, 평점 집계
 
 ## Multi-Module 구조
 
@@ -98,7 +99,7 @@ docker-compose -f ./docker/monitoring-compose.yml up
 ```
 Root
 ├── apps ( Spring Boot 애플리케이션 )
-│   ├── commerce-api      # 상품, 결제, 쿠폰, 랭킹 등 (포트 8080)
+│   ├── commerce-api      # 상품, 결제, 쿠폰, 랭킹, 리뷰 등 (포트 8080)
 │   ├── order-api         # 주문, 장바구니 (포트 8081)
 │   ├── like-api          # 좋아요 (포트 8083)
 │   ├── commerce-collector # 이벤트 수집·메트릭

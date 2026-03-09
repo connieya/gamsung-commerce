@@ -50,7 +50,14 @@ public enum ErrorType {
     PAYMENT_PG_REQUEST_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Payment PG Request Failed", "PG 결제 요청에 실패했습니다. 잠시 후 다시 시도해주세요."),
     PAYMENT_PG_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Timeout", "PG 결제 응답을 받지 못했습니다. 잠시 후 다시 시도해주세요."),
     PAYMENT_PG_CIRCUIT_OPEN(HttpStatus.SERVICE_UNAVAILABLE, "Payment PG Circuit Open", "현재 결제 시스템이 불안정합니다. 잠시 후 다시 시도해주세요."),
-    PAYMENT_INVALID_PAY_KIND(HttpStatus.BAD_REQUEST, "Payment Invalid PayKind", "간편결제는 세부 결제 수단(payKind)을 반드시 지정해야 합니다.");
+    PAYMENT_INVALID_PAY_KIND(HttpStatus.BAD_REQUEST, "Payment Invalid PayKind", "간편결제는 세부 결제 수단(payKind)을 반드시 지정해야 합니다."),
+
+    // 리뷰 관련 에러
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "Review Not Found", "존재하지 않는 리뷰입니다."),
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "Review Already Exists", "이미 해당 상품에 리뷰를 작성했습니다."),
+    REVIEW_NOT_OWNER(HttpStatus.FORBIDDEN, "Review Not Owner", "리뷰 작성자만 수정/삭제할 수 있습니다."),
+    REVIEW_ORDER_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "Review Order Not Completed", "구매 확정된 주문만 리뷰를 작성할 수 있습니다."),
+    REVIEW_INVALID_RATING(HttpStatus.BAD_REQUEST, "Review Invalid Rating", "평점은 1~5 사이여야 합니다.");
 
     private final HttpStatus status;
     private final String code;

@@ -24,3 +24,7 @@ datasource:
     replicas:
       - host: localhost
         port: 6380
+
+service:
+  order-api:
+    url: http://localhost:8081

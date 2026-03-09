@@ -19,7 +19,7 @@ public class Cart extends BaseEntity {
     @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<CartItem> items = new ArrayList<>();
 
     @Builder

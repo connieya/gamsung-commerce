@@ -15,8 +15,8 @@ public class LikeCoreRepository implements LikeRepository {
     private final LikeJpaRepository likeJpaRepository;
 
     @Override
-    public Like save(Long userId, Long targetId, LikeTargetType targetType) {
-        return likeJpaRepository.save(Like.create(userId, targetId, targetType));
+    public int saveIfAbsent(Long userId, Long targetId, LikeTargetType targetType) {
+        return likeJpaRepository.insertIfAbsent(userId, targetId, targetType.name());
     }
 
     @Override
@@ -25,8 +25,8 @@ public class LikeCoreRepository implements LikeRepository {
     }
 
     @Override
-    public void delete(Long userId, Long targetId, LikeTargetType targetType) {
-        likeJpaRepository.deleteByUserIdAndTargetIdAndTargetType(userId, targetId, targetType);
+    public int delete(Long userId, Long targetId, LikeTargetType targetType) {
+        return likeJpaRepository.deleteByUserAndTarget(userId, targetId, targetType);
     }
 
     @Override

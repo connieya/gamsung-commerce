@@ -26,8 +26,14 @@ public class LikeSummaryCoreRepository implements LikeSummaryRepository {
     }
 
     @Override
-    public Optional<LikeSummary> findByTargetForUpdate(LikeTarget likeTarget) {
-        return likeSummaryJpaRepository.findByTargetForUpdate(likeTarget);
+    public int increaseLikeCount(LikeTarget target) {
+        return likeSummaryJpaRepository.increaseLikeCount(
+                target.getId(), target.getType().name());
+    }
+
+    @Override
+    public int decreaseLikeCount(LikeTarget target) {
+        return likeSummaryJpaRepository.decreaseLikeCount(target);
     }
 
     @Override

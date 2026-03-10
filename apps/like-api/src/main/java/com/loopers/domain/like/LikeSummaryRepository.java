@@ -9,7 +9,9 @@ public interface LikeSummaryRepository {
 
     Optional<LikeSummary> findByTarget(LikeTarget likeTarget);
 
-    Optional<LikeSummary> findByTargetForUpdate(LikeTarget likeTarget);
+    int increaseLikeCount(LikeTarget target);
+
+    int decreaseLikeCount(LikeTarget target);
 
     List<LikeSummary> findByTargets(List<LikeTarget> targets);
 }

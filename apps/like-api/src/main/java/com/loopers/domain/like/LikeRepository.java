@@ -4,11 +4,11 @@ import java.util.List;
 
 public interface LikeRepository {
 
-    Like save(Long userId, Long targetId, LikeTargetType targetType);
+    int saveIfAbsent(Long userId, Long targetId, LikeTargetType targetType);
 
     boolean exists(Long userId, Long targetId, LikeTargetType targetType);
 
-    void delete(Long userId, Long targetId, LikeTargetType targetType);
+    int delete(Long userId, Long targetId, LikeTargetType targetType);
 
     List<Like> findByUserIdAndTargetType(Long userId, LikeTargetType targetType);
 

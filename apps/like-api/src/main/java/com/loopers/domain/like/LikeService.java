@@ -18,38 +18,28 @@ public class LikeService {
 
     @Transactional
     public LikeInfo add(Long userId, Long targetId, LikeTargetType targetType) {
-        if (likeRepository.exists(userId, targetId, targetType)) {
-            Long count = getCount(targetId, targetType);
-            return LikeInfo.of(targetType, targetId, count);
+        int inserted = likeRepository.saveIfAbsent(userId, targetId, targetType);
+
+        if (inserted > 0) {
+            LikeTarget target = LikeTarget.create(targetId, targetType);
+            likeSummaryRepository.increaseLikeCount(target);
+            applicationEventPublisher.publishEvent(LikeEvent.Add.of(targetId, targetType));
         }
 
-        likeRepository.save(userId, targetId, targetType);
-
-        LikeSummary summary = likeSummaryRepository
-                .findByTargetForUpdate(LikeTarget.create(targetId, targetType))
-                .orElseGet(() -> likeSummaryRepository.save(LikeSummary.create(targetId, targetType)));
-        summary.increase();
-
-        applicationEventPublisher.publishEvent(LikeEvent.Add.of(targetId, targetType));
-        return LikeInfo.of(targetType, targetId, summary.getLikeCount());
+        return LikeInfo.of(targetType, targetId, getCount(targetId, targetType));
     }
 
     @Transactional
     public LikeInfo remove(Long userId, Long targetId, LikeTargetType targetType) {
-        if (!likeRepository.exists(userId, targetId, targetType)) {
-            Long count = getCount(targetId, targetType);
-            return LikeInfo.of(targetType, targetId, count);
+        int deleted = likeRepository.delete(userId, targetId, targetType);
+
+        if (deleted > 0) {
+            LikeTarget target = LikeTarget.create(targetId, targetType);
+            likeSummaryRepository.decreaseLikeCount(target);
+            applicationEventPublisher.publishEvent(LikeEvent.Remove.of(targetId, targetType));
         }
 
-        likeRepository.delete(userId, targetId, targetType);
-
-        LikeSummary summary = likeSummaryRepository
-                .findByTargetForUpdate(LikeTarget.create(targetId, targetType))
-                .orElseGet(() -> likeSummaryRepository.save(LikeSummary.create(targetId, targetType)));
-        summary.decrease();
-
-        applicationEventPublisher.publishEvent(LikeEvent.Remove.of(targetId, targetType));
-        return LikeInfo.of(targetType, targetId, summary.getLikeCount());
+        return LikeInfo.of(targetType, targetId, getCount(targetId, targetType));
     }
 
     @Transactional(readOnly = true)

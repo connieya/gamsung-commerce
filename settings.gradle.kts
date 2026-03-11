@@ -4,6 +4,7 @@ include(
     ":apps:commerce-api",
     ":apps:order-api",
     ":apps:like-api",
+    ":apps:pbo-api",
     ":apps:commerce-collector",
     ":apps:commerce-batch",
     ":apps:pg-simulator",

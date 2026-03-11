@@ -30,6 +30,7 @@ docker-compose -f ./docker/monitoring-compose.yml up
   - commerce-api (포트 8080): `./gradlew :apps:commerce-api:bootRun`
   - order-api (포트 8081): `./gradlew :apps:order-api:bootRun`
   - like-api (포트 8083): `./gradlew :apps:like-api:bootRun`
+  - pbo-api (포트 8084): `./gradlew :apps:pbo-api:bootRun`
 - **API 테스트**: `http/` 디렉터리의 `.http` 파일과 `http-client.env.json`을 사용합니다.
 
 ### 시드 데이터 (local)
@@ -102,6 +103,7 @@ Root
 │   ├── commerce-api      # 상품, 결제, 쿠폰, 랭킹, 리뷰 등 (포트 8080)
 │   ├── order-api         # 주문, 장바구니 (포트 8081)
 │   ├── like-api          # 좋아요 (포트 8083)
+│   ├── pbo-api           # PBO 물류·재고·매장 운영 (포트 8084)
 │   ├── commerce-collector # 이벤트 수집·메트릭
 │   ├── commerce-batch    # 배치 작업
 │   └── pg-simulator      # PG 결제 시뮬레이터 (Kotlin, 포트 8082)

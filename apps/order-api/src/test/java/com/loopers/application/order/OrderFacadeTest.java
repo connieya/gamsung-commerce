@@ -2,6 +2,7 @@ package com.loopers.application.order;
 
 import com.loopers.domain.cart.CartItem;
 import com.loopers.domain.cart.CartService;
+import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderInfo;
@@ -39,6 +40,9 @@ class OrderFacadeTest {
 
     @Mock
     CommerceApiClient commerceApiClient;
+
+    @Mock
+    CouponService couponService;
 
     @Mock
     OrderService orderService;
@@ -115,8 +119,7 @@ class OrderFacadeTest {
             CommerceApiDto.ProductResponse product = new CommerceApiDto.ProductResponse(1L, "상품A", 10000L, "http://img.com/a.jpg");
             when(commerceApiClient.getProducts(any())).thenReturn(ApiResponse.success(List.of(product)));
 
-            CommerceApiDto.CouponDiscountResponse discountResponse = new CommerceApiDto.CouponDiscountResponse(1000L);
-            when(commerceApiClient.calculateDiscount(any())).thenReturn(ApiResponse.success(discountResponse));
+            when(couponService.calculateDiscountAmount(any(), any(), any())).thenReturn(1000L);
 
             Order order = createTestOrder(ORDER_NO, 1000L);
             when(orderService.getOrderByOrderNumber(ORDER_NO)).thenReturn(order);

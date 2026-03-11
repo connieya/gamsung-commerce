@@ -36,13 +36,6 @@ public enum ErrorType {
     ORDER_SIGNATURE_INVALID(HttpStatus.BAD_REQUEST, "Order Signature Invalid", "주문 서명이 유효하지 않습니다."),
     ORDER_NO_ALREADY_USED(HttpStatus.CONFLICT, "Order No Already Used", "이미 사용된 주문번호입니다."),
 
-    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "Coupon Not Found", "존재하지 않는 쿠폰입니다."),
-    USER_COUPON_NOT_FOUND(HttpStatus.NOT_FOUND , "UserCoupon Not Found", "존재하지 않는 사용자 쿠폰입니다."),
-    USER_COUPON_ALREADY_USED(HttpStatus.BAD_REQUEST, "UserCoupon Already Used", "이미 사용된 쿠폰입니다."),
-    COUPON_EXPIRED(HttpStatus.BAD_REQUEST, "Coupon Expired", "만료된 쿠폰입니다."),
-    COUPON_ALREADY_ISSUED(HttpStatus.CONFLICT, "Coupon Already Issued", "이미 발급받은 쿠폰입니다."),
-
-
     LIKE_SUMMARY_NOT_FOUND(HttpStatus.NOT_FOUND, "Like Summary Not Found", "좋아요 요약 정보를 찾을 수 없습니다."),
     LIKE_COUNT_CANNOT_BE_NEGATIVE(HttpStatus.BAD_REQUEST, "Like Count Cannot Be Negative", "좋아요 개수는 0 미만이 될 수 없습니다."),
 

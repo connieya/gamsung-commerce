@@ -22,6 +22,7 @@ public class PaymentEventListener {
     private final PaymentAttemptService paymentAttemptService;
     private final PaymentRepository paymentRepository;
     private final PaymentEventPublisher paymentEventPublisher;
+    private final PaymentCompletedEventPublisher paymentCompletedEventPublisher;
 
     @EventListener
     public void recordTransactionComplete(PaymentEvent.Complete event) {
@@ -47,6 +48,13 @@ public class PaymentEventListener {
         payment.paid();
         paymentAttemptService.markSuccess(AttemptCommand.Success.of(payment.getId(), event.orderNumber(), AttemptStatus.SUCCESS));
         paymentEventPublisher.publishEvent(event);
+    }
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void publishPaymentCompletedToKafka(PaymentEvent.Complete event) {
+        paymentCompletedEventPublisher.publish(new PaymentCompletedEvent(
+                event.orderNumber(), event.userId(), event.couponId(), event.status().name()
+        ));
     }
 
 }

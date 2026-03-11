@@ -1,8 +1,8 @@
 package com.loopers.application.coupon;
 
 import com.loopers.domain.coupon.*;
-import com.loopers.domain.user.User;
-import com.loopers.domain.user.UserService;
+import com.loopers.infrastructure.feign.commerce.CommerceApiClient;
+import com.loopers.infrastructure.feign.commerce.CommerceApiDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,15 +17,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CouponFacade {
 
-    private final UserService userService;
+    private final CommerceApiClient commerceApiClient;
     private final CouponService couponService;
     private final UserCouponService userCouponService;
 
     @Transactional
     public CouponResult.Issued issue(CouponCriteria.Issue criteria) {
-        User user = userService.findByUserId(criteria.userId());
+        CommerceApiDto.UserResponse user = commerceApiClient.getUser(criteria.userId()).data();
 
-        CouponCommand.Issue command = new CouponCommand.Issue(user.getId(), criteria.couponId());
+        CouponCommand.Issue command = new CouponCommand.Issue(user.id(), criteria.couponId());
         UserCoupon userCoupon = couponService.issue(command);
 
         Coupon coupon = couponService.getCoupon(criteria.couponId());
@@ -41,15 +41,15 @@ public class CouponFacade {
 
     @Transactional
     public CouponResult.Claimed claim(CouponCriteria.Claim criteria) {
-        User user = userService.findByUserId(criteria.userId());
+        CommerceApiDto.UserResponse user = commerceApiClient.getUser(criteria.userId()).data();
 
-        CouponCommand.Claim command = new CouponCommand.Claim(user.getId(), criteria.couponCode());
+        CouponCommand.Claim command = new CouponCommand.Claim(user.id(), criteria.couponCode());
         UserCoupon userCoupon = couponService.claim(command);
 
         Coupon coupon = couponService.getCoupon(userCoupon.getCouponId());
 
         return new CouponResult.Claimed(
-                user.getId(),
+                user.id(),
                 coupon.getId(),
                 userCoupon.getId()
         );
@@ -57,10 +57,10 @@ public class CouponFacade {
 
     @Transactional(readOnly = true)
     public CouponResult.AvailableCoupons getAvailableCoupons(String userId) {
-        User user = userService.findByUserId(userId);
+        CommerceApiDto.UserResponse user = commerceApiClient.getUser(userId).data();
 
         List<Coupon> validCoupons = couponService.getValidCoupons();
-        Set<Long> issuedCouponIds = userCouponService.getUserCoupons(user.getId()).stream()
+        Set<Long> issuedCouponIds = userCouponService.getUserCoupons(user.id()).stream()
                 .map(UserCoupon::getCouponId)
                 .collect(Collectors.toSet());
 
@@ -81,9 +81,9 @@ public class CouponFacade {
 
     @Transactional(readOnly = true)
     public CouponResult.MyCoupons getMyCoupons(String userId) {
-        User user = userService.findByUserId(userId);
+        CommerceApiDto.UserResponse user = commerceApiClient.getUser(userId).data();
 
-        List<UserCoupon> userCoupons = userCouponService.getUserCoupons(user.getId());
+        List<UserCoupon> userCoupons = userCouponService.getUserCoupons(user.id());
         if (userCoupons.isEmpty()) {
             return new CouponResult.MyCoupons(List.of());
         }

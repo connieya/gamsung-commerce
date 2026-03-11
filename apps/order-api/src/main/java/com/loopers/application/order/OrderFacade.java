@@ -2,6 +2,7 @@ package com.loopers.application.order;
 
 import com.loopers.domain.cart.CartItem;
 import com.loopers.domain.cart.CartService;
+import com.loopers.domain.coupon.CouponService;
 import com.loopers.domain.order.Order;
 import com.loopers.domain.order.OrderCommand;
 import com.loopers.domain.order.OrderInfo;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderFacade {
     private final CommerceApiClient commerceApiClient;
+    private final CouponService couponService;
     private final OrderService orderService;
     private final OrderNoIssuer orderNoIssuer;
     private final CartService cartService;
@@ -150,9 +152,7 @@ public class OrderFacade {
                 .mapToLong(item -> item.getPrice() * item.getQuantity())
                 .sum();
 
-        Long discountAmount = commerceApiClient.calculateDiscount(
-                new CommerceApiDto.CouponDiscountRequest(user.id(), couponId, totalAmount)
-        ).data().discountAmount();
+        Long discountAmount = couponService.calculateDiscountAmount(user.id(), couponId, totalAmount);
 
         OrderCommand command = OrderCommand.of(user.id(), orderCommandItems, discountAmount);
         orderService.place(command, orderNo);

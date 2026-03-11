@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopers.domain.payment.attempt.AttemptStatus;
 import com.loopers.domain.payment.attempt.PaymentAttempt;
 import com.loopers.domain.payment.attempt.PaymentAttemptRepository;
+import com.loopers.domain.payment.event.PaymentCompletedEvent;
+import com.loopers.domain.payment.event.PaymentCompletedEventPublisher;
 import com.loopers.domain.payment.event.PaymentEvent;
 import com.loopers.domain.payment.exception.PaymentException;
 import com.loopers.domain.payment.exception.PaymentFailure;
@@ -32,6 +34,7 @@ public class PaymentService {
     private final PaymentAttemptRepository paymentAttemptRepository;
     private final PaymentClient paymentClient;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final PaymentCompletedEventPublisher paymentCompletedEventPublisher;
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final ObjectMapper objectMapper;
 
@@ -107,6 +110,7 @@ public class PaymentService {
             saveIdempotencyKey(transaction.orderNumber(), orderKey, IdempotencyKey.OperationType.PAYMENT_SESSION, result);
 
             applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId(), transaction.userId()));
+            paymentCompletedEventPublisher.publish(new PaymentCompletedEvent(transaction.orderNumber(), transaction.userId(), transaction.couponId(), requestResult.status().name()));
 
             return result;
         } catch (CoreException e) {
@@ -121,6 +125,7 @@ public class PaymentService {
         try {
             PaymentRequestResult requestResult = paymentClient.request(transaction);
             applicationEventPublisher.publishEvent(PaymentEvent.Complete.of(requestResult.transactionKey(), transaction.orderNumber(), requestResult.status(), transaction.couponId(), transaction.userId()));
+            paymentCompletedEventPublisher.publish(new PaymentCompletedEvent(transaction.orderNumber(), transaction.userId(), transaction.couponId(), requestResult.status().name()));
         } catch (CoreException e) {
             AttemptStatus attemptStatus = (e instanceof PaymentFailure pf) ? pf.attemptStatus() : AttemptStatus.FAILED;
             applicationEventPublisher.publishEvent(PaymentEvent.Failure.of(transaction.orderNumber(), attemptStatus));

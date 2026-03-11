@@ -325,9 +325,6 @@ class OrderV1ApiE2ETest {
             CommerceApiDto.ProductResponse product = new CommerceApiDto.ProductResponse(10L, "상품A", 5000L, "http://img.com/a.jpg");
             when(commerceApiClient.getProducts(any())).thenReturn(ApiResponse.success(List.of(product)));
 
-            CommerceApiDto.CouponDiscountResponse discountResponse = new CommerceApiDto.CouponDiscountResponse(0L);
-            when(commerceApiClient.calculateDiscount(any())).thenReturn(ApiResponse.success(discountResponse));
-
             CommerceApiDto.PaymentReadyResponse readyResponse = new CommerceApiDto.PaymentReadyResponse(1L, "READY");
             when(commerceApiClient.paymentReady(any())).thenReturn(ApiResponse.success(readyResponse));
 

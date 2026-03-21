@@ -10,10 +10,6 @@ public class InternalDto {
 
     public record ProductResponse(Long id, String name, Long price, String imageUrl, String brandName) {}
 
-    public record CouponDiscountRequest(Long userId, Long couponId, Long totalAmount) {}
-
-    public record CouponDiscountResponse(Long discountAmount) {}
-
     public record PaymentReadyRequest(
             Long orderId,
             String orderNumber,

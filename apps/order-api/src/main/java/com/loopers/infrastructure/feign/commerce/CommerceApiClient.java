@@ -18,9 +18,6 @@ public interface CommerceApiClient {
     @PostMapping("/internal/v1/products/bulk")
     ApiResponse<List<CommerceApiDto.ProductResponse>> getProducts(@RequestBody CommerceApiDto.ProductBulkRequest request);
 
-    @PostMapping("/internal/v1/coupons/calculate-discount")
-    ApiResponse<CommerceApiDto.CouponDiscountResponse> calculateDiscount(@RequestBody CommerceApiDto.CouponDiscountRequest request);
-
     @PostMapping("/internal/v1/payments/ready")
     ApiResponse<CommerceApiDto.PaymentReadyResponse> paymentReady(@RequestBody CommerceApiDto.PaymentReadyRequest request);
 }

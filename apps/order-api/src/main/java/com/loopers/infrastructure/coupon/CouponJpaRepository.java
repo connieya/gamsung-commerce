@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface CouponJpaRepository  extends JpaRepository<Coupon, Long> {
+public interface CouponJpaRepository extends JpaRepository<Coupon, Long> {
 
     Optional<Coupon> findByCouponCode(String couponCode);
 

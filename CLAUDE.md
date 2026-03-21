@@ -24,37 +24,9 @@ apps/commerce-api/src/main/java/com/loopers/
 - **캐시 패턴**: Redis 캐시 우선 조회 후 DB fallback (`BrandCacheRepository` 참고)
 - **API 응답 래퍼**: `ApiResponse<T>` (meta + data 구조)
 - **API 스펙 인터페이스**: Swagger 문서화용 `XxxV1ApiSpec` 인터페이스를 Controller가 구현
-- **DTO 패턴**: 아래 "DTO 설계 규칙" 참고
+- **DTO 패턴**: `.claude/skills/dto-design` skill 참고 (XxxV1Dto, Request/Response 중첩)
 - **도메인 정보 객체**: `XxxInfo` record로 도메인 데이터 전달
 - **커맨드 객체**: `XxxCommand` 내부에 요청 데이터 정의
-
-## DTO 설계 규칙 (interfaces 레이어)
-
-### 파일 단위
-- API 도메인별 하나의 파일: `XxxV1Dto.java`
-- 해당 API의 모든 Request/Response를 inner class로 묶는다
-
-### 구조
-```java
-public class OrderV1Dto {
-    public static class Request {
-        public record Place(...) {}       // 2단 중첩: XxxV1Dto.Request.Place
-        public record Ready(...) {}
-    }
-    public static class Response {
-        public record Detail(...) {
-            public record LineItem(...) {} // 3단 중첩: 해당 Response 전용 하위 구조체
-        }
-    }
-}
-```
-
-### 규칙
-- **Request/Response 그룹핑**: 반드시 `Request`, `Response` static class로 분리
-- **record 사용**: DTO는 record로 정의 (불변, 간결)
-- **중첩 깊이**: 최대 3단까지 허용 (`XxxV1Dto > Request/Response > 구체 DTO > 하위 구조체`)
-- **from() 팩토리 메서드**: Response record에 `static from(Result/Info)` 메서드로 변환
-- **컨트롤러 변환 원칙**: Request → Criteria/Command 변환은 Controller에서 수행
 
 ## 레이어 의존성 규칙 (필수)
 각 레이어는 아래 방향으로만 의존할 수 있다. **역방향 import는 절대 금지.**
@@ -102,7 +74,7 @@ interfaces/api  →  application  →  domain  ←  infrastructure
 1. Issue 등록 (요구사항 + 인수 조건)
 2. feature 브랜치 생성
 3. 도메인 스펙 문서 작성 (해당 시)
-4. 구현 + 테스트
+4. 구현 + 테스트 (`dto-design`, `test-strategy` skill 자동 적용)
 5. PR 생성 → 리뷰
 6. Squash Merge → main
 ```

@@ -1,0 +1,26 @@
+spring:
+  profiles:
+    active: test
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+datasource:
+  mysql-jpa:
+    main:
+      jdbc-url: jdbc:mysql://localhost:3306/loopers
+      username: application
+      password: application
+
+  redis:
+    database: 0
+    master:
+      host: localhost
+      port: 6379
+    replicas:
+      - host: localhost
+        port: 6380
+
+service:
+  commerce-api:
+    url: http://localhost:8080

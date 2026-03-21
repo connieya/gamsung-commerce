@@ -100,10 +100,10 @@ docker-compose -f ./docker/monitoring-compose.yml up
 ```
 Root
 ├── apps ( Spring Boot 애플리케이션 )
-│   ├── commerce-api      # 상품, 결제, 쿠폰, 랭킹, 리뷰 등 (포트 8080)
+│   ├── commerce-api      # 고객용: 상품·SKU/옵션 조회, 결제, 쿠폰, 랭킹, 리뷰 (포트 8080)
 │   ├── order-api         # 주문, 장바구니 (포트 8081)
 │   ├── like-api          # 좋아요 (포트 8083)
-│   ├── pbo-api           # PBO 물류·재고·매장 운영 (포트 8084)
+│   ├── pbo-api           # 파트너용: SKU/옵션 등록, PBO 물류·재고·매장 운영 (포트 8084)
 │   ├── commerce-collector # 이벤트 수집·메트릭
 │   ├── commerce-batch    # 배치 작업
 │   └── pg-simulator      # PG 결제 시뮬레이터 (Kotlin, 포트 8082)

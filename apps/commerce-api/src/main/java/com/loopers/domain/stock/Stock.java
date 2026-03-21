@@ -18,8 +18,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Stock extends BaseEntity {
 
-    @Column(name = "ref_product_id" , nullable = false)
+    @Column(name = "ref_product_id", nullable = false)
     private Long productId;
+
+    @Column(name = "ref_sku_id", nullable = true)
+    private Long skuId;
+
     private Long quantity;
 
 

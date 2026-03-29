@@ -93,6 +93,13 @@ public class Order extends BaseEntity {
         this.orderStatus = OrderStatus.PAID;
     }
 
+    public void cancel() {
+        if (this.orderStatus == OrderStatus.CANCELED) {
+            throw new OrderException.OrderInvalidStatusException(ErrorType.ORDER_INVALID_STATUS);
+        }
+        this.orderStatus = OrderStatus.CANCELED;
+    }
+
     private static Long calculateTotalAmount(List<OrderCommand.OrderItem> orderItems) {
         return orderItems.stream()
                 .mapToLong(item -> item.getPrice() * item.getQuantity())

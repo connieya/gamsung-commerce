@@ -1,3 +1,4 @@
+// [LLD-ORDER-01] OrderFacade — docs/lld/stock-reservation.md > order-api 연동 6-3
 package com.loopers.application.order;
 
 import com.loopers.domain.cart.CartItem;
@@ -32,7 +33,21 @@ public class OrderFacade {
 
     @Transactional
     public CommerceApiDto.PaymentReadyResponse ready(String orderNo, String orderKey, OrderCriteria.Ready criteria) {
+        // [LLD-ORDER-01] 신규 주문 여부 판별 — docs/lld/stock-reservation.md > order-api 연동 6-3
+        boolean isNewOrder = orderService.findOrderByOrderNumber(orderNo).isEmpty();
         Order order = getOrCreateOrder(orderNo, criteria.userId(), criteria.orderItems(), criteria.couponId());
+
+        // [LLD-ORDER-01] 신규 주문인 경우에만 재고 선점 — docs/lld/stock-reservation.md > order-api 연동 6-3
+        if (isNewOrder) {
+            List<CommerceApiDto.StockReserveRequest.StockItem> stockItems =
+                    criteria.orderItems().stream()
+                            .map(item -> new CommerceApiDto.StockReserveRequest.StockItem(
+                                    item.productId(), item.quantity()))
+                            .toList();
+            commerceApiClient.reserveStock(
+                    new CommerceApiDto.StockReserveRequest(order.getId(), stockItems));
+        }
+
         order.validatePay();
 
         CommerceApiDto.PaymentReadyRequest readyRequest = new CommerceApiDto.PaymentReadyRequest(
@@ -108,6 +123,13 @@ public class OrderFacade {
                 .cartItems(cartItemInfos)
                 .totalAmount(totalAmount)
                 .build();
+    }
+
+    // [LLD-ORDER-01] cancel() — docs/lld/stock-reservation.md > order-api 연동 6-3
+    @Transactional
+    public void cancel(Long orderId) {
+        orderService.cancel(orderId);
+        commerceApiClient.cancelStock(new CommerceApiDto.StockCancelRequest(orderId));
     }
 
     private Order getOrCreateOrder(

@@ -28,6 +28,9 @@ public enum ErrorType {
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "Product Not Found", "존재하지 않는 상품입니다."),
 
     STOCK_INSUFFICIENT(HttpStatus.BAD_REQUEST, "Stock Insufficient", "재고가 부족합니다."),
+    // [LLD-ERR-01] 재고 에러 타입 추가 — docs/lld/stock-reservation.md > 에러 타입 추가
+    STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "Stock Not Found", "재고 정보를 찾을 수 없습니다."),
+    RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Reservation Not Found", "예약 정보를 찾을 수 없습니다."),
 
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order Not Found", "존재하지 않는 주문입니다."),
     ORDER_INVALID_STATUS(HttpStatus.BAD_REQUEST, "Order Invalid Status", "주문 상태가 결제를 진행할 수 없는 상태입니다."),

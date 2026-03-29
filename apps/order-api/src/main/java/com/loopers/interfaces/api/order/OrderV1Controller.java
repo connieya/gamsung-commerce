@@ -49,6 +49,12 @@ public class OrderV1Controller {
         return ApiResponse.success(OrderV1Dto.Response.Detail.from(orderDetail));
     }
 
+    @DeleteMapping("/{orderId}/cancel")
+    public ApiResponse<Void> cancel(@PathVariable("orderId") Long orderId) {
+        orderFacade.cancel(orderId);
+        return ApiResponse.success(null);
+    }
+
     @PostMapping("/{orderNo}/ready")
     public ApiResponse<OrderV1Dto.Response.Ready> ready(
             @PathVariable("orderNo") String orderNo,

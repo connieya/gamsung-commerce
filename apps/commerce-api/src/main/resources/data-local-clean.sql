@@ -130,6 +130,7 @@ EXECUTE migration;
 DEALLOCATE PREPARE migration;
 
 -- 7. stock
+-- [LLD-SCHEMA-01] stock 테이블 reserved_quantity 컬럼 추가 — docs/lld/stock-reservation.md > DB 스키마 1-1
 SET @table_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stock');
 SET @stmt = IF(@table_exists = 0,
@@ -139,11 +140,21 @@ SET @stmt = IF(@table_exists = 0,
       `updated_at` DATETIME(6) NOT NULL,
       `deleted_at` DATETIME(6) DEFAULT NULL,
       `ref_product_id` BIGINT NOT NULL,
+      `ref_sku_id` BIGINT DEFAULT NULL,
       `quantity` BIGINT DEFAULT NULL,
+      `reserved_quantity` BIGINT NOT NULL DEFAULT 0,
       PRIMARY KEY (`id`),
       KEY `idx_ref_product_id` (`ref_product_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
     'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
+-- 스키마 마이그레이션: stock 테이블에 reserved_quantity 컬럼 추가 (이미 존재하면 무시)
+SET @col_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stock' AND COLUMN_NAME = 'reserved_quantity');
+SET @stmt = IF(@col_exists = 0, 'ALTER TABLE stock ADD COLUMN reserved_quantity BIGINT NOT NULL DEFAULT 0', 'SELECT 1');
 PREPARE migration FROM @stmt;
 EXECUTE migration;
 DEALLOCATE PREPARE migration;
@@ -453,6 +464,28 @@ PREPARE migration FROM @stmt;
 EXECUTE migration;
 DEALLOCATE PREPARE migration;
 
+-- 20. stock_reservation
+-- [LLD-SCHEMA-02] stock_reservation 테이블 신규 생성 — docs/lld/stock-reservation.md > DB 스키마 1-2
+SET @table_exists = (SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'stock_reservation');
+SET @stmt = IF(@table_exists = 0,
+    'CREATE TABLE `stock_reservation` (
+      `id` BIGINT NOT NULL AUTO_INCREMENT,
+      `created_at` DATETIME(6) NOT NULL,
+      `updated_at` DATETIME(6) NOT NULL,
+      `ref_stock_id` BIGINT NOT NULL,
+      `ref_order_id` BIGINT NOT NULL,
+      `quantity` BIGINT NOT NULL,
+      `status` ENUM(''PENDING'',''CONFIRMED'',''CANCELLED'') NOT NULL DEFAULT ''PENDING'',
+      PRIMARY KEY (`id`),
+      KEY `idx_order_id` (`ref_order_id`),
+      KEY `idx_stock_id` (`ref_stock_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci',
+    'SELECT 1');
+PREPARE migration FROM @stmt;
+EXECUTE migration;
+DEALLOCATE PREPARE migration;
+
 SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE product_like;
@@ -463,6 +496,7 @@ TRUNCATE TABLE users;
 TRUNCATE TABLE brand;
 TRUNCATE TABLE view_product;
 TRUNCATE TABLE stock;
+TRUNCATE TABLE stock_reservation;
 TRUNCATE TABLE cart_item;
 TRUNCATE TABLE cart;
 TRUNCATE TABLE order_line;

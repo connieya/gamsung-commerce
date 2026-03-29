@@ -1,3 +1,4 @@
+// [LLD-REPO-02] StockRepository — docs/lld/stock-reservation.md > 도메인 레이어 2-6
 package com.loopers.domain.stock;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface StockRepository {
     List<Stock> saveAll(List<Stock> stocks);
 
     List<Stock> findStocksForUpdate(List<Long> productIds);
+
+    // [LLD-REPO-02] findStocksForUpdateByIds — docs/lld/stock-reservation.md > 도메인 레이어 2-6
+    List<Stock> findStocksForUpdateByIds(List<Long> ids);
 }

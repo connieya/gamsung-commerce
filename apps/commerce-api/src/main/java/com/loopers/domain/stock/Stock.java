@@ -1,3 +1,4 @@
+// [LLD-ENTITY-01] Stock — docs/lld/stock-reservation.md > 도메인 레이어 2-1
 package com.loopers.domain.stock;
 
 import com.loopers.domain.BaseEntity;
@@ -26,6 +27,10 @@ public class Stock extends BaseEntity {
 
     private Long quantity;
 
+    // [LLD-ENTITY-01] reservedQuantity 필드 — docs/lld/stock-reservation.md > 도메인 레이어 2-1
+    @Column(name = "reserved_quantity", nullable = false)
+    private Long reservedQuantity = 0L;
+
 
     @Builder
     private Stock(Long productId, Long quantity) {
@@ -38,6 +43,7 @@ public class Stock extends BaseEntity {
         }
         this.productId = productId;
         this.quantity = quantity;
+        this.reservedQuantity = 0L;
     }
 
 
@@ -46,7 +52,6 @@ public class Stock extends BaseEntity {
                 .productId(productId)
                 .quantity(quantity)
                 .build();
-
     }
 
 
@@ -55,5 +60,25 @@ public class Stock extends BaseEntity {
             throw new ProductException.InsufficientStockException(ErrorType.STOCK_INSUFFICIENT);
         }
         this.quantity -= quantity;
+    }
+
+    // [LLD-ENTITY-01] reserve() — docs/lld/stock-reservation.md > 도메인 레이어 2-1
+    public void reserve(Long quantity) {
+        long available = this.quantity - this.reservedQuantity;
+        if (available < quantity) {
+            throw new ProductException.InsufficientStockException(ErrorType.STOCK_INSUFFICIENT);
+        }
+        this.reservedQuantity += quantity;
+    }
+
+    // [LLD-ENTITY-01] releaseReservation() — docs/lld/stock-reservation.md > 도메인 레이어 2-1
+    public void releaseReservation(Long quantity) {
+        this.reservedQuantity -= quantity;
+    }
+
+    // [LLD-ENTITY-01] confirmReservation() — docs/lld/stock-reservation.md > 도메인 레이어 2-1
+    public void confirmReservation(Long quantity) {
+        this.quantity -= quantity;
+        this.reservedQuantity -= quantity;
     }
 }

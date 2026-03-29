@@ -74,4 +74,13 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
+    public void cancel(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderException.OrderNotFoundException(ErrorType.ORDER_NOT_FOUND));
+
+        order.cancel();
+        orderRepository.save(order);
+    }
+
 }

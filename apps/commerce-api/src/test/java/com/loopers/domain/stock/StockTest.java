@@ -1,3 +1,4 @@
+// [LLD-TEST-01] StockTest — docs/lld/stock-reservation.md > 테스트 전략 > 단위 테스트
 package com.loopers.domain.stock;
 
 import com.loopers.domain.product.exception.ProductException;
@@ -50,7 +51,63 @@ class StockTest {
         // when & then
         assertThatThrownBy(() -> stock.deduct(15L))
                 .isInstanceOf(ProductException.InsufficientStockException.class);
+    }
 
+    // [LLD-TEST-01] reserve_성공 — docs/lld/stock-reservation.md > 테스트 전략
+    @Test
+    @DisplayName("가용 재고 범위 내에서 선점하면 reservedQuantity가 증가한다.")
+    void reserve_Success() {
+        // given: quantity=10, reserved=0
+        Stock stock = Stock.create(1L, 10L);
 
+        // when: reserve(5)
+        stock.reserve(5L);
+
+        // then: reserved=5
+        assertThat(stock.getReservedQuantity()).isEqualTo(5L);
+    }
+
+    // [LLD-TEST-01] reserve_실패_재고부족 — docs/lld/stock-reservation.md > 테스트 전략
+    @Test
+    @DisplayName("가용 재고보다 많이 선점 요청 시 InsufficientStockException 예외가 발생한다.")
+    void reserve_Fail_InsufficientStock() {
+        // given: quantity=10, reserved=8 → available=2
+        Stock stock = Stock.create(1L, 10L);
+        stock.reserve(8L);
+
+        // when & then: reserve(5) → 실패
+        assertThatThrownBy(() -> stock.reserve(5L))
+                .isInstanceOf(ProductException.InsufficientStockException.class);
+    }
+
+    // [LLD-TEST-01] releaseReservation_성공 — docs/lld/stock-reservation.md > 테스트 전략
+    @Test
+    @DisplayName("선점 해제 시 reservedQuantity가 감소한다.")
+    void releaseReservation_Success() {
+        // given: reserved=5
+        Stock stock = Stock.create(1L, 10L);
+        stock.reserve(5L);
+
+        // when: release(5)
+        stock.releaseReservation(5L);
+
+        // then: reserved=0
+        assertThat(stock.getReservedQuantity()).isEqualTo(0L);
+    }
+
+    // [LLD-TEST-01] confirmReservation_성공 — docs/lld/stock-reservation.md > 테스트 전략
+    @Test
+    @DisplayName("예약 확정 시 quantity가 차감되고 reservedQuantity도 감소한다.")
+    void confirmReservation_Success() {
+        // given: quantity=10, reserved=3
+        Stock stock = Stock.create(1L, 10L);
+        stock.reserve(3L);
+
+        // when: confirm(3)
+        stock.confirmReservation(3L);
+
+        // then: quantity=7, reserved=0
+        assertThat(stock.getQuantity()).isEqualTo(7L);
+        assertThat(stock.getReservedQuantity()).isEqualTo(0L);
     }
 }

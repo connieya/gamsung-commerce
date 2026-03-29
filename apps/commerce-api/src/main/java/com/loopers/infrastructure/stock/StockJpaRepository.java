@@ -1,3 +1,4 @@
+// [LLD-INFRA-03] StockJpaRepository — docs/lld/stock-reservation.md > 인프라 레이어 3-3
 package com.loopers.infrastructure.stock;
 
 import com.loopers.domain.stock.Stock;
@@ -16,4 +17,9 @@ public interface StockJpaRepository extends JpaRepository<Stock, Long> {
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Stock s WHERE s.productId IN :productIds ")
     List<Stock> findByProductIdInForUpdate(@Param("productIds") List<Long> productIds);
+
+    // [LLD-INFRA-03] findStocksForUpdateByIds — docs/lld/stock-reservation.md > 인프라 레이어 3-3
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Stock s WHERE s.id IN :ids")
+    List<Stock> findByIdInForUpdate(@Param("ids") List<Long> ids);
 }

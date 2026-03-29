@@ -1,3 +1,4 @@
+// [LLD-INFRA-04] StockCoreRepository — docs/lld/stock-reservation.md > 인프라 레이어 3-3
 package com.loopers.infrastructure.stock;
 
 import com.loopers.domain.stock.Stock;
@@ -37,5 +38,11 @@ public class StockCoreRepository implements StockRepository {
     @Override
     public List<Stock> saveAll(List<Stock> stocks) {
         return stockJpaRepository.saveAll(stocks);
+    }
+
+    // [LLD-INFRA-04] findStocksForUpdateByIds — docs/lld/stock-reservation.md > 인프라 레이어 3-3
+    @Override
+    public List<Stock> findStocksForUpdateByIds(List<Long> ids) {
+        return stockJpaRepository.findByIdInForUpdate(ids);
     }
 }

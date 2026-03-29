@@ -1,3 +1,4 @@
+// [LLD-FEIGN-01] CommerceApiClient — docs/lld/stock-reservation.md > order-api 연동 6-1
 package com.loopers.infrastructure.feign.commerce;
 
 import com.loopers.interfaces.api.ApiResponse;
@@ -20,4 +21,14 @@ public interface CommerceApiClient {
 
     @PostMapping("/internal/v1/payments/ready")
     ApiResponse<CommerceApiDto.PaymentReadyResponse> paymentReady(@RequestBody CommerceApiDto.PaymentReadyRequest request);
+
+    // [LLD-FEIGN-01] reserveStock — docs/lld/stock-reservation.md > order-api 연동 6-1
+    @PostMapping("/internal/v1/stocks/reserve")
+    ApiResponse<CommerceApiDto.StockReserveResponse> reserveStock(
+            @RequestBody CommerceApiDto.StockReserveRequest request);
+
+    // [LLD-FEIGN-01] cancelStock — docs/lld/stock-reservation.md > order-api 연동 6-1
+    @PostMapping("/internal/v1/stocks/cancel")
+    ApiResponse<Void> cancelStock(
+            @RequestBody CommerceApiDto.StockCancelRequest request);
 }

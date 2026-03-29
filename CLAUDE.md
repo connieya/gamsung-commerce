@@ -73,11 +73,30 @@ interfaces/api  →  application  →  domain  ←  infrastructure
 ```
 1. Issue 등록 (요구사항 + 인수 조건)
 2. feature 브랜치 생성
-3. 도메인 스펙 문서 작성 (해당 시)
-4. 구현 + 테스트 (`dto-design`, `test-strategy` skill 자동 적용)
-5. PR 생성 → 리뷰
-6. Squash Merge → main
+3. 설계 문서 작성 — `doc-writing-team:doc-orchestrator` sub-agent 실행 (PRD/HLD/LLD → docs/ 저장)
+4. 구현 + 테스트 — `feature-impl` sub-agent 실행 (LLD 기반 코드 생성 → 검증)
+5. 빌드 / 테스트 실행 (사용자 직접 수행)
+6. PR 생성 → 리뷰
+7. Squash Merge → main
 ```
+
+### doc-writing-team 에이전트 (플러그인)
+- 기능 구현 전 **PRD → HLD → LLD** 순서로 설계 문서를 자동 작성한다
+- orchestrator → writer(prd/hld/lld) → reviewer 구조로 최대 5회 품질 루프 수행
+- 저장 위치: `docs/prd/`, `docs/hld/`, `docs/lld/` (파일명은 케밥 케이스 영문)
+- 호출 방법: "doc-writer 실행해줘 — {기능 설명}" 또는 새 기능 구현 요청 시 자동 선행 실행
+- 플러그인: `doc-writing-team@connieya-plugins` (user scope 설치)
+
+### feature-impl 에이전트
+- LLD 문서를 계약서로 삼아 **코드 생성 → 테스트 작성 → 검증**을 순차 수행한다
+- 핵심 원칙:
+  - 각 단계 완료 후 자기 평가(Gate) 수행 — 통과 전 다음 단계 진행 금지
+  - 모든 산출물에 `// [LLD-{CATEGORY}-{NN}]` 주석으로 역추적 가능
+  - LLD에 없는 내용은 추론·창작 금지
+  - 검증 = Code ↔ LLD 양방향 Feedback Loop
+- 빌드/테스트 실행은 하지 않음 (사용자 직접 수행)
+- 호출 방법: "feature-impl 실행해줘 — {feature-name}"
+- 에이전트 정의: `.claude/agents/feature-impl.md`
 
 ## Git 커밋 메시지 규칙
 

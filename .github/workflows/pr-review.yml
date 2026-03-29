@@ -1,0 +1,23 @@
+name: PR 코드 리뷰
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+jobs:
+  claude-review:
+    uses: connieya/my-claude-workflows/.github/workflows/claude-pr-review.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      custom_prompt_addition: |
+        이 프로젝트는 Spring Boot + Gradle 멀티모듈 구조의 SCM(재고관리) 백엔드입니다.
+
+        ## 추가 체크 사항
+        - Facade에서 Repository 직접 호출 금지 — 반드시 Facade → Service → Repository 흐름 준수
+        - Controller에서 Request DTO → Criteria/Command 변환 수행 (Facade/Service에서 DTO import 금지)
+        - 도메인 간 데이터 전달은 XxxInfo record 사용 (Entity를 interfaces 레이어로 직접 노출 금지)
+        - XxxV1Dto 는 Request/Response 중첩 구조 + record 사용
+        - ApiResponse<T> 래퍼로 응답 통일 (meta + data 구조)
+    secrets:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
